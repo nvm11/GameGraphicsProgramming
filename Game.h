@@ -19,10 +19,18 @@ public:
 	void OnResize();
 
 private:
+	//UI related fields
+	bool showDemoUI = false; //only draw demo text if needed
+	//Local array for storing value between frames
+	float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f }; //Cornflower blue
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void LoadShaders();
 	void CreateGeometry();
+
+	//UI helper functions
+	void UpdateUI(float deltaTime);
+	void DrawUI();
 
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the

@@ -11,6 +11,12 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #include <d3dcompiler.h>
 
+// This code assumes files are in "ImGui" subfolder!
+// Adjust as necessary for your own folder structure and project setup
+#include "ImGui/imgui.h"
+#include "ImGui/imgui_impl_dx11.h"
+#include "ImGui/imgui_impl_win32.h"
+
 // For the DirectX Math library
 using namespace DirectX;
 
@@ -46,6 +52,14 @@ void Game::Initialize()
 		//    these calls will need to happen multiple times per frame
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
+
+		// Initialize ImGui itself & platform/renderer backends
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGui_ImplWin32_Init(Window::Handle());
+		ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
+		// Pick a style
+		ImGui::StyleColorsDark();
 	}
 }
 
@@ -58,7 +72,10 @@ void Game::Initialize()
 // --------------------------------------------------------
 Game::~Game()
 {
-
+	// ImGui clean up
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }
 
 
@@ -234,12 +251,36 @@ void Game::OnResize()
 {
 }
 
+void Game::UpdateUI(float deltaTime)
+{
+	// Feed fresh data to ImGui
+	ImGuiIO& io = ImGui::GetIO();
+	io.DeltaTime = deltaTime;
+	io.DisplaySize.x = (float)Window::Width();
+	io.DisplaySize.y = (float)Window::Height();
+	// Reset the frame
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+	// Determine new input capture
+	Input::SetKeyboardCapture(io.WantCaptureKeyboard);
+	Input::SetMouseCapture(io.WantCaptureMouse);
+	// Show the demo window?
+	if (showDemoUI)
+	{
+		ImGui::ShowDemoWindow();
+	}
+}
+
 
 // --------------------------------------------------------
 // Update your game here - user input, move objects, AI, etc.
 // --------------------------------------------------------
 void Game::Update(float deltaTime, float totalTime)
 {
+	// Must be done at very beginning so UI is up to date
+	UpdateUI(deltaTime);
+
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
@@ -256,8 +297,7 @@ void Game::Draw(float deltaTime, float totalTime)
 	// - At the beginning of Game::Draw() before drawing *anything*
 	{
 		// Clear the back buffer (erase what's on screen) and depth buffer
-		const float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f };
-		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(),	color);
+		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
@@ -293,6 +333,10 @@ void Game::Draw(float deltaTime, float totalTime)
 	{
 		// Present at the end of the frame
 		bool vsync = Graphics::VsyncState();
+
+		// UI is drawn last so it is on top
+		DrawUI();
+
 		Graphics::SwapChain->Present(
 			vsync ? 1 : 0,
 			vsync ? 0 : DXGI_PRESENT_ALLOW_TEARING);
@@ -303,6 +347,44 @@ void Game::Draw(float deltaTime, float totalTime)
 			Graphics::BackBufferRTV.GetAddressOf(),
 			Graphics::DepthBufferDSV.Get());
 	}
+}
+
+void Game::DrawUI()
+{
+	//Begin the window, everything until End() is included
+	ImGui::Begin("Controls");
+
+	//Give instructions
+	ImGui::Text("Expand Dropdowns for Controls");
+
+	//Container for framerate, window size, etc
+	if (ImGui::CollapsingHeader("App Info"))
+	{
+		ImGui::SeparatorText("Window");
+		// Replace the %f with the next parameter, and format as a float
+		ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
+		// Replace each %d with the next parameter, and format as decimal integers
+		// The "x" will be printed as-is between the numbers, like so: 800x600
+		ImGui::Text("Window Resolution: %dx%d", Window::Width(), Window::Height());
+	}
+
+	//Continer for controls
+	if (ImGui::CollapsingHeader("Controls"))
+	{
+		ImGui::SeparatorText("Defaults");
+		//Toggle Demo Visibility
+		ImGui::Checkbox("Show Demo UI", &showDemoUI);
+
+		ImGui::SeparatorText("Color");
+		//Color Selector
+		ImGui::ColorEdit4("Background Color", color);
+	}
+
+	ImGui::End();
+
+	//These lines go AFTER ui elements are created
+	ImGui::Render(); // Turns this frame’s UI into renderable triangles
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // Draws it to the screen
 }
 
 

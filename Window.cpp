@@ -263,6 +263,10 @@ void Window::CreateConsoleWindow(int bufferLines, int bufferColumns, int windowL
 // --------------------------------------------------------
 LRESULT Window::ProcessMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	// Call ImGui’s message handler and exit early if necessary
+	if (ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam))
+		return true;
+
 	// Check the incoming message and handle any we care about
 	switch (uMsg)
 	{

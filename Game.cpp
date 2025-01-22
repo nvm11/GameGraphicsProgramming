@@ -26,6 +26,9 @@ using namespace DirectX;
 // --------------------------------------------------------
 void Game::Initialize()
 {
+	//Assign starting values for colors and vertices
+	ResetVertices();
+
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
@@ -155,11 +158,7 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	// Create some temporary variables to represent colors
-	// - Not necessary, just makes things more readable
-	XMFLOAT4 red = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	XMFLOAT4 green = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	XMFLOAT4 blue = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+
 
 	// Set up the vertices of the triangle we would like to draw
 	// - We're going to copy this array, exactly as it exists in CPU memory
@@ -175,9 +174,9 @@ void Game::CreateGeometry()
 	//    since we're describing the triangle in terms of the window itself
 	Vertex vertices[] =
 	{
-		{ XMFLOAT3(+0.0f, +0.5f, +0.0f), red },
-		{ XMFLOAT3(+0.5f, -0.5f, +0.0f), blue },
-		{ XMFLOAT3(-0.5f, -0.5f, +0.0f), green },
+		{ XMFLOAT3(topPosition.x, topPosition.y, +0.0f), top },
+		{ XMFLOAT3(rightPosition.x, rightPosition.y, +0.0f), right},
+		{ XMFLOAT3(leftPosition.x, leftPosition.y, +0.0f), left},
 	};
 
 	// Set up indices, which tell us which vertices to use and in which order
@@ -375,9 +374,49 @@ void Game::DrawUI()
 		//Toggle Demo Visibility
 		ImGui::Checkbox("Show Demo UI", &showDemoUI);
 
-		ImGui::SeparatorText("Color");
+		ImGui::SeparatorText("Background Color");
 		//Color Selector
 		ImGui::ColorEdit4("Background Color", color);
+
+		//CreateGeometry() is called to update 
+		//the buffer with new colors and positions
+
+
+		//Sub-Header
+		ImGui::SeparatorText("Triangle Colors");
+		ImGui::Text("--Top Vertex--");
+		if (ImGui::SliderFloat("R - Top", &top.x, 0.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("G - Top", &top.y, 0.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("B - Top", &top.z, 0.0f, 1.0f)) CreateGeometry();
+		ImGui::Text("--Left Vertex--");
+		if (ImGui::SliderFloat("R - Left", &left.x, 0.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("G - Left", &left.y, 0.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("B - Left", &left.z, 0.0f, 1.0f)) CreateGeometry();
+		ImGui::Text("--Right Vertex--");
+		if (ImGui::SliderFloat("R - Right", &right.x, 0.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("G - Right", &right.y, 0.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("B - Right", &right.z, 0.0f, 1.0f)) CreateGeometry();
+
+		//Positions
+		ImGui::SeparatorText("Position");
+		ImGui::Text("--Top Vertex--");
+		if (ImGui::SliderFloat("Top X", &topPosition.x, -1.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("Top Y", &topPosition.y, -1.0f, 1.0f)) CreateGeometry();
+		ImGui::Text("--Left Vertex--");
+		if (ImGui::SliderFloat("Left X", &leftPosition.x, -1.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("Left Y", &leftPosition.y, -1.0f, 1.0f)) CreateGeometry();
+		ImGui::Text("--Right Vertex--");
+		if (ImGui::SliderFloat("Right X", &rightPosition.x, -1.0f, 1.0f)) CreateGeometry();
+		if (ImGui::SliderFloat("Right Y", &rightPosition.y, -1.0f, 1.0f)) CreateGeometry();
+
+		//Reset Position and Color
+		ImGui::SeparatorText("Reset");
+		if (ImGui::Button("Reset")) {
+			//Reset positions and colors
+			ResetVertices();
+			//send to gpu
+			CreateGeometry();
+		}
 	}
 
 	ImGui::End();
@@ -387,5 +426,14 @@ void Game::DrawUI()
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // Draws it to the screen
 }
 
-
+void Game::ResetVertices() {
+	//default colors
+	top = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	left = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	right = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	//default positions
+	topPosition = XMFLOAT3(0.0f, 0.5f, 0.0f);
+	leftPosition = XMFLOAT3(-0.5f, -0.5f, 0.0f);
+	rightPosition = XMFLOAT3(0.5f, -0.5f, 0.0f);
+}
 

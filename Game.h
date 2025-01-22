@@ -2,6 +2,8 @@
 
 #include <d3d11.h>
 #include <wrl/client.h>
+#include <DirectXMath.h>
+using namespace DirectX;
 
 class Game
 {
@@ -24,6 +26,18 @@ private:
 	//Local array for storing value between frames
 	float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f }; //Cornflower blue
 
+	//Vertices Default Colors
+	XMFLOAT4 top;
+	XMFLOAT4 left;
+	XMFLOAT4 right;
+
+	//Vertices Default Positions
+	// Vertex positions for triangle
+	XMFLOAT3 topPosition;
+	XMFLOAT3 leftPosition;
+	XMFLOAT3 rightPosition;
+
+
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void LoadShaders();
 	void CreateGeometry();
@@ -31,6 +45,9 @@ private:
 	//UI helper functions
 	void UpdateUI(float deltaTime);
 	void DrawUI();
+
+	//Reset color and position values
+	void ResetVertices();
 
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the

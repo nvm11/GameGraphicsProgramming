@@ -1,6 +1,7 @@
 #pragma once
 #include <wrl/client.h>
 #include <d3d11.h>
+#include "Vertex.h"
 class Mesh
 {
 private:
@@ -17,14 +18,14 @@ private:
 public:
 	//Constructor--
 	//Creates buffers and 
-	Mesh(int indices, int vertices);
+	Mesh(Vertex* vertexData, unsigned int* indexData, unsigned int vertexCount, unsigned int indexCount);
 
 	//Destructor--
 	//most likely empty, still necessary so ComPtrs clean up
 	~Mesh();
 
 	//Methods--
-	
+
 	//Getters-
 	//Returns the vertex buffer ComPtr
 	Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer() const;

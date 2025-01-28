@@ -3,6 +3,11 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <DirectXMath.h>
+
+#include <memory>
+
+#include "Mesh.h"
+
 using namespace DirectX;
 
 class Game
@@ -26,16 +31,21 @@ private:
 	//Local array for storing value between frames
 	float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f }; //Cornflower blue
 
-	//Vertices Default Colors
-	XMFLOAT4 top;
-	XMFLOAT4 left;
-	XMFLOAT4 right;
+	////Vertices Default Colors
+	//XMFLOAT4 top;
+	//XMFLOAT4 left;
+	//XMFLOAT4 right;
 
-	//Vertices Default Positions
-	// Vertex positions for triangle
-	XMFLOAT3 topPosition;
-	XMFLOAT3 leftPosition;
-	XMFLOAT3 rightPosition;
+	////Vertices Default Positions
+	//// Vertex positions for triangle
+	//XMFLOAT3 topPosition;
+	//XMFLOAT3 leftPosition;
+	//XMFLOAT3 rightPosition;
+
+	//Instances of Mesh class
+	std::shared_ptr<Mesh> starterMesh;
+	std::shared_ptr<Mesh> secondMesh;
+	std::shared_ptr<Mesh> thirdMesh;
 
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
@@ -53,10 +63,6 @@ private:
 	//  - This is a smart pointer for objects that abide by the
 	//     Component Object Model, which DirectX objects do
 	//  - More info here: https://github.com/Microsoft/DirectXTK/wiki/ComPtr
-
-	// Buffers to hold actual geometry data
-	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 
 	// Shaders and shader-related constructs
 	Microsoft::WRL::ComPtr<ID3D11PixelShader> pixelShader;

@@ -174,9 +174,9 @@ void Game::CreateGeometry()
 	//    since we're describing the triangle in terms of the window itself
 	Vertex vertices[] =
 	{
-		{ XMFLOAT3(topPosition.x, topPosition.y, +0.0f), top },
-		{ XMFLOAT3(rightPosition.x, rightPosition.y, +0.0f), right},
-		{ XMFLOAT3(leftPosition.x, leftPosition.y, +0.0f), left},
+		{ XMFLOAT3(0.0f, 0.5f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) }, //Top vertex (red)
+		{ XMFLOAT3(0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }, //Right vertex (green)
+		{ XMFLOAT3(-0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }  //Left vertex (blue)
 	};
 
 	// Set up indices, which tell us which vertices to use and in which order
@@ -185,6 +185,39 @@ void Game::CreateGeometry()
 	//    in the correct order and each one will be used exactly once
 	// - But just to see how it's done...
 	unsigned int indices[] = { 0, 1, 2 };
+
+	//Make a mesh using this data
+	starterMesh = std::make_shared<Mesh>(vertices, indices, sizeof(vertices) / sizeof(Vertex), sizeof(indices) / sizeof(unsigned int));
+
+	//Repeat the process two more times
+	Vertex secondVertices[] =
+	{
+		{ XMFLOAT3(-0.9f, -0.1f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) }, // Top-left (red)
+		{ XMFLOAT3(-0.7f, -0.1f, 0.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }, // Top-right (cyan)
+		{ XMFLOAT3(-0.7f, -0.9f, 0.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) }, // Bottom-right (magenta)
+		{ XMFLOAT3(-0.9f, -0.9f, 0.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) }  // Bottom-left (yellow)
+	};
+
+	unsigned int secondIndices[] = {
+		0, 1, 2,
+		2, 3, 0 
+	};
+
+	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, sizeof(secondVertices) / sizeof(Vertex), sizeof(secondIndices) / sizeof(unsigned int));
+
+	Vertex thirdVertices[] = {
+		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Bottom left
+		{ XMFLOAT3(0.25f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },  //Top left
+		{ XMFLOAT3(0.5f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Middle bottom
+		{ XMFLOAT3(0.75f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },  //Top right
+		{ XMFLOAT3(1.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }   //Bottom right
+	};
+
+	unsigned int thirdIndices[] = { 0,1,2,
+									2,1,3,
+									3,4,2 };
+
+	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, sizeof(thirdVertices) / sizeof(Vertex), sizeof(thirdIndices) / sizeof(unsigned int));
 }
 
 
@@ -246,38 +279,19 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	// DRAW geometry
-	// - These steps are generally repeated for EACH object you draw
-	// - Other Direct3D calls will also be necessary to do more complex things
-	{
-		// Set buffers in the input assembler (IA) stage
-		//  - Do this ONCE PER OBJECT, since each object may have different geometry
-		//  - For this demo, this step *could* simply be done once during Init()
-		//  - However, this needs to be done between EACH DrawIndexed() call
-		//     when drawing different geometry, so it's here as an example
-		UINT stride = sizeof(Vertex);
-		UINT offset = 0;
-		Graphics::Context->IASetVertexBuffers(0, 1, vertexBuffer.GetAddressOf(), &stride, &offset);
-		Graphics::Context->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-
-		// Tell Direct3D to draw
-		//  - Begins the rendering pipeline on the GPU
-		//  - Do this ONCE PER OBJECT you intend to draw
-		//  - This will use all currently set Direct3D resources (shaders, buffers, etc)
-		//  - DrawIndexed() uses the currently set INDEX BUFFER to look up corresponding
-		//     vertices in the currently set VERTEX BUFFER
-		Graphics::Context->DrawIndexed(
-			3,     // The number of indices to use (we could draw a subset if we wanted)
-			0,     // Offset to the first index we want to use
-			0);    // Offset to add to each index when looking up vertices
-	}
-
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)
 	{
 		// Present at the end of the frame
 		bool vsync = Graphics::VsyncState();
+
+		//Draw the starter mesh
+		starterMesh->Draw();
+		//Draw second mesh
+		secondMesh->Draw();
+		//draw third mesh
+		thirdMesh->Draw();
 
 		// UI is drawn last so it is on top
 		DrawUI();
@@ -329,31 +343,31 @@ void Game::DrawUI()
 
 
 		//Sub-Header
-		ImGui::SeparatorText("Triangle Colors");
-		ImGui::Text("--Top Vertex--");
-		if (ImGui::SliderFloat("R - Top", &top.x, 0.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("G - Top", &top.y, 0.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("B - Top", &top.z, 0.0f, 1.0f)) CreateGeometry();
-		ImGui::Text("--Left Vertex--");
-		if (ImGui::SliderFloat("R - Left", &left.x, 0.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("G - Left", &left.y, 0.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("B - Left", &left.z, 0.0f, 1.0f)) CreateGeometry();
-		ImGui::Text("--Right Vertex--");
-		if (ImGui::SliderFloat("R - Right", &right.x, 0.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("G - Right", &right.y, 0.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("B - Right", &right.z, 0.0f, 1.0f)) CreateGeometry();
+		//ImGui::SeparatorText("Triangle Colors");
+		//ImGui::Text("--Top Vertex--");
+		//if (ImGui::SliderFloat("R - Top", &top.x, 0.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("G - Top", &top.y, 0.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("B - Top", &top.z, 0.0f, 1.0f)) CreateGeometry();
+		//ImGui::Text("--Left Vertex--");
+		//if (ImGui::SliderFloat("R - Left", &left.x, 0.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("G - Left", &left.y, 0.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("B - Left", &left.z, 0.0f, 1.0f)) CreateGeometry();
+		//ImGui::Text("--Right Vertex--");
+		//if (ImGui::SliderFloat("R - Right", &right.x, 0.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("G - Right", &right.y, 0.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("B - Right", &right.z, 0.0f, 1.0f)) CreateGeometry();
 
-		//Positions
-		ImGui::SeparatorText("Position");
-		ImGui::Text("--Top Vertex--");
-		if (ImGui::SliderFloat("Top X", &topPosition.x, -1.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("Top Y", &topPosition.y, -1.0f, 1.0f)) CreateGeometry();
-		ImGui::Text("--Left Vertex--");
-		if (ImGui::SliderFloat("Left X", &leftPosition.x, -1.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("Left Y", &leftPosition.y, -1.0f, 1.0f)) CreateGeometry();
-		ImGui::Text("--Right Vertex--");
-		if (ImGui::SliderFloat("Right X", &rightPosition.x, -1.0f, 1.0f)) CreateGeometry();
-		if (ImGui::SliderFloat("Right Y", &rightPosition.y, -1.0f, 1.0f)) CreateGeometry();
+		////Positions
+		//ImGui::SeparatorText("Position");
+		//ImGui::Text("--Top Vertex--");
+		//if (ImGui::SliderFloat("Top X", &topPosition.x, -1.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("Top Y", &topPosition.y, -1.0f, 1.0f)) CreateGeometry();
+		//ImGui::Text("--Left Vertex--");
+		//if (ImGui::SliderFloat("Left X", &leftPosition.x, -1.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("Left Y", &leftPosition.y, -1.0f, 1.0f)) CreateGeometry();
+		//ImGui::Text("--Right Vertex--");
+		//if (ImGui::SliderFloat("Right X", &rightPosition.x, -1.0f, 1.0f)) CreateGeometry();
+		//if (ImGui::SliderFloat("Right Y", &rightPosition.y, -1.0f, 1.0f)) CreateGeometry();
 
 		//Reset Position and Color
 		ImGui::SeparatorText("Reset");
@@ -373,13 +387,13 @@ void Game::DrawUI()
 }
 
 void Game::ResetVertices() {
-	//default colors
-	top = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	left = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	right = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-	//default positions
-	topPosition = XMFLOAT3(0.0f, 0.5f, 0.0f);
-	leftPosition = XMFLOAT3(-0.5f, -0.5f, 0.0f);
-	rightPosition = XMFLOAT3(0.5f, -0.5f, 0.0f);
+	////default colors
+	//top = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
+	//left = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
+	//right = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
+	////default positions
+	//topPosition = XMFLOAT3(0.0f, 0.5f, 0.0f);
+	//leftPosition = XMFLOAT3(-0.5f, -0.5f, 0.0f);
+	//rightPosition = XMFLOAT3(0.5f, -0.5f, 0.0f);
 }
 

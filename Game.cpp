@@ -187,7 +187,7 @@ void Game::CreateGeometry()
 	unsigned int indices[] = { 0, 1, 2 };
 
 	//Make a mesh using this data
-	starterMesh = std::make_shared<Mesh>(vertices, indices, sizeof(vertices) / sizeof(Vertex), sizeof(indices) / sizeof(unsigned int));
+	starterMesh = std::make_shared<Mesh>(vertices, indices, (int)(sizeof(vertices) / sizeof(Vertex)), (int)(sizeof(indices) / sizeof(unsigned int)));
 
 	//Repeat the process two more times
 	Vertex secondVertices[] =
@@ -200,10 +200,10 @@ void Game::CreateGeometry()
 
 	unsigned int secondIndices[] = {
 		0, 1, 2,
-		2, 3, 0 
+		2, 3, 0
 	};
 
-	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, sizeof(secondVertices) / sizeof(Vertex), sizeof(secondIndices) / sizeof(unsigned int));
+	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, (int)(sizeof(secondVertices) / sizeof(Vertex)), (int)(sizeof(secondIndices) / sizeof(unsigned int)));
 
 	Vertex thirdVertices[] = {
 		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Bottom left
@@ -217,7 +217,7 @@ void Game::CreateGeometry()
 									2,1,3,
 									3,4,2 };
 
-	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, sizeof(thirdVertices) / sizeof(Vertex), sizeof(thirdIndices) / sizeof(unsigned int));
+	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, (int)(sizeof(thirdVertices) / sizeof(Vertex)), (int)(sizeof(thirdIndices) / sizeof(unsigned int)));
 }
 
 
@@ -317,14 +317,55 @@ void Game::DrawUI()
 	ImGui::Text("Expand Dropdowns for Controls");
 
 	//Container for framerate, window size, etc
-	if (ImGui::CollapsingHeader("App Info"))
+	if (ImGui::CollapsingHeader("App Inspector"))
 	{
-		ImGui::SeparatorText("Window");
-		// Replace the %f with the next parameter, and format as a float
-		ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
-		// Replace each %d with the next parameter, and format as decimal integers
-		// The "x" will be printed as-is between the numbers, like so: 800x600
-		ImGui::Text("Window Resolution: %dx%d", Window::Width(), Window::Height());
+		ImGui::Indent();
+
+		if (ImGui::CollapsingHeader("App Data")) {
+			ImGui::Indent();
+			ImGui::SeparatorText("Window");
+			// Replace the %f with the next parameter, and format as a float
+			ImGui::Text("Framerate: %f fps", ImGui::GetIO().Framerate);
+			// Replace each %d with the next parameter, and format as decimal integers
+			// The "x" will be printed as-is between the numbers, like so: 800x600
+			ImGui::Text("Window Resolution: %dx%d", Window::Width(), Window::Height());
+			ImGui::Unindent();
+		}
+
+		if (ImGui::CollapsingHeader("Mesh Data")) {
+			ImGui::Indent();
+
+			//Starter mesh
+			int vertexCount = starterMesh->GetVertexCount();
+			int indexCount = starterMesh->GetIndexCount();
+			int triangleCount = indexCount / 3;
+			ImGui::SeparatorText("Starter Mesh");
+			ImGui::Text("Number of Vertices: %d", vertexCount);
+			ImGui::Text("Number of Indices: %d", indexCount);
+			ImGui::Text("Number of Triangles: %d", triangleCount);
+
+			//Square
+			vertexCount = secondMesh->GetVertexCount();
+			indexCount = secondMesh->GetIndexCount();
+			triangleCount = indexCount / 3;
+			ImGui::SeparatorText("Square Mesh");
+			ImGui::Text("Number of Vertices: %d", vertexCount);
+			ImGui::Text("Number of Indices: %d", indexCount);
+			ImGui::Text("Number of Triangles: %d", triangleCount);
+
+			//Trapezoid
+			vertexCount = thirdMesh->GetVertexCount();
+			indexCount = thirdMesh->GetIndexCount();
+			triangleCount = indexCount / 3;
+			ImGui::SeparatorText("Trapezoid Mesh");
+			ImGui::Text("Number of Vertices: %d", vertexCount);
+			ImGui::Text("Number of Indices: %d", indexCount);
+			ImGui::Text("Number of Triangles: %d", triangleCount);
+
+
+			ImGui::Unindent();
+		}
+		ImGui::Unindent();
 	}
 
 	//Continer for controls
@@ -370,13 +411,13 @@ void Game::DrawUI()
 		//if (ImGui::SliderFloat("Right Y", &rightPosition.y, -1.0f, 1.0f)) CreateGeometry();
 
 		//Reset Position and Color
-		ImGui::SeparatorText("Reset");
-		if (ImGui::Button("Reset")) {
-			//Reset positions and colors
-			ResetVertices();
-			//send to gpu
-			CreateGeometry();
-		}
+		//ImGui::SeparatorText("Reset");
+		//if (ImGui::Button("Reset")) {
+		//	//Reset positions and colors
+		//	ResetVertices();
+		//	//send to gpu
+		//	CreateGeometry();
+		//}
 	}
 
 	ImGui::End();

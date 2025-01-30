@@ -187,7 +187,7 @@ void Game::CreateGeometry()
 	unsigned int indices[] = { 0, 1, 2 };
 
 	//Make a mesh using this data
-	starterMesh = std::make_shared<Mesh>(vertices, indices, (int)(sizeof(vertices) / sizeof(Vertex)), (int)(sizeof(indices) / sizeof(unsigned int)));
+	starterMesh = std::make_shared<Mesh>(vertices, indices, (unsigned int)(sizeof(vertices) / sizeof(Vertex)), (unsigned int)(sizeof(indices) / sizeof(unsigned int)));
 
 	//Repeat the process two more times
 	Vertex secondVertices[] =
@@ -203,7 +203,7 @@ void Game::CreateGeometry()
 		2, 3, 0
 	};
 
-	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, (int)(sizeof(secondVertices) / sizeof(Vertex)), (int)(sizeof(secondIndices) / sizeof(unsigned int)));
+	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, (unsigned int)(sizeof(secondVertices) / sizeof(Vertex)), (unsigned int)(sizeof(secondIndices) / sizeof(unsigned int)));
 
 	Vertex thirdVertices[] = {
 		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Bottom left
@@ -217,7 +217,7 @@ void Game::CreateGeometry()
 									2,1,3,
 									3,4,2 };
 
-	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, (int)(sizeof(thirdVertices) / sizeof(Vertex)), (int)(sizeof(thirdIndices) / sizeof(unsigned int)));
+	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, (unsigned int)(sizeof(thirdVertices) / sizeof(Vertex)), (unsigned int)(sizeof(thirdIndices) / sizeof(unsigned int)));
 }
 
 

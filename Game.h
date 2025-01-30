@@ -5,6 +5,7 @@
 #include <DirectXMath.h>
 
 #include <memory>
+#include <vector>
 
 #include "Mesh.h"
 
@@ -46,6 +47,11 @@ private:
 	std::shared_ptr<Mesh> starterMesh;
 	std::shared_ptr<Mesh> secondMesh;
 	std::shared_ptr<Mesh> thirdMesh;
+
+	//container for meshes
+	std::vector<std::shared_ptr<Mesh>> meshes;
+
+
 
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.

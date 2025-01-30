@@ -1,10 +1,10 @@
 #include "Mesh.h"
 #include "Graphics.h"
 
-Mesh::Mesh(Vertex* vertexData, unsigned int* indexData, unsigned int vertexCount, unsigned int indexCount) {
+Mesh::Mesh(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount) {
 	//set fields from params
-	vertices = vertexCount;
-	indices = indexCount;
+	vertices = (unsigned int)vertexCount;
+	indices = (unsigned int)indexCount;
 
 	//create buffers
 

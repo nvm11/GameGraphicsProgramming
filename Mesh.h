@@ -18,7 +18,7 @@ private:
 public:
 	//Constructor--
 	//Creates buffers and 
-	Mesh(Vertex* vertexData, unsigned int* indexData, unsigned int vertexCount, unsigned int indexCount);
+	Mesh(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount);
 
 	//Destructor--
 	//most likely empty, still necessary so ComPtrs clean up

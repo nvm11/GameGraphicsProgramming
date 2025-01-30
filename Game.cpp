@@ -158,8 +158,6 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-
-
 	// Set up the vertices of the triangle we would like to draw
 	// - We're going to copy this array, exactly as it exists in CPU memory
 	//    over to a Direct3D-controlled data structure on the GPU (the vertex buffer)
@@ -187,7 +185,8 @@ void Game::CreateGeometry()
 	unsigned int indices[] = { 0, 1, 2 };
 
 	//Make a mesh using this data
-	starterMesh = std::make_shared<Mesh>(vertices, indices, (unsigned int)(sizeof(vertices) / sizeof(Vertex)), (unsigned int)(sizeof(indices) / sizeof(unsigned int)));
+	starterMesh = std::make_shared<Mesh>(vertices, indices, sizeof(vertices) / sizeof(Vertex), sizeof(indices) / sizeof(unsigned int));
+	meshes.push_back(starterMesh);
 
 	//Repeat the process two more times
 	Vertex secondVertices[] =
@@ -203,7 +202,8 @@ void Game::CreateGeometry()
 		2, 3, 0
 	};
 
-	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, (unsigned int)(sizeof(secondVertices) / sizeof(Vertex)), (unsigned int)(sizeof(secondIndices) / sizeof(unsigned int)));
+	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, sizeof(secondVertices) / sizeof(Vertex), sizeof(secondIndices) / sizeof(unsigned int));
+	meshes.push_back(secondMesh);
 
 	Vertex thirdVertices[] = {
 		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Bottom left
@@ -217,7 +217,8 @@ void Game::CreateGeometry()
 									2,1,3,
 									3,4,2 };
 
-	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, (unsigned int)(sizeof(thirdVertices) / sizeof(Vertex)), (unsigned int)(sizeof(thirdIndices) / sizeof(unsigned int)));
+	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, sizeof(thirdVertices) / sizeof(Vertex), sizeof(thirdIndices) / sizeof(unsigned int));
+	meshes.push_back(thirdMesh);
 }
 
 
@@ -335,32 +336,24 @@ void Game::DrawUI()
 		if (ImGui::CollapsingHeader("Mesh Data")) {
 			ImGui::Indent();
 
-			//Starter mesh
-			int vertexCount = starterMesh->GetVertexCount();
-			int indexCount = starterMesh->GetIndexCount();
-			int triangleCount = indexCount / 3;
-			ImGui::SeparatorText("Starter Mesh");
-			ImGui::Text("Number of Vertices: %d", vertexCount);
-			ImGui::Text("Number of Indices: %d", indexCount);
-			ImGui::Text("Number of Triangles: %d", triangleCount);
+			//Iterate over the vector of meshes
+			for (size_t i = 0; i < meshes.size(); i++) {
+				std::shared_ptr<Mesh> mesh = meshes[i];
 
-			//Square
-			vertexCount = secondMesh->GetVertexCount();
-			indexCount = secondMesh->GetIndexCount();
-			triangleCount = indexCount / 3;
-			ImGui::SeparatorText("Square Mesh");
-			ImGui::Text("Number of Vertices: %d", vertexCount);
-			ImGui::Text("Number of Indices: %d", indexCount);
-			ImGui::Text("Number of Triangles: %d", triangleCount);
+				//Generate a unique section title for each mesh
+				std::string meshTitle = "Mesh " + std::to_string(i + 1);
+				ImGui::SeparatorText(meshTitle.c_str());
 
-			//Trapezoid
-			vertexCount = thirdMesh->GetVertexCount();
-			indexCount = thirdMesh->GetIndexCount();
-			triangleCount = indexCount / 3;
-			ImGui::SeparatorText("Trapezoid Mesh");
-			ImGui::Text("Number of Vertices: %d", vertexCount);
-			ImGui::Text("Number of Indices: %d", indexCount);
-			ImGui::Text("Number of Triangles: %d", triangleCount);
+				// Retrieve mesh data
+				int vertexCount = mesh->GetVertexCount();
+				int indexCount = mesh->GetIndexCount();
+				int triangleCount = indexCount / 3;
+
+				//Display mesh data
+				ImGui::Text("Number of Vertices: %d", vertexCount);
+				ImGui::Text("Number of Indices: %d", indexCount);
+				ImGui::Text("Number of Triangles: %d", triangleCount);
+			}
 
 
 			ImGui::Unindent();

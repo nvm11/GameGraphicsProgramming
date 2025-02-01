@@ -1,3 +1,12 @@
+//Constant buffer for modifying the appearance of meshes
+//Should match the "ShaderData" struct in BufferStructs.h
+//Names are shared between structs, but dont need to be
+//Currently modifies the color and position of meshes
+cbuffer ShaderData : register(b0)
+{
+    float4 colorTint;
+    float3 offset;
+};
 
 // Struct representing a single vertex worth of data
 // - This should match the vertex definition in our C++ code

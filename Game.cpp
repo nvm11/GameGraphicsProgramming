@@ -4,6 +4,8 @@
 #include "Input.h"
 #include "PathHelpers.h"
 #include "Window.h"
+//contains constant buffer structs
+#include "BufferStructs.h"
 
 #include <DirectXMath.h>
 
@@ -55,6 +57,31 @@ void Game::Initialize()
 		//    these calls will need to happen multiple times per frame
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
+
+		//Create a Constant buffer
+		{
+			//Create a constant buffer for color and offset
+			//get size needed for memory allocation
+			unsigned int size = sizeof(ShaderData);
+			//ensure a large enough multiple of 16
+			size = (size + 15) / 16 * 16;
+
+			D3D11_BUFFER_DESC cbDesc = {}; //zero out the struct
+			cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			cbDesc.ByteWidth = size;
+			cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; //tell api we need this to be in a writable location
+			cbDesc.Usage = D3D11_USAGE_DYNAMIC; //contents change after creation
+
+			//use description to create the buffer
+			Graphics::Device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
+
+
+			//Bind the constant buffer
+			Graphics::Context->VSSetConstantBuffers(
+				0, //register
+				1, //number of buffers
+				constantBuffer.GetAddressOf()); //can be an array if there are multiple
+		}
 
 		// Initialize ImGui itself & platform/renderer backends
 		IMGUI_CHECKVERSION();

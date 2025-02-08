@@ -1,11 +1,17 @@
 #include "Transform.h"
+using namespace DirectX;
 
-Transform::Transform()
+Transform::Transform() :
+	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0)
 {
+	//store matrices
+	XMStoreFloat4x4(&world, XMMatrixIdentity());
+	XMStoreFloat4x4(&worldInverseTranspose, XMMatrixIdentity());
 }
 
 Transform::~Transform()
 {
+	//Place any needed delete statements here
 }
 
 void Transform::SetPosition(float x, float y, float z)

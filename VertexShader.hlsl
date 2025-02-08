@@ -5,7 +5,7 @@
 cbuffer ShaderData : register(b0)
 {
     float4 colorTint;
-    float3 offset;
+    matrix offset;
 };
 
 // Struct representing a single vertex worth of data

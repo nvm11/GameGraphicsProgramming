@@ -8,6 +8,8 @@
 #include <vector>
 
 #include "Mesh.h"
+//contains constant buffer structs
+#include "BufferStructs.h"
 
 using namespace DirectX;
 
@@ -75,5 +77,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11VertexShader> vertexShader;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer;
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> inputLayout;
+
+	//create vertex data struct
+	ShaderData vsData = {};
 };
 

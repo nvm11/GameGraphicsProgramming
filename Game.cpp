@@ -4,8 +4,6 @@
 #include "Input.h"
 #include "PathHelpers.h"
 #include "Window.h"
-//contains constant buffer structs
-#include "BufferStructs.h"
 
 #include <DirectXMath.h>
 
@@ -81,6 +79,9 @@ void Game::Initialize()
 				0, //register
 				1, //number of buffers
 				constantBuffer.GetAddressOf()); //can be an array if there are multiple
+
+			//set default for constant buffer
+			vsData.colorTint = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 
 		// Initialize ImGui itself & platform/renderer backends
@@ -307,10 +308,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	//set values for constant buffer
-	ShaderData vsData;
-	vsData.colorTint = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
-	vsData.offset = XMFLOAT3(0.25f, 0.0f, 0.0f);
 
 	//handle the contant buffer mapping and unmapping
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
@@ -407,9 +404,18 @@ void Game::DrawUI()
 		//Toggle Demo Visibility
 		ImGui::Checkbox("Show Demo UI", &showDemoUI);
 
-		ImGui::SeparatorText("Background Color");
+		ImGui::SeparatorText("Color");
 		//Color Selector
 		ImGui::ColorEdit4("Background Color", color);
+
+		//local variable to help convert from xmfloat to float and back
+		float shaderColor[] = { vsData.colorTint.x,vsData.colorTint.y ,vsData.colorTint.z };
+		ImGui::ColorEdit4("Color Tint", &vsData.colorTint.x);
+
+		//moving meshes
+		ImGui::SeparatorText("Movement");
+		ImGui::SliderFloat3("Offset", &vsData.offset.x, -1.0f, 1.0f);
+
 
 		//CreateGeometry() is called to update 
 		//the buffer with new colors and positions

@@ -9,7 +9,7 @@ private:
 	DirectX::XMFLOAT3 position;
 	DirectX::XMFLOAT3 scale;
 	//x, y, z
-	DirectX::XMFLOAT3 PitchYawRoll;
+	DirectX::XMFLOAT3 pitchYawRoll;
 
 	//world matrix holding transformations
 	DirectX::XMFLOAT4X4 world;

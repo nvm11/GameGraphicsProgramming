@@ -21,8 +21,9 @@ void Transform::SetPosition(float x, float y, float z)
 
 void Transform::SetPosition(DirectX::XMFLOAT3 newPos)
 {
+	//create xmvector and store result in original position
 	XMStoreFloat3(&position, XMLoadFloat3(&newPos));
-	dirty = true;
+	dirty = true; //matrix needs rebuild
 }
 
 void Transform::SetRotation(float pitch, float yaw, float roll)
@@ -33,7 +34,6 @@ void Transform::SetRotation(float pitch, float yaw, float roll)
 
 void Transform::SetRotation(DirectX::XMFLOAT3 newRot)
 {
-	//create xmvector and store result in original position
 	XMStoreFloat3(&pitchYawRoll, XMLoadFloat3(&newRot));
 	dirty = true;
 }
@@ -76,10 +76,12 @@ DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 
 void Transform::MoveAbsolute(float x, float y, float z)
 {
+	
 }
 
 void Transform::MoveAbsolute(DirectX::XMFLOAT3 newPos)
 {
+	XMLoadFloat3(&position, XMLoadFloat3(XMLoadFloat3()
 }
 
 void Transform::Rotate(float x, float y, float z)

@@ -36,7 +36,7 @@ void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer)
 
 	//Set default for constant buffer
 	vsData.colorTint = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-
+	DirectX::XMStoreFloat4x4(&vsData.offset, DirectX::XMMatrixIdentity());
 	//Responsible for:
 	//-Setting correct Vertex and Index Buffers
 	//-Telling D3D to render with bound resources

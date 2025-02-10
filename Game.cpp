@@ -57,29 +57,29 @@ void Game::Initialize()
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
 		
 		//Moved to Entity Draw
-		////Create a Constant buffer
-		//{
-		//	//Create a constant buffer for color and offset
-		//	//get size needed for memory allocation
-		//	unsigned int size = sizeof(ShaderData);
-		//	//ensure a large enough multiple of 16
-		//	size = (size + 15) / 16 * 16;
-		//	D3D11_BUFFER_DESC cbDesc = {}; //zero out the struct
-		//	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		//	cbDesc.ByteWidth = size;
-		//	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; //tell api we need this to be in a writable location
-		//	cbDesc.Usage = D3D11_USAGE_DYNAMIC; //contents change after creation
-		//	//use description to create the buffer
-		//	Graphics::Device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
-		//	//Move to Entity's Draw()
-		//	//Bind the constant buffer
-		//	Graphics::Context->VSSetConstantBuffers(
-		//		0, //register
-		//		1, //number of buffers
-		//		constantBuffer.GetAddressOf()); //can be an array if there are multiple
-		//	//set default for constant buffer
-		//	vsData.colorTint = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		//}
+		//Create a Constant buffer
+		{
+			//Create a constant buffer for color and offset
+			//get size needed for memory allocation
+			unsigned int size = sizeof(ShaderData);
+			//ensure a large enough multiple of 16
+			size = (size + 15) / 16 * 16;
+			D3D11_BUFFER_DESC cbDesc = {}; //zero out the struct
+			cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+			cbDesc.ByteWidth = size;
+			cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; //tell api we need this to be in a writable location
+			cbDesc.Usage = D3D11_USAGE_DYNAMIC; //contents change after creation
+			//use description to create the buffer
+			Graphics::Device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
+			//Move to Entity's Draw()
+			//Bind the constant buffer
+			Graphics::Context->VSSetConstantBuffers(
+				0, //register
+				1, //number of buffers
+				constantBuffer.GetAddressOf()); //can be an array if there are multiple
+			//set default for constant buffer
+			vsData.colorTint = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
 
 		// Initialize ImGui itself & platform/renderer backends
 		IMGUI_CHECKVERSION();
@@ -183,65 +183,62 @@ void Game::LoadShaders()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	// Set up the vertices of the triangle we would like to draw
-	// - We're going to copy this array, exactly as it exists in CPU memory
-	//    over to a Direct3D-controlled data structure on the GPU (the vertex buffer)
-	// - Note: Since we don't have a camera or really any concept of
-	//    a "3d world" yet, we're simply describing positions within the
-	//    bounds of how the rasterizer sees our screen: [-1 to +1] on X and Y
-	// - This means (0,0) is at the very center of the screen.
-	// - These are known as "Normalized Device Coordinates" or "Homogeneous 
-	//    Screen Coords", which are ways to describe a position without
-	//    knowing the exact size (in pixels) of the image/window/etc.  
-	// - Long story short: Resizing the window also resizes the triangle,
-	//    since we're describing the triangle in terms of the window itself
+	// Create the first mesh
 	Vertex vertices[] =
 	{
-		{ XMFLOAT3(0.0f, 0.5f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) }, //Top vertex (red)
-		{ XMFLOAT3(0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }, //Right vertex (green)
-		{ XMFLOAT3(-0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }  //Left vertex (blue)
+		{ XMFLOAT3(0.0f, 0.5f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) }, // Top vertex (red)
+		{ XMFLOAT3(0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }, // Right vertex (green)
+		{ XMFLOAT3(-0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }  // Left vertex (blue)
 	};
 
-	// Set up indices, which tell us which vertices to use and in which order
-	// - This is redundant for just 3 vertices, but will be more useful later
-	// - Indices are technically not required if the vertices are in the buffer 
-	//    in the correct order and each one will be used exactly once
-	// - But just to see how it's done...
 	unsigned int indices[] = { 0, 1, 2 };
 
-	//Make a mesh using this data
-	starterMesh = std::make_shared<Mesh>(vertices, indices, sizeof(vertices) / sizeof(Vertex), sizeof(indices) / sizeof(unsigned int));
+	std::shared_ptr<Mesh> mesh1 = std::make_shared<Mesh>(
+		vertices, indices,
+		sizeof(vertices) / sizeof(Vertex),
+		sizeof(indices) / sizeof(unsigned int)
+	);
 
-	//Repeat the process two more times
+	// Create the second mesh
 	Vertex secondVertices[] =
 	{
-		{ XMFLOAT3(-0.9f, -0.1f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) }, // Top-left (red)
-		{ XMFLOAT3(-0.7f, -0.1f, 0.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }, // Top-right (cyan)
-		{ XMFLOAT3(-0.7f, -0.9f, 0.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) }, // Bottom-right (magenta)
-		{ XMFLOAT3(-0.9f, -0.9f, 0.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) }  // Bottom-left (yellow)
+		{ XMFLOAT3(-0.9f, -0.1f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+		{ XMFLOAT3(-0.7f, -0.1f, 0.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
+		{ XMFLOAT3(-0.7f, -0.9f, 0.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
+		{ XMFLOAT3(-0.9f, -0.9f, 0.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) }
 	};
 
-	unsigned int secondIndices[] = {
-		0, 1, 2,
-		2, 3, 0
-	};
+	unsigned int secondIndices[] = { 0, 1, 2, 2, 3, 0 };
 
-	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, sizeof(secondVertices) / sizeof(Vertex), sizeof(secondIndices) / sizeof(unsigned int));
+	std::shared_ptr<Mesh> mesh2 = std::make_shared<Mesh>(
+		secondVertices, secondIndices,
+		sizeof(secondVertices) / sizeof(Vertex),
+		sizeof(secondIndices) / sizeof(unsigned int)
+	);
 
+	// Create the third mesh
 	Vertex thirdVertices[] = {
-		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Bottom left
-		{ XMFLOAT3(0.25f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },  //Top left
-		{ XMFLOAT3(0.5f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Middle bottom
-		{ XMFLOAT3(0.75f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },  //Top right
-		{ XMFLOAT3(1.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }   //Bottom right
+		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+		{ XMFLOAT3(0.25f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ XMFLOAT3(0.5f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
+		{ XMFLOAT3(0.75f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ XMFLOAT3(1.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
 	};
 
-	unsigned int thirdIndices[] = { 0,1,2,
-									2,1,3,
-									3,4,2 };
+	unsigned int thirdIndices[] = { 0,1,2, 2,1,3, 3,4,2 };
 
-	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, sizeof(thirdVertices) / sizeof(Vertex), sizeof(thirdIndices) / sizeof(unsigned int));
+	std::shared_ptr<Mesh> mesh3 = std::make_shared<Mesh>(
+		thirdVertices, thirdIndices,
+		sizeof(thirdVertices) / sizeof(Vertex),
+		sizeof(thirdIndices) / sizeof(unsigned int)
+	);
+
+	//Populate the entities vector
+	entities.push_back(std::make_shared<Entity>(mesh1));
+	entities.push_back(std::make_shared<Entity>(mesh2));
+	entities.push_back(std::make_shared<Entity>(mesh3));
 }
+
 
 
 // --------------------------------------------------------
@@ -317,12 +314,10 @@ void Game::Draw(float deltaTime, float totalTime)
 		// Present at the end of the frame
 		bool vsync = Graphics::VsyncState();
 
-		//Draw the starter mesh
-		starterMesh->Draw();
-		//Draw second mesh
-		secondMesh->Draw();
-		//draw third mesh
-		thirdMesh->Draw();
+		//Draw all Entities
+		for (size_t i = 0; i < entities.size(); i++) {
+			entities[i]->Draw(constantBuffer);
+		}
 
 		// UI is drawn last so it is on top
 		DrawUI();
@@ -374,7 +369,7 @@ void Game::DrawUI()
 				std::string meshTitle = "Mesh " + std::to_string(i + 1);
 				ImGui::SeparatorText(meshTitle.c_str());
 
-				// Retrieve mesh data
+				//Retrieve mesh data
 				int vertexCount = mesh->GetVertexCount();
 				int indexCount = mesh->GetIndexCount();
 				int triangleCount = indexCount / 3;
@@ -394,8 +389,45 @@ void Game::DrawUI()
 	//Continer for controls
 	if (ImGui::CollapsingHeader("Controls"))
 	{
-		//Alter Matrices of Entities
+		// Alter Matrices of Entities
+		for (size_t i = 0; i < entities.size(); i++)
+		{
+			// Generate a unique identifier for each entity control group
+			std::string label = "Entity " + std::to_string(i + 1);
+			ImGui::SeparatorText(label.c_str());
 
+			// Retrieve transform reference
+			Transform& transform = entities[i]->GetTransform();
+
+			// Create variables for editing (ImGui needs modifiable data)
+			XMFLOAT3 position = transform.GetPosition();
+			XMFLOAT3 rotation = transform.GetRotation();
+			XMFLOAT3 scale = transform.GetScale();
+
+			// Modify Position
+			if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &position.x, 0.1f, -10.0f, 10.0f))
+			{
+				transform.SetPosition(position);
+			}
+
+			// Modify Rotation (ImGui uses degrees, so convert from radians)
+			XMFLOAT3 rotationDegrees = { XMConvertToDegrees(rotation.x),
+										 XMConvertToDegrees(rotation.y),
+										 XMConvertToDegrees(rotation.z) };
+
+			if (ImGui::DragFloat3(("Rotation##" + std::to_string(i)).c_str(), &rotationDegrees.x, 1.0f, -360.0f, 360.0f))
+			{
+				transform.SetRotation(XMFLOAT3(XMConvertToRadians(rotationDegrees.x),
+					XMConvertToRadians(rotationDegrees.y),
+					XMConvertToRadians(rotationDegrees.z)));
+			}
+
+			// Modify Scale
+			if (ImGui::DragFloat3(("Scale##" + std::to_string(i)).c_str(), &scale.x, 0.1f, 0.1f, 10.0f))
+			{
+				transform.SetScale(scale);
+			}
+		}
 
 		//ImGui::SeparatorText("Defaults");
 		////Toggle Demo Visibility

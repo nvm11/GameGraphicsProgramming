@@ -46,11 +46,6 @@ private:
 	//XMFLOAT3 leftPosition;
 	//XMFLOAT3 rightPosition;
 
-	//Instances of Mesh class
-	std::shared_ptr<Mesh> starterMesh;
-	std::shared_ptr<Mesh> secondMesh;
-	std::shared_ptr<Mesh> thirdMesh;
-
 
 	//container for meshes
 	std::vector<std::shared_ptr<Entity>> entities;

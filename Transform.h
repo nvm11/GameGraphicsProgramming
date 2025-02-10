@@ -18,6 +18,10 @@ private:
 	//used to track if matrix needs to be remade
 	bool dirty;
 
+	//Methods
+	//remakes matrices
+	void RemakeMatrices();
+
 public:
 	//Constructors
 	//Default Constructor

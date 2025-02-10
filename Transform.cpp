@@ -64,38 +64,82 @@ DirectX::XMFLOAT3 Transform::GetScale()
 	return scale;
 }
 
+void Transform::MoveAbsolute(float x, float y, float z)
+{
+	MoveAbsolute(XMFLOAT3(x, y, z));
+}
+
+void Transform::MoveAbsolute(DirectX::XMFLOAT3 newPos)
+{
+	//convert both positions to XMVectors.
+	//combine positions
+	//store new data in the original XMFloat3
+	XMStoreFloat3(&position,
+		XMVectorAdd(XMLoadFloat3(&position)
+			, XMLoadFloat3(&newPos)));
+
+	dirty = true;
+}
+
+void Transform::Rotate(float x, float y, float z)
+{
+	Rotate(XMFLOAT3(x, y, z));
+}
+
+void Transform::Rotate(DirectX::XMFLOAT3 newRot)
+{
+	XMStoreFloat3(&pitchYawRoll,
+		XMVectorAdd(XMLoadFloat3(&pitchYawRoll),
+			XMLoadFloat3(&newRot)));
+}
+
+void Transform::Scale(float x, float y, float z)
+{
+	Scale(XMFLOAT3(x, y, z));
+}
+
+void Transform::Scale(DirectX::XMFLOAT3 newScale)
+{
+	XMStoreFloat3(&scale,
+		XMVectorMultiply(XMLoadFloat3(&scale),
+			XMLoadFloat3(&newScale)));
+}
+
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 {
+	if (dirty) {
+		//Remake matrix
+		RemakeMatrices();
+	}
+
 	return world;
 }
 
 DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 {
+	if (dirty) {
+		RemakeMatrices();
+	}
+
 	return worldInverseTranspose;
 }
 
-void Transform::MoveAbsolute(float x, float y, float z)
-{
-	
-}
+void Transform::RemakeMatrices() {
+	//convert data to matrices
+	XMMATRIX positionMatrix = XMMatrixTranslation(position.x, position.y, position.z);
+	XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z);
+	XMMATRIX scaleMatrix = XMMatrixScaling(scale.x, scale.y, scale.z);
 
-void Transform::MoveAbsolute(DirectX::XMFLOAT3 newPos)
-{
-	XMLoadFloat3(&position, XMLoadFloat3(XMLoadFloat3()
-}
+	//create new SIMD world matrix: S * R * T
+	XMMATRIX worldMatrix = XMMatrixMultiply(XMMatrixMultiply(
+		scaleMatrix,
+		rotationMatrix),
+		positionMatrix);
 
-void Transform::Rotate(float x, float y, float z)
-{
-}
+	//store results in storage types
+	XMStoreFloat4x4(&world, worldMatrix);
+	XMStoreFloat4x4(&worldInverseTranspose, XMMatrixInverse(0, XMMatrixTranspose(worldMatrix)));
 
-void Transform::Rotate(DirectX::XMFLOAT3 newRot)
-{
-}
-
-void Transform::Scale(float x, float y, float z)
-{
-}
-
-void Transform::Scale(DirectX::XMFLOAT3 newScale)
-{
+	//tell class matrices are up to date
+	dirty = false;
 }

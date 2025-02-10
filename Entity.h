@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <wrl/client.h>
 
 #include "Transform.h"
 #include "Mesh.h"
@@ -21,6 +22,6 @@ public:
 	std::shared_ptr<Mesh> GetMesh();
 	Transform& GetTransform();
 	//Drawing
-	void Draw();
+	void Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer);
 };
 

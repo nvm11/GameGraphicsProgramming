@@ -22,7 +22,7 @@ Transform& Entity::GetTransform()
     return transform;
 }
 
-void Entity::Draw()
+void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer)
 {
 
 }

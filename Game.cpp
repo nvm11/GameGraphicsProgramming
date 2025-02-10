@@ -73,7 +73,7 @@ void Game::Initialize()
 			//use description to create the buffer
 			Graphics::Device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
 
-
+			//Move to Entity's Draw()
 			//Bind the constant buffer
 			Graphics::Context->VSSetConstantBuffers(
 				0, //register
@@ -308,7 +308,7 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-
+	//Move to Entity's Draw
 	//handle the contant buffer mapping and unmapping
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
 	Graphics::Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);

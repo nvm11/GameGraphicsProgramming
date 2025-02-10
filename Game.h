@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "Mesh.h"
+#include "Entity.h"
 //contains constant buffer structs
 #include "BufferStructs.h"
 
@@ -50,8 +51,9 @@ private:
 	std::shared_ptr<Mesh> secondMesh;
 	std::shared_ptr<Mesh> thirdMesh;
 
+
 	//container for meshes
-	std::vector<std::shared_ptr<Mesh>> meshes;
+	std::vector<std::shared_ptr<Entity>> entities;
 
 
 

@@ -55,34 +55,31 @@ void Game::Initialize()
 		//    these calls will need to happen multiple times per frame
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
-
-		//Create a Constant buffer
-		{
-			//Create a constant buffer for color and offset
-			//get size needed for memory allocation
-			unsigned int size = sizeof(ShaderData);
-			//ensure a large enough multiple of 16
-			size = (size + 15) / 16 * 16;
-
-			D3D11_BUFFER_DESC cbDesc = {}; //zero out the struct
-			cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-			cbDesc.ByteWidth = size;
-			cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; //tell api we need this to be in a writable location
-			cbDesc.Usage = D3D11_USAGE_DYNAMIC; //contents change after creation
-
-			//use description to create the buffer
-			Graphics::Device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
-
-			//Move to Entity's Draw()
-			//Bind the constant buffer
-			Graphics::Context->VSSetConstantBuffers(
-				0, //register
-				1, //number of buffers
-				constantBuffer.GetAddressOf()); //can be an array if there are multiple
-
-			//set default for constant buffer
-			vsData.colorTint = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-		}
+		
+		//Moved to Entity Draw
+		////Create a Constant buffer
+		//{
+		//	//Create a constant buffer for color and offset
+		//	//get size needed for memory allocation
+		//	unsigned int size = sizeof(ShaderData);
+		//	//ensure a large enough multiple of 16
+		//	size = (size + 15) / 16 * 16;
+		//	D3D11_BUFFER_DESC cbDesc = {}; //zero out the struct
+		//	cbDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		//	cbDesc.ByteWidth = size;
+		//	cbDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE; //tell api we need this to be in a writable location
+		//	cbDesc.Usage = D3D11_USAGE_DYNAMIC; //contents change after creation
+		//	//use description to create the buffer
+		//	Graphics::Device->CreateBuffer(&cbDesc, 0, constantBuffer.GetAddressOf());
+		//	//Move to Entity's Draw()
+		//	//Bind the constant buffer
+		//	Graphics::Context->VSSetConstantBuffers(
+		//		0, //register
+		//		1, //number of buffers
+		//		constantBuffer.GetAddressOf()); //can be an array if there are multiple
+		//	//set default for constant buffer
+		//	vsData.colorTint = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+		//}
 
 		// Initialize ImGui itself & platform/renderer backends
 		IMGUI_CHECKVERSION();
@@ -214,7 +211,6 @@ void Game::CreateGeometry()
 
 	//Make a mesh using this data
 	starterMesh = std::make_shared<Mesh>(vertices, indices, sizeof(vertices) / sizeof(Vertex), sizeof(indices) / sizeof(unsigned int));
-	meshes.push_back(starterMesh);
 
 	//Repeat the process two more times
 	Vertex secondVertices[] =
@@ -231,7 +227,6 @@ void Game::CreateGeometry()
 	};
 
 	secondMesh = std::make_shared<Mesh>(secondVertices, secondIndices, sizeof(secondVertices) / sizeof(Vertex), sizeof(secondIndices) / sizeof(unsigned int));
-	meshes.push_back(secondMesh);
 
 	Vertex thirdVertices[] = {
 		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },  //Bottom left
@@ -246,7 +241,6 @@ void Game::CreateGeometry()
 									3,4,2 };
 
 	thirdMesh = std::make_shared<Mesh>(thirdVertices, thirdIndices, sizeof(thirdVertices) / sizeof(Vertex), sizeof(thirdIndices) / sizeof(unsigned int));
-	meshes.push_back(thirdMesh);
 }
 
 
@@ -310,10 +304,10 @@ void Game::Draw(float deltaTime, float totalTime)
 
 	//Move to Entity's Draw
 	//handle the contant buffer mapping and unmapping
-	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-	Graphics::Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
-	Graphics::Context->Unmap(constantBuffer.Get(), 0);
+	//D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
+	//Graphics::Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
+	//memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
+	//Graphics::Context->Unmap(constantBuffer.Get(), 0);
 
 
 	// Frame END
@@ -373,8 +367,8 @@ void Game::DrawUI()
 			ImGui::Indent();
 
 			//Iterate over the vector of meshes
-			for (size_t i = 0; i < meshes.size(); i++) {
-				std::shared_ptr<Mesh> mesh = meshes[i];
+			for (size_t i = 0; i < entities.size(); i++) {
+				std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
 
 				//Generate a unique section title for each mesh
 				std::string meshTitle = "Mesh " + std::to_string(i + 1);
@@ -400,21 +394,24 @@ void Game::DrawUI()
 	//Continer for controls
 	if (ImGui::CollapsingHeader("Controls"))
 	{
-		ImGui::SeparatorText("Defaults");
-		//Toggle Demo Visibility
-		ImGui::Checkbox("Show Demo UI", &showDemoUI);
+		//Alter Matrices of Entities
 
-		ImGui::SeparatorText("Color");
-		//Color Selector
-		ImGui::ColorEdit4("Background Color", color);
 
-		//local variable to help convert from xmfloat to float and back
-		float shaderColor[] = { vsData.colorTint.x,vsData.colorTint.y ,vsData.colorTint.z };
-		ImGui::ColorEdit4("Color Tint", &vsData.colorTint.x);
+		//ImGui::SeparatorText("Defaults");
+		////Toggle Demo Visibility
+		//ImGui::Checkbox("Show Demo UI", &showDemoUI);
 
-		//moving meshes
-		ImGui::SeparatorText("Movement");
-		ImGui::SliderFloat3("Offset", &vsData.offset.x, -1.0f, 1.0f);
+		//ImGui::SeparatorText("Color");
+		////Color Selector
+		//ImGui::ColorEdit4("Background Color", color);
+
+		////local variable to help convert from xmfloat to float and back
+		//float shaderColor[] = { vsData.colorTint.x,vsData.colorTint.y ,vsData.colorTint.z };
+		//ImGui::ColorEdit4("Color Tint", &vsData.colorTint.x);
+
+		////moving meshes
+		//ImGui::SeparatorText("Movement");
+		//ImGui::SliderFloat3("Offset", &vsData.offset.x, -1.0f, 1.0f);
 
 
 		//CreateGeometry() is called to update 

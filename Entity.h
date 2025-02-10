@@ -1,9 +1,11 @@
 #pragma once
 #include <memory>
 #include <wrl/client.h>
+#include <DirectXMath.h>
 
 #include "Transform.h"
 #include "Mesh.h"
+#include "BufferStructs.h"
 
 class Entity
 {
@@ -11,6 +13,10 @@ private:
 	//Fields
 	Transform transform;
 	std::shared_ptr<Mesh> mesh;
+
+	//zero out struct
+	//here temporarily
+	ShaderData vsData = {};
 
 public:
 	//Constructors

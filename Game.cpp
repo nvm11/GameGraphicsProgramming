@@ -282,6 +282,19 @@ void Game::Update(float deltaTime, float totalTime)
 	// Must be done at very beginning so UI is up to date
 	UpdateUI(deltaTime);
 
+	//Move each entity in some way
+	for (size_t i = 0; i < entities.size(); i++) {
+		if (i % 2 == 0) {
+			entities[i]->GetTransform().SetPosition(XMFLOAT3(0.0f, sin(totalTime) * .5f, 0.0f));
+			entities[i]->GetTransform().SetScale(XMFLOAT3(1.0f, (sin(totalTime) + 1) *.5f + .5f, 1.0f));
+			entities[i]->GetTransform().Rotate(XMFLOAT3(sin(deltaTime), 0.0f, 0.0f));
+		}
+		else {
+			entities[i]->GetTransform().SetPosition(XMFLOAT3(sin(totalTime) * .5f, sin(totalTime) * .5f, 0.0f));
+			entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.0f, sin(deltaTime)));
+		}
+	}
+
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();

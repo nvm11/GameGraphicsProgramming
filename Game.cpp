@@ -285,13 +285,13 @@ void Game::Update(float deltaTime, float totalTime)
 	//Move each entity in some way
 	for (size_t i = 0; i < entities.size(); i++) {
 		if (i % 2 == 0) {
-			entities[i]->GetTransform().SetPosition(XMFLOAT3(0.0f, sin(totalTime) * .5f, 0.0f));
-			entities[i]->GetTransform().SetScale(XMFLOAT3(1.0f, (sin(totalTime) + 1) *.5f + .5f, 1.0f));
-			entities[i]->GetTransform().Rotate(XMFLOAT3(sin(deltaTime), 0.0f, 0.0f));
+			entities[i]->GetTransform().SetPosition(XMFLOAT3(0.0f, (float)sin(totalTime) * .5f, 0.0f));
+			entities[i]->GetTransform().SetScale(XMFLOAT3(1.0f, ((float)sin(totalTime) + 1) *.5f + .5f, 1.0f));
+			entities[i]->GetTransform().Rotate(XMFLOAT3((float)sin(deltaTime), 0.0f, 0.0f));
 		}
 		else {
-			entities[i]->GetTransform().SetPosition(XMFLOAT3(sin(totalTime) * .5f, sin(totalTime) * .5f, 0.0f));
-			entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.0f, sin(deltaTime)));
+			entities[i]->GetTransform().SetPosition(XMFLOAT3((float)sin(totalTime) * .5f, (float)sin(totalTime) * .5f, 0.0f));
+			entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.0f, (float)sin(deltaTime)));
 		}
 	}
 

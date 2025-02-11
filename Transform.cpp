@@ -2,7 +2,7 @@
 using namespace DirectX;
 
 Transform::Transform() :
-	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0), dirty(false)
+	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0), dirty(true)
 {
 	//store matrices
 	XMStoreFloat4x4(&world, XMMatrixIdentity());
@@ -91,6 +91,7 @@ void Transform::Rotate(DirectX::XMFLOAT3 newRot)
 	XMStoreFloat3(&pitchYawRoll,
 		XMVectorAdd(XMLoadFloat3(&pitchYawRoll),
 			XMLoadFloat3(&newRot)));
+	dirty = true;
 }
 
 void Transform::Scale(float x, float y, float z)
@@ -103,6 +104,7 @@ void Transform::Scale(DirectX::XMFLOAT3 newScale)
 	XMStoreFloat3(&scale,
 		XMVectorMultiply(XMLoadFloat3(&scale),
 			XMLoadFloat3(&newScale)));
+	dirty = true;
 }
 
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()

@@ -55,7 +55,7 @@ void Game::Initialize()
 		//    these calls will need to happen multiple times per frame
 		Graphics::Context->VSSetShader(vertexShader.Get(), 0, 0);
 		Graphics::Context->PSSetShader(pixelShader.Get(), 0, 0);
-		
+
 		//Moved to Entity Draw
 		//Create a Constant buffer
 		{
@@ -237,6 +237,9 @@ void Game::CreateGeometry()
 	entities.push_back(std::make_shared<Entity>(mesh1));
 	entities.push_back(std::make_shared<Entity>(mesh2));
 	entities.push_back(std::make_shared<Entity>(mesh3));
+	//Add extra entities
+	entities.push_back(std::make_shared<Entity>(mesh3));
+	entities.push_back(std::make_shared<Entity>(mesh2));
 }
 
 
@@ -405,7 +408,7 @@ void Game::DrawUI()
 			XMFLOAT3 scale = transform.GetScale();
 
 			// Modify Position
-			if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &position.x, 0.1f, -10.0f, 10.0f))
+			if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &position.x, 0.1f, -1.0f, 1.0f))
 			{
 				transform.SetPosition(position);
 			}

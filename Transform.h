@@ -10,6 +10,11 @@ private:
 	DirectX::XMFLOAT3 scale;
 	DirectX::XMFLOAT3 pitchYawRoll;	//x, y, z
 
+	//direction vectors
+	DirectX::XMFLOAT3 up;
+	DirectX::XMFLOAT3 right;
+	DirectX::XMFLOAT3 forward;
+
 	//world matrix holding transformations
 	DirectX::XMFLOAT4X4 world;
 	//TODO: Implement

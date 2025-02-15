@@ -5,8 +5,7 @@ Transform::Transform() :
 	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0), dirty(true)
 {
 	//store matrices
-	XMStoreFloat4x4(&world, XMMatrixIdentity());
-	XMStoreFloat4x4(&worldInverseTranspose, XMMatrixIdentity());
+	RemakeMatrices();
 }
 
 Transform::~Transform()
@@ -107,6 +106,23 @@ void Transform::Scale(DirectX::XMFLOAT3 newScale)
 	dirty = true;
 }
 
+void Transform::MoveRelative(float x, float y, float z)
+{
+	MoveRelative(XMFLOAT3(x, y, z));
+}
+
+void Transform::MoveRelative(DirectX::XMFLOAT3 posOffset)
+{
+	//create a quaternion representing rpy values
+	XMVECTOR rotationQuat = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll));
+	//rotate offset by quaternion
+	XMVECTOR rotatedOffset = XMVector3Rotate(XMLoadFloat3(&posOffset), rotationQuat);
+	//apply rotated offset to position and store new pos
+	XMStoreFloat3(&position, XMVectorAdd(XMLoadFloat3(&position), rotatedOffset));
+
+	dirty = true;
+}
+
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 {
 	if (dirty) {
@@ -126,7 +142,23 @@ DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 	return worldInverseTranspose;
 }
 
+DirectX::XMFLOAT3 Transform::GetUp()
+{
+	return up;
+}
+
+DirectX::XMFLOAT3 Transform::GetRight()
+{
+	return right;
+}
+
+DirectX::XMFLOAT3 Transform::GetForward()
+{
+	return forward;
+}
+
 void Transform::RemakeMatrices() {
+	//Matrices
 	//convert data to matrices
 	XMMATRIX positionMatrix = XMMatrixTranslation(position.x, position.y, position.z);
 	XMMATRIX rotationMatrix = XMMatrixRotationRollPitchYaw(pitchYawRoll.x, pitchYawRoll.y, pitchYawRoll.z);
@@ -142,6 +174,22 @@ void Transform::RemakeMatrices() {
 	XMStoreFloat4x4(&world, worldMatrix);
 	XMStoreFloat4x4(&worldInverseTranspose, XMMatrixInverse(0, XMMatrixTranspose(worldMatrix)));
 
+	//Vetors
+	//Up Vector
+	CreateDirectionVector(XMVectorSet(0, 1, 0, 0), up);
+	CreateDirectionVector(XMVectorSet(1, 0, 0, 0), right);
+	CreateDirectionVector(XMVectorSet(0, 0, 1, 0), forward);
+
 	//tell class matrices are up to date
 	dirty = false;
 }
+
+void Transform::CreateDirectionVector(DirectX::XMVECTOR cardinalDirection, DirectX::XMFLOAT3& directionLocation)
+{
+	//create the quaternion
+	XMVECTOR rotationQuat = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll));
+	//rotate the input vector and store result
+	XMStoreFloat3(&directionLocation, XMVector3Rotate(cardinalDirection, rotationQuat));
+}
+
+

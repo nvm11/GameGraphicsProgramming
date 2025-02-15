@@ -34,6 +34,7 @@ public:
 	//Getters
 	DirectX::XMFLOAT4X4 GetView();
 	DirectX::XMFLOAT4X4 GetProjection();
+	//TODO: Add getters and setters for most camera variables
 	//Matrix Operations
 	//called once per frame
 	void UpdateViewMatrix();

@@ -51,8 +51,41 @@ void Camera::UpdateProjectionMatrix(float aspect)
 
 void Camera::UpdateViewMatrix()
 {
+	XMMatrixLookToLH(
+		XMLoadFloat3(&transform.GetPosition()),
+		XMLoadFloat3(&transform.GetForward()),
+		XMVectorSet(0, 1, 0, 0)); //world up
 }
 
 void Camera::Update(float dt)
 {
+	//declare a speed variable
+	float speed = dt + 2.0f;
+
+	//Process input
+	//Movement
+	if (Input::KeyDown('W')) { transform.MoveRelative(0, 0, speed); }
+	if (Input::KeyDown('S')) { transform.MoveRelative(0, 0, -speed); }
+	if (Input::KeyDown('A')) { transform.MoveRelative(-speed, 0, 0); }
+	if (Input::KeyDown('D')) { transform.MoveRelative(speed, 0, 0); }
+	if (Input::KeyDown(' ')) { transform.MoveAbsolute(0, speed, 0); }
+	if (Input::KeyDown(VK_CONTROL)) { transform.MoveAbsolute(0, -speed, 0); }
+	//Rotation
+	if (Input::MouseLeftDown()) {
+		//get cursor change
+		//1.0 is mouse look speed, eventually will be a variable
+		float xChange = 1.0f * Input::GetRawMouseXDelta();
+		float yChange = 1.0f * Input::GetRawMouseYDelta();
+		//apply rotation, remeber inverted axes
+		transform.Rotate(yChange, xChange, 0);
+
+		//prevent roll by only allowing pi/2 movement
+		XMFLOAT3 currentRot = transform.GetRotation();
+		if (currentRot.x > XM_PIDIV2) currentRot.x = XM_PIDIV2;
+		if (currentRot.x < -XM_PIDIV2) currentRot.x = -XM_PIDIV2;
+		transform.SetRotation(currentRot);
+	}
+
+	//Update view matrix - do this at end so it is 100% up to date
+	UpdateViewMatrix();
 }

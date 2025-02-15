@@ -23,7 +23,7 @@ Transform& Entity::GetTransform()
 	return transform;
 }
 
-void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer)
+void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, std::shared_ptr<Camera> activeCam)
 {
 	//Map, Memcpy, and Unmap cbuffer
 	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
@@ -37,6 +37,8 @@ void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer)
 	//Set default for constant buffer
 	vsData.colorTint = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	vsData.offset = transform.GetWorldMatrix();
+	vsData.view = activeCam->GetView();
+	vsData.projection = activeCam->GetProjection();
 
 
 	//Responsible for:

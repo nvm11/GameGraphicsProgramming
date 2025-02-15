@@ -66,7 +66,7 @@ void Camera::UpdateViewMatrix()
 void Camera::Update(float dt)
 {
 	//declare a speed variable
-	float speed = dt + 2.0f;
+	float speed = dt * 2.0f;
 
 	//Process input
 	//Movement
@@ -80,8 +80,8 @@ void Camera::Update(float dt)
 	if (Input::MouseLeftDown()) {
 		//get cursor change
 		//1.0 is mouse look speed, eventually will be a variable
-		float xChange = 1.0f * Input::GetRawMouseXDelta();
-		float yChange = 1.0f * Input::GetRawMouseYDelta();
+		float xChange = 0.01f * Input::GetRawMouseXDelta();
+		float yChange = 0.01f * Input::GetRawMouseYDelta();
 		//apply rotation, remeber inverted axes
 		transform.Rotate(yChange, xChange, 0);
 

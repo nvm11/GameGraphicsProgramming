@@ -363,7 +363,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		//Draw all Entities
 		for (size_t i = 0; i < entities.size(); i++) {
-			entities[i]->Draw(constantBuffer);
+			entities[i]->Draw(constantBuffer, cam1);
 		}
 
 		// UI is drawn last so it is on top

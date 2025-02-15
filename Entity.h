@@ -6,6 +6,7 @@
 #include "Transform.h"
 #include "Mesh.h"
 #include "BufferStructs.h"
+#include "Camera.h"
 
 class Entity
 {
@@ -28,6 +29,6 @@ public:
 	std::shared_ptr<Mesh> GetMesh();
 	Transform& GetTransform();
 	//Drawing
-	void Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer);
+	void Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, std::shared_ptr<Camera> activeCam);
 };
 

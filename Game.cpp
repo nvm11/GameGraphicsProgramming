@@ -90,7 +90,21 @@ void Game::Initialize()
 		ImGui::StyleColorsDark();
 
 		//Create cameras
-		cam1 = std::make_shared<Camera>();
+		float aspectRatio = (float)Window::Width() / (float)Window::Height();
+
+		cam1 = std::make_shared<Camera>(
+			XMFLOAT3(0.0f, 2.0f, -5.0f),
+			XM_PIDIV4,
+			aspectRatio,
+			0.01f,
+			100.0f);
+
+		cam2 = std::make_shared<Camera>(
+			XMFLOAT3(5.0f, 5.0f, -10.0f),
+			XM_PIDIV4,
+			aspectRatio,
+			0.01f,
+			100.0f);
 	}
 }
 
@@ -253,6 +267,16 @@ void Game::CreateGeometry()
 // --------------------------------------------------------
 void Game::OnResize()
 {
+	//calc new aspect ratio
+	float aspectRatio = (float)Window::Width() / (float)Window::Height();
+
+	//Do a null check for startup
+	if (cam1) {
+		cam1->UpdateProjectionMatrix(aspectRatio);
+	}
+	if (cam2) {
+		cam2->UpdateProjectionMatrix(aspectRatio);
+	}
 }
 
 void Game::UpdateUI(float deltaTime)
@@ -289,7 +313,7 @@ void Game::Update(float deltaTime, float totalTime)
 	for (size_t i = 0; i < entities.size(); i++) {
 		if (i % 2 == 0) {
 			entities[i]->GetTransform().SetPosition(XMFLOAT3(0.0f, (float)sin(totalTime) * .5f, 0.0f));
-			entities[i]->GetTransform().SetScale(XMFLOAT3(1.0f, ((float)sin(totalTime) + 1) *.5f + .5f, 1.0f));
+			entities[i]->GetTransform().SetScale(XMFLOAT3(1.0f, ((float)sin(totalTime) + 1) * .5f + .5f, 1.0f));
 			entities[i]->GetTransform().Rotate(XMFLOAT3((float)sin(deltaTime), 0.0f, 0.0f));
 		}
 		else {
@@ -297,6 +321,10 @@ void Game::Update(float deltaTime, float totalTime)
 			entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.0f, (float)sin(deltaTime)));
 		}
 	}
+
+	//Update cameras
+	cam1->Update(deltaTime);
+	cam2->Update(deltaTime);
 
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))

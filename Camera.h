@@ -22,7 +22,7 @@ public:
 	//Constructor
 	Camera(DirectX::XMFLOAT3 initialPos,
 		float fov = DirectX::XM_PIDIV2,
-		float apsectRatio,
+		float apsectRatio= 0.0f,
 		float nearClipDist = 0.01f,
 		float farClipDist = 100.0f,
 		bool perspective = true,

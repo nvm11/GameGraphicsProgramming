@@ -51,10 +51,12 @@ void Camera::UpdateProjectionMatrix(float aspect)
 
 void Camera::UpdateViewMatrix()
 {
-	XMMatrixLookToLH(
+	XMMATRIX newView = XMMatrixLookToLH(
 		XMLoadFloat3(&transform.GetPosition()),
 		XMLoadFloat3(&transform.GetForward()),
 		XMVectorSet(0, 1, 0, 0)); //world up
+
+	XMStoreFloat4x4(&view, newView);
 }
 
 void Camera::Update(float dt)

@@ -35,11 +35,13 @@ public:
 	DirectX::XMFLOAT4X4 GetView();
 	DirectX::XMFLOAT4X4 GetProjection();
 	//TODO: Add getters and setters for most camera variables
+
 	//Matrix Operations
 	//called once per frame
 	void UpdateViewMatrix();
 	//Called on initialization and when window resizes
 	void UpdateProjectionMatrix(float aspectRatio);
+
 	//Game loop
 	//processes user input, 
 	//adjusts the transform, 

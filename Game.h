@@ -9,6 +9,7 @@
 
 #include "Mesh.h"
 #include "Entity.h"
+#include "Camera.h"
 //contains constant buffer structs
 #include "BufferStructs.h"
 
@@ -47,11 +48,12 @@ private:
 	//XMFLOAT3 rightPosition;
 
 
+	//Cameras
+	std::shared_ptr<Camera> cam1;
+	std::shared_ptr<Camera> cam2;
+
 	//container for meshes
 	std::vector<std::shared_ptr<Entity>> entities;
-
-
-
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void LoadShaders();

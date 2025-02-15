@@ -88,6 +88,9 @@ void Game::Initialize()
 		ImGui_ImplDX11_Init(Graphics::Device.Get(), Graphics::Context.Get());
 		// Pick a style
 		ImGui::StyleColorsDark();
+
+		//Create cameras
+		cam1 = std::make_shared<Camera>();
 	}
 }
 

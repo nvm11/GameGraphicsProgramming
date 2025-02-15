@@ -1,8 +1,8 @@
 #include "Camera.h"
 using namespace DirectX;
 
-Camera::Camera(XMFLOAT3 initialPos, float fov, float aspectRatio, float nearClipDist, float farClipDist, bool perspective)
-	:fovAngle(fov), nearClipDist(nearClipDist), farClipDist(farClipDist), isPerspective(perspective)
+Camera::Camera(XMFLOAT3 initialPos, float fov, float aspectRatio, float nearClipDist, float farClipDist, bool perspective, float orthographicWidth)
+	:fovAngle(fov), nearClipDist(nearClipDist), farClipDist(farClipDist), isPerspective(perspective), orthWidth(orthographicWidth)
 {
 	transform.SetPosition(initialPos);
 	UpdateViewMatrix();
@@ -31,16 +31,22 @@ void Camera::UpdateProjectionMatrix(float aspect)
 
 	//check projection type
 	if (isPerspective) {
-		projMatrix = XMMatrixPerspectiveFovLH(fovAngle,
+		projMatrix = XMMatrixPerspectiveFovLH(
+			fovAngle,
 			aspect,
 			nearClipDist,
 			farClipDist);
 	}
 	else {
-
+		projMatrix = XMMatrixOrthographicLH(
+			orthWidth,
+			orthWidth / aspect, //convert projection height into world units
+			nearClipDist,
+			farClipDist);
 	}
 
 	//store result
+	XMStoreFloat4x4(&projection, projMatrix);
 }
 
 void Camera::UpdateViewMatrix()

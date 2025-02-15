@@ -15,6 +15,7 @@ private:
 	float fovAngle; //in radians
 	float nearClipDist;
 	float farClipDist;
+	float orthWidth; //width of objs for orthographic camera
 	bool isPerspective;
 
 public:
@@ -24,7 +25,8 @@ public:
 		float apsectRatio,
 		float nearClipDist = 0.01f,
 		float farClipDist = 100.0f,
-		bool perspective = true);
+		bool perspective = true,
+		float orthographicWidth = 5.0f);
 	//Destructor
 	~Camera();
 

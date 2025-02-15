@@ -6,6 +6,8 @@ cbuffer ShaderData : register(b0)
 {
     float4 colorTint;
     matrix world;
+    matrix view;
+    matrix projection;
 };
 
 // Struct representing a single vertex worth of data

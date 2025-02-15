@@ -21,7 +21,7 @@ private:
 	DirectX::XMFLOAT4X4 worldInverseTranspose;
 
 	//used to track if matrix needs to be remade
-	bool dirty;
+	bool isDirty;
 
 	//Helper Methods
 	//remakes matrices and direction vectors

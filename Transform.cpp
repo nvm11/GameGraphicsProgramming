@@ -2,7 +2,7 @@
 using namespace DirectX;
 
 Transform::Transform() :
-	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0), dirty(true)
+	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0), isDirty(true)
 {
 	//store matrices
 	RemakeMatrices();
@@ -22,7 +22,7 @@ void Transform::SetPosition(DirectX::XMFLOAT3 newPos)
 {
 	//create xmvector and store result in original position
 	XMStoreFloat3(&position, XMLoadFloat3(&newPos));
-	dirty = true; //matrix needs rebuild
+	isDirty = true; //matrix needs rebuild
 }
 
 void Transform::SetRotation(float pitch, float yaw, float roll)
@@ -34,7 +34,7 @@ void Transform::SetRotation(float pitch, float yaw, float roll)
 void Transform::SetRotation(DirectX::XMFLOAT3 newRot)
 {
 	XMStoreFloat3(&pitchYawRoll, XMLoadFloat3(&newRot));
-	dirty = true;
+	isDirty = true;
 }
 
 void Transform::SetScale(float x, float y, float z)
@@ -45,7 +45,7 @@ void Transform::SetScale(float x, float y, float z)
 void Transform::SetScale(DirectX::XMFLOAT3 newScale)
 {
 	XMStoreFloat3(&scale, XMLoadFloat3(&newScale));
-	dirty = true;
+	isDirty = true;
 }
 
 DirectX::XMFLOAT3 Transform::GetPosition()
@@ -77,7 +77,7 @@ void Transform::MoveAbsolute(DirectX::XMFLOAT3 newPos)
 		XMVectorAdd(XMLoadFloat3(&position)
 			, XMLoadFloat3(&newPos)));
 
-	dirty = true;
+	isDirty = true;
 }
 
 void Transform::Rotate(float x, float y, float z)
@@ -90,7 +90,7 @@ void Transform::Rotate(DirectX::XMFLOAT3 newRot)
 	XMStoreFloat3(&pitchYawRoll,
 		XMVectorAdd(XMLoadFloat3(&pitchYawRoll),
 			XMLoadFloat3(&newRot)));
-	dirty = true;
+	isDirty = true;
 }
 
 void Transform::Scale(float x, float y, float z)
@@ -103,7 +103,7 @@ void Transform::Scale(DirectX::XMFLOAT3 newScale)
 	XMStoreFloat3(&scale,
 		XMVectorMultiply(XMLoadFloat3(&scale),
 			XMLoadFloat3(&newScale)));
-	dirty = true;
+	isDirty = true;
 }
 
 void Transform::MoveRelative(float x, float y, float z)
@@ -120,12 +120,12 @@ void Transform::MoveRelative(DirectX::XMFLOAT3 posOffset)
 	//apply rotated offset to position and store new pos
 	XMStoreFloat3(&position, XMVectorAdd(XMLoadFloat3(&position), rotatedOffset));
 
-	dirty = true;
+	isDirty = true;
 }
 
 DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 {
-	if (dirty) {
+	if (isDirty) {
 		//Remake matrix
 		RemakeMatrices();
 	}
@@ -135,7 +135,7 @@ DirectX::XMFLOAT4X4 Transform::GetWorldMatrix()
 
 DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 {
-	if (dirty) {
+	if (isDirty) {
 		RemakeMatrices();
 	}
 
@@ -181,7 +181,7 @@ void Transform::RemakeMatrices() {
 	CreateDirectionVector(XMVectorSet(0, 0, 1, 0), forward);
 
 	//tell class matrices are up to date
-	dirty = false;
+	isDirty = false;
 }
 
 void Transform::CreateDirectionVector(DirectX::XMVECTOR cardinalDirection, DirectX::XMFLOAT3& directionLocation)

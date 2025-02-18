@@ -34,6 +34,8 @@ public:
 	//Getters
 	DirectX::XMFLOAT4X4 GetView();
 	DirectX::XMFLOAT4X4 GetProjection();
+	Transform GetTransform();
+	float GetFOV();
 	//TODO: Add getters and setters for most camera variables
 
 	//Matrix Operations

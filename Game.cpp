@@ -92,19 +92,26 @@ void Game::Initialize()
 		//Create cameras
 		float aspectRatio = (float)Window::Width() / (float)Window::Height();
 
-		cam1 = std::make_shared<Camera>(
-			XMFLOAT3(0.0f, 2.0f, -5.0f),
+		//perspective
+		std::shared_ptr<Camera> cam1 = std::make_shared<Camera>(
+			XMFLOAT3(0.0f, 0.0f, -5.0f),
 			XM_PIDIV4,
 			aspectRatio,
 			0.01f,
 			100.0f);
+		//orthographic
+		std::shared_ptr<Camera> cam2 = std::make_shared<Camera>(
+			XMFLOAT3(1.0f, 2.0f, -10.0f),
+			XM_PIDIV2,
+			aspectRatio,
+			0.01f,
+			100.0f,
+			false);
 
-		cam2 = std::make_shared<Camera>(
-			XMFLOAT3(5.0f, 5.0f, -10.0f),
-			XM_PIDIV4,
-			aspectRatio,
-			0.01f,
-			100.0f);
+		cams.push_back(cam1);
+		cams.push_back(cam2);
+
+		activeCam = 1;
 	}
 }
 
@@ -271,11 +278,8 @@ void Game::OnResize()
 	float aspectRatio = (float)Window::Width() / (float)Window::Height();
 
 	//Do a null check for startup
-	if (cam1) {
-		cam1->UpdateProjectionMatrix(aspectRatio);
-	}
-	if (cam2) {
-		cam2->UpdateProjectionMatrix(aspectRatio);
+	for (size_t i = 0; i < cams.size(); i++) {
+		cams[i]->UpdateProjectionMatrix(aspectRatio);
 	}
 }
 
@@ -323,8 +327,9 @@ void Game::Update(float deltaTime, float totalTime)
 	}
 
 	//Update cameras
-	cam1->Update(deltaTime);
-	cam2->Update(deltaTime);
+	for (size_t i = 0; i < cams.size(); i++) {
+		cams[i]->Update(deltaTime);
+	}
 
 	// Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
@@ -363,7 +368,7 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		//Draw all Entities
 		for (size_t i = 0; i < entities.size(); i++) {
-			entities[i]->Draw(constantBuffer, cam1);
+			entities[i]->Draw(constantBuffer, cams[activeCam]);
 		}
 
 		// UI is drawn last so it is on top
@@ -405,6 +410,19 @@ void Game::DrawUI()
 			ImGui::Unindent();
 		}
 
+		if (ImGui::CollapsingHeader("Camera")) {
+			ImGui::Text("Camera Data");
+			XMFLOAT3 camPos = cams[activeCam]->GetTransform().GetPosition();
+
+			// Display Camera Position
+			ImGui::Text("Position: X=%.2f, Y=%.2f, Z=%.2f", camPos.x, camPos.y, camPos.z);
+
+			float fov = XMConvertToDegrees(cams[activeCam]->GetFOV());
+
+			// Display FOV
+			ImGui::Text("Field of View: %.2f°", fov);
+		}
+
 		if (ImGui::CollapsingHeader("Mesh Data")) {
 			ImGui::Indent();
 
@@ -436,6 +454,17 @@ void Game::DrawUI()
 	//Continer for controls
 	if (ImGui::CollapsingHeader("Controls"))
 	{
+		ImGui::SeparatorText("Toggle Cameras");
+		for (size_t i = 0; i < cams.size(); i++)
+		{
+			std::string label = "Camera " + std::to_string(i + 1);
+
+			// Create a radio button for each camera
+			if (ImGui::RadioButton(label.c_str(), activeCam == i))
+			{
+				activeCam = (int)i; // Update active camera index
+			}
+		}
 		// Alter Matrices of Entities
 		for (size_t i = 0; i < entities.size(); i++)
 		{

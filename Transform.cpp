@@ -144,16 +144,19 @@ DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 
 DirectX::XMFLOAT3 Transform::GetUp()
 {
+	CreateDirectionVector(XMVectorSet(0, 1, 0, 0), up);
 	return up;
 }
 
 DirectX::XMFLOAT3 Transform::GetRight()
 {
+	CreateDirectionVector(XMVectorSet(1, 0, 0, 0), right);
 	return right;
 }
 
 DirectX::XMFLOAT3 Transform::GetForward()
 {
+	CreateDirectionVector(XMVectorSet(0, 0, 1, 0), forward);
 	return forward;
 }
 
@@ -173,12 +176,6 @@ void Transform::RemakeMatrices() {
 	//store results in storage types
 	XMStoreFloat4x4(&world, worldMatrix);
 	XMStoreFloat4x4(&worldInverseTranspose, XMMatrixInverse(0, XMMatrixTranspose(worldMatrix)));
-
-	//Vetors
-	//Up Vector
-	CreateDirectionVector(XMVectorSet(0, 1, 0, 0), up);
-	CreateDirectionVector(XMVectorSet(1, 0, 0, 0), right);
-	CreateDirectionVector(XMVectorSet(0, 0, 1, 0), forward);
 
 	//tell class matrices are up to date
 	isDirty = false;

@@ -48,9 +48,9 @@ private:
 	//XMFLOAT3 rightPosition;
 
 
-	//Cameras
-	std::shared_ptr<Camera> cam1;
-	std::shared_ptr<Camera> cam2;
+	//container for cameras
+	std::vector<std::shared_ptr<Camera>> cams;
+	int activeCam; //index of active camera
 
 	//container for meshes
 	std::vector<std::shared_ptr<Entity>> entities;

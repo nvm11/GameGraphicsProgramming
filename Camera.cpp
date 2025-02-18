@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include <iostream>
 using namespace DirectX;
 
 Camera::Camera(XMFLOAT3 initialPos, float fov, float aspectRatio, float nearClipDist, float farClipDist, bool perspective, float orthographicWidth)
@@ -24,6 +25,11 @@ XMFLOAT4X4 Camera::GetProjection()
 	return projection;
 }
 
+Transform Camera::GetTransform()
+{
+	return transform;
+}
+
 void Camera::UpdateProjectionMatrix(float aspect)
 {
 	//create temp math-type matix
@@ -47,6 +53,11 @@ void Camera::UpdateProjectionMatrix(float aspect)
 
 	//store result
 	XMStoreFloat4x4(&projection, projMatrix);
+}
+
+float Camera::GetFOV()
+{
+	return fovAngle;
 }
 
 void Camera::UpdateViewMatrix()
@@ -82,6 +93,7 @@ void Camera::Update(float dt)
 		//1.0 is mouse look speed, eventually will be a variable
 		float xChange = 0.01f * Input::GetRawMouseXDelta();
 		float yChange = 0.01f * Input::GetRawMouseYDelta();
+
 		//apply rotation, remeber inverted axes
 		transform.Rotate(yChange, xChange, 0);
 

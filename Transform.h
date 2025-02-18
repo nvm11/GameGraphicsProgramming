@@ -22,12 +22,14 @@ private:
 
 	//used to track if matrix needs to be remade
 	bool isDirty;
+	//tracks if the direction vectors need to be remade
+	bool isDirtyRotate;
 
 	//Helper Methods
 	//remakes matrices and direction vectors
 	void RemakeMatrices();
 	//Helper that creates a direction vector
-	void CreateDirectionVector(DirectX::XMVECTOR cardinalDirection, DirectX::XMFLOAT3 &directionLocation);
+	void CreateDirectionVectors();
 
 public:
 	//Constructors

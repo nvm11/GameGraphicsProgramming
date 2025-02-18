@@ -2,10 +2,12 @@
 using namespace DirectX;
 
 Transform::Transform() :
-	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0), isDirty(true)
+	position(0, 0, 0), scale(1, 1, 1), pitchYawRoll(0, 0, 0), isDirty(true), isDirtyRotate(true)
 {
 	//store matrices
 	RemakeMatrices();
+	//create default direction vector values
+
 }
 
 Transform::~Transform()
@@ -35,6 +37,7 @@ void Transform::SetRotation(DirectX::XMFLOAT3 newRot)
 {
 	XMStoreFloat3(&pitchYawRoll, XMLoadFloat3(&newRot));
 	isDirty = true;
+	isDirtyRotate = true;
 }
 
 void Transform::SetScale(float x, float y, float z)
@@ -91,6 +94,7 @@ void Transform::Rotate(DirectX::XMFLOAT3 newRot)
 		XMVectorAdd(XMLoadFloat3(&pitchYawRoll),
 			XMLoadFloat3(&newRot)));
 	isDirty = true;
+	isDirtyRotate = true;
 }
 
 void Transform::Scale(float x, float y, float z)
@@ -144,19 +148,25 @@ DirectX::XMFLOAT4X4 Transform::GetWorldInverseTransposeMatrix()
 
 DirectX::XMFLOAT3 Transform::GetUp()
 {
-	CreateDirectionVector(XMVectorSet(0, 1, 0, 0), up);
+	if (isDirtyRotate) {
+		CreateDirectionVectors();
+	}
 	return up;
 }
 
 DirectX::XMFLOAT3 Transform::GetRight()
 {
-	CreateDirectionVector(XMVectorSet(1, 0, 0, 0), right);
+	if (isDirtyRotate) {
+		CreateDirectionVectors();
+	}
 	return right;
 }
 
 DirectX::XMFLOAT3 Transform::GetForward()
 {
-	CreateDirectionVector(XMVectorSet(0, 0, 1, 0), forward);
+	if (isDirtyRotate) {
+		CreateDirectionVectors();
+	}
 	return forward;
 }
 
@@ -181,12 +191,15 @@ void Transform::RemakeMatrices() {
 	isDirty = false;
 }
 
-void Transform::CreateDirectionVector(DirectX::XMVECTOR cardinalDirection, DirectX::XMFLOAT3& directionLocation)
-{
+void Transform::CreateDirectionVectors() {
 	//create the quaternion
 	XMVECTOR rotationQuat = XMQuaternionRotationRollPitchYawFromVector(XMLoadFloat3(&pitchYawRoll));
 	//rotate the input vector and store result
-	XMStoreFloat3(&directionLocation, XMVector3Rotate(cardinalDirection, rotationQuat));
+	XMStoreFloat3(&up, XMVector3Rotate(XMVectorSet(0, 1, 0, 0), rotationQuat));
+	XMStoreFloat3(&forward, XMVector3Rotate(XMVectorSet(0, 0, 1, 0), rotationQuat));
+	XMStoreFloat3(&right, XMVector3Rotate(XMVectorSet(1, 0, 0, 0), rotationQuat));
+	//mark rotations up to date
+	isDirtyRotate = false;
 }
 
 

@@ -111,7 +111,7 @@ void Game::Initialize()
 		cams.push_back(cam1);
 		cams.push_back(cam2);
 
-		activeCam = 1;
+		activeCam = 0;
 	}
 }
 

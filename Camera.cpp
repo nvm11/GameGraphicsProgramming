@@ -91,8 +91,8 @@ void Camera::Update(float dt)
 	if (Input::MouseLeftDown()) {
 		//get cursor change
 		//1.0 is mouse look speed, eventually will be a variable
-		float xChange = 0.01f * Input::GetRawMouseXDelta();
-		float yChange = 0.01f * Input::GetRawMouseYDelta();
+		float xChange = 0.001f * Input::GetMouseXDelta();
+		float yChange = 0.001f * Input::GetMouseYDelta();
 
 		//apply rotation, remeber inverted axes
 		transform.Rotate(yChange, xChange, 0);

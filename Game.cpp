@@ -99,73 +99,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	// Create the first mesh
-	Vertex vertices[] =
-	{
-		{ XMFLOAT3(0.0f, 0.5f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) }, // Top vertex (red)
-		{ XMFLOAT3(0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }, // Right vertex (green)
-		{ XMFLOAT3(-0.5f, -0.5f, 0.0f), XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }  // Left vertex (blue)
-	};
-
-	unsigned int indices[] = { 0, 1, 2 };
-
-	std::shared_ptr<Mesh> mesh1 = std::make_shared<Mesh>(
-		vertices, indices,
-		sizeof(vertices) / sizeof(Vertex),
-		sizeof(indices) / sizeof(unsigned int)
-	);
-
-	// Create the second mesh
-	Vertex secondVertices[] =
-	{
-		{ XMFLOAT3(-0.9f, -0.1f, 0.0f), XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(-0.7f, -0.1f, 0.0f), XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(-0.7f, -0.9f, 0.0f), XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(-0.9f, -0.9f, 0.0f), XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f) }
-	};
-
-	unsigned int secondIndices[] = { 0, 1, 2, 2, 3, 0 };
-
-	std::shared_ptr<Mesh> mesh2 = std::make_shared<Mesh>(
-		secondVertices, secondIndices,
-		sizeof(secondVertices) / sizeof(Vertex),
-		sizeof(secondIndices) / sizeof(unsigned int)
-	);
-
-	// Create the third mesh
-	Vertex thirdVertices[] = {
-		{ XMFLOAT3(0.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(0.25f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(0.5f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
-		{ XMFLOAT3(0.75f, 1.0f, 0.0f), XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ XMFLOAT3(1.0f,  0.5f, 0.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
-	};
-
-	unsigned int thirdIndices[] = { 0,1,2, 2,1,3, 3,4,2 };
-
-	std::shared_ptr<Mesh> mesh3 = std::make_shared<Mesh>(
-		thirdVertices, thirdIndices,
-		sizeof(thirdVertices) / sizeof(Vertex),
-		sizeof(thirdIndices) / sizeof(unsigned int)
-	);
-
-	//create vertex and pixel shaders
-	std::shared_ptr<SimpleVertexShader> vs = std::make_shared<SimpleVertexShader>(
-		Graphics::Device, Graphics::Context, FixPath(L"VertexShader.cso").c_str());
-	std::shared_ptr<SimplePixelShader> ps = std::make_shared<SimplePixelShader>(
-		Graphics::Device, Graphics::Context, FixPath(L"PixelShader.cso").c_str());
-
-	std::shared_ptr<Material> mat1 = std::make_shared<Material>(vs, ps, XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-	std::shared_ptr<Material> mat2 = std::make_shared<Material>(vs, ps, XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-	std::shared_ptr<Material> mat3 = std::make_shared<Material>(vs, ps, XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
-
-	//Populate the entities vector
-	entities.push_back(std::make_shared<Entity>(mesh1, mat1));
-	entities.push_back(std::make_shared<Entity>(mesh2, mat2));
-	entities.push_back(std::make_shared<Entity>(mesh3, mat3));
-	//Add extra entities
-	entities.push_back(std::make_shared<Entity>(mesh3, mat1));
-	entities.push_back(std::make_shared<Entity>(mesh2, mat3));
+	
 }
 
 

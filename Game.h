@@ -12,7 +12,8 @@
 #include "Camera.h"
 #include "Material.h"
 //contains constant buffer structs
-#include "BufferStructs.h"
+//Removed with Simple Shader
+//#include "BufferStructs.h"
 //contains simplified shaders functionality
 #include "SimpleShader.h"
 
@@ -72,8 +73,5 @@ private:
 	//  - This is a smart pointer for objects that abide by the
 	//     Component Object Model, which DirectX objects do
 	//  - More info here: https://github.com/Microsoft/DirectXTK/wiki/ComPtr
-
-	//create vertex data struct
-	ShaderData vsData = {};
 };
 

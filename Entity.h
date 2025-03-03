@@ -5,7 +5,7 @@
 
 #include "Transform.h"
 #include "Mesh.h"
-#include "BufferStructs.h"
+//#include "BufferStructs.h"
 #include "Camera.h"
 #include "Material.h"
 
@@ -16,10 +16,6 @@ private:
 	Transform transform;
 	std::shared_ptr<Mesh> mesh;
 	std::shared_ptr<Material> material;
-
-	//zero out struct
-	//here temporarily
-	ShaderData vsData = {};
 
 public:
 	//Constructors

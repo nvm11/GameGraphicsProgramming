@@ -155,17 +155,17 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> ps = std::make_shared<SimplePixelShader>(
 		Graphics::Device, Graphics::Context, FixPath(L"PixelShader.cso").c_str());
 
-	Material mat1 = Material(vs, ps, XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
-	Material mat2 = Material(vs, ps, XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
-	Material mat3 = Material(vs, ps, XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
+	std::shared_ptr<Material> mat1 = std::make_shared<Material>(vs, ps, XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f));
+	std::shared_ptr<Material> mat2 = std::make_shared<Material>(vs, ps, XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f));
+	std::shared_ptr<Material> mat3 = std::make_shared<Material>(vs, ps, XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f));
 
 	//Populate the entities vector
-	entities.push_back(std::make_shared<Entity>(mesh1));
-	entities.push_back(std::make_shared<Entity>(mesh2));
-	entities.push_back(std::make_shared<Entity>(mesh3));
+	entities.push_back(std::make_shared<Entity>(mesh1, mat1));
+	entities.push_back(std::make_shared<Entity>(mesh2, mat2));
+	entities.push_back(std::make_shared<Entity>(mesh3, mat3));
 	//Add extra entities
-	entities.push_back(std::make_shared<Entity>(mesh3));
-	entities.push_back(std::make_shared<Entity>(mesh2));
+	entities.push_back(std::make_shared<Entity>(mesh3, mat1));
+	entities.push_back(std::make_shared<Entity>(mesh2, mat3));
 }
 
 

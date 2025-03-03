@@ -23,7 +23,7 @@ private:
 
 public:
 	//Constructors
-	Entity(const std::shared_ptr<Mesh> mesh, const std::shared_ptr<Material> field);
+	Entity(const std::shared_ptr<Mesh> mesh, const std::shared_ptr<Material> material);
 	~Entity();
 
 	//Methods

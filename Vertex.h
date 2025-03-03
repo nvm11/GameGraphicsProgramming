@@ -10,6 +10,6 @@
 struct Vertex
 {
 	DirectX::XMFLOAT3 Position;	    // The local position of the vertex
-	DirectX::XMFLOAT2 uv;			// UV texture coordinates
-	DirectX::XMFLOAT3 normal;	    // Surface normals (used for lighting)
+	DirectX::XMFLOAT2 UV;			// UV texture coordinates
+	DirectX::XMFLOAT3 Normal;	    // Surface normals (used for lighting)
 };

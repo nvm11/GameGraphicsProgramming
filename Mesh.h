@@ -20,6 +20,8 @@ public:
 	//Creates buffers and 
 	Mesh(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount);
 
+	Mesh(const char* meshData);
+
 	//Destructor--
 	//most likely empty, still necessary so ComPtrs clean up
 	~Mesh();

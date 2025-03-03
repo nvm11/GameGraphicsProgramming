@@ -22,8 +22,8 @@ public:
 	DirectX::XMFLOAT4 GetColor();
 
 	//setters
-	void SetVertexShader(std::shared_ptr<SimpleVertexShader>);
-	void SetPixelShader(std::shared_ptr<SimplePixelShader>);
+	void SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs);
+	void SetPixelShader(std::shared_ptr<SimplePixelShader> newPs);
 	void SetColor(const DirectX::XMFLOAT4& newColor);
 };
 

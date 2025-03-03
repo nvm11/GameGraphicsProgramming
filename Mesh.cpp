@@ -6,61 +6,8 @@
 using namespace DirectX;
 
 Mesh::Mesh(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount) {
-	//set fields from params
-	vertices = (unsigned int)vertexCount;
-	indices = (unsigned int)indexCount;
-
-	//create buffers
-	// Create a VERTEX BUFFER
-	// - This holds the vertex data of triangles for a single object
-	// - This buffer is created on the GPU, which is where the data needs to
-	//    be if we want the GPU to act on it (as in: draw it to the screen)
-
-	// First, we need to describe the buffer we want Direct3D to make on the GPU
-	//  - Note that this variable is created on the stack since we only need it once
-	//  - After the buffer is created, this description variable is unnecessary
-	D3D11_BUFFER_DESC vbd = {};
-	vbd.Usage = D3D11_USAGE_IMMUTABLE;	// Will NEVER change
-	vbd.ByteWidth = sizeof(Vertex) * indices; // multiply size of vertex struct by number of vertices
-	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Tells Direct3D this is a vertex buffer
-	vbd.CPUAccessFlags = 0;	// Note: We cannot access the data from C++ (this is good)
-	vbd.MiscFlags = 0;
-	vbd.StructureByteStride = 0;
-
-	// Create the proper struct to hold the initial vertex data
-	// - This is how we initially fill the buffer with data
-	// - Essentially, we're specifying a pointer to the data to copy
-	D3D11_SUBRESOURCE_DATA initialVertexData = {};
-	initialVertexData.pSysMem = vertexData; // pSysMem = Pointer to System Memory
-
-	// Actually create the buffer on the GPU with the initial data
-	// - Once we do this, we'll NEVER CHANGE DATA IN THE BUFFER AGAIN
-	Graphics::Device->CreateBuffer(&vbd, &initialVertexData, vertexBuffer.GetAddressOf());
-
-	//index buffer
-	// Create an INDEX BUFFER
-	// - This holds indices to elements in the vertex buffer
-	// - This is most useful when vertices are shared among neighboring triangles
-	// - This buffer is created on the GPU, which is where the data needs to
-	//    be if we want the GPU to act on it (as in: draw it to the screen)
-	// Describe the buffer, as we did above, with two major differences
-	//  - Byte Width (3 unsigned integers vs. 3 whole vertices)
-	//  - Bind Flag (used as an index buffer instead of a vertex buffer) 
-	D3D11_BUFFER_DESC ibd = {};
-	ibd.Usage = D3D11_USAGE_IMMUTABLE;	// Will NEVER change
-	ibd.ByteWidth = sizeof(unsigned int) * indices;	// vertex * number of indices in the buffer
-	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;	// Tells Direct3D this is an index buffer
-	ibd.CPUAccessFlags = 0;	// Note: We cannot access the data from C++ (this is good)
-	ibd.MiscFlags = 0;
-	ibd.StructureByteStride = 0;
-
-	// Specify the initial data for this buffer, similar to above
-	D3D11_SUBRESOURCE_DATA initialIndexData = {};
-	initialIndexData.pSysMem = indexData; // pSysMem = Pointer to System Memory
-
-	// Actually create the buffer with the initial data
-	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
-	Graphics::Device->CreateBuffer(&ibd, &initialIndexData, indexBuffer.GetAddressOf());
+	//call helper method to create buffers
+	CreateBuffers(vertexData, indexData, vertexCount, indexCount);
 }
 
 //constructor to load objects in from .obj files
@@ -319,10 +266,72 @@ Mesh::Mesh(const char* meshData)
 	//     of which are unnecessary for now.
 	//
 	// *************************************
+
+	//After File I/O
+	//Create buffers from data
+	CreateBuffers(&verts[0], &indices[0], vertCounter, indexCounter);
 }
 
 Mesh::~Mesh() {
 	//If cleanup required, place code here
+}
+
+void Mesh::CreateBuffers(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount) {
+	//set fields from params
+	vertices = (unsigned int)vertexCount;
+	indices = (unsigned int)indexCount;
+
+	//create buffers
+	// Create a VERTEX BUFFER
+	// - This holds the vertex data of triangles for a single object
+	// - This buffer is created on the GPU, which is where the data needs to
+	//    be if we want the GPU to act on it (as in: draw it to the screen)
+
+	// First, we need to describe the buffer we want Direct3D to make on the GPU
+	//  - Note that this variable is created on the stack since we only need it once
+	//  - After the buffer is created, this description variable is unnecessary
+	D3D11_BUFFER_DESC vbd = {};
+	vbd.Usage = D3D11_USAGE_IMMUTABLE;	// Will NEVER change
+	vbd.ByteWidth = sizeof(Vertex) * indices; // multiply size of vertex struct by number of vertices
+	vbd.BindFlags = D3D11_BIND_VERTEX_BUFFER; // Tells Direct3D this is a vertex buffer
+	vbd.CPUAccessFlags = 0;	// Note: We cannot access the data from C++ (this is good)
+	vbd.MiscFlags = 0;
+	vbd.StructureByteStride = 0;
+
+	// Create the proper struct to hold the initial vertex data
+	// - This is how we initially fill the buffer with data
+	// - Essentially, we're specifying a pointer to the data to copy
+	D3D11_SUBRESOURCE_DATA initialVertexData = {};
+	initialVertexData.pSysMem = vertexData; // pSysMem = Pointer to System Memory
+
+	// Actually create the buffer on the GPU with the initial data
+	// - Once we do this, we'll NEVER CHANGE DATA IN THE BUFFER AGAIN
+	Graphics::Device->CreateBuffer(&vbd, &initialVertexData, vertexBuffer.GetAddressOf());
+
+	//index buffer
+	// Create an INDEX BUFFER
+	// - This holds indices to elements in the vertex buffer
+	// - This is most useful when vertices are shared among neighboring triangles
+	// - This buffer is created on the GPU, which is where the data needs to
+	//    be if we want the GPU to act on it (as in: draw it to the screen)
+	// Describe the buffer, as we did above, with two major differences
+	//  - Byte Width (3 unsigned integers vs. 3 whole vertices)
+	//  - Bind Flag (used as an index buffer instead of a vertex buffer) 
+	D3D11_BUFFER_DESC ibd = {};
+	ibd.Usage = D3D11_USAGE_IMMUTABLE;	// Will NEVER change
+	ibd.ByteWidth = sizeof(unsigned int) * indices;	// vertex * number of indices in the buffer
+	ibd.BindFlags = D3D11_BIND_INDEX_BUFFER;	// Tells Direct3D this is an index buffer
+	ibd.CPUAccessFlags = 0;	// Note: We cannot access the data from C++ (this is good)
+	ibd.MiscFlags = 0;
+	ibd.StructureByteStride = 0;
+
+	// Specify the initial data for this buffer, similar to above
+	D3D11_SUBRESOURCE_DATA initialIndexData = {};
+	initialIndexData.pSysMem = indexData; // pSysMem = Pointer to System Memory
+
+	// Actually create the buffer with the initial data
+	// - Once we do this, we'll NEVER CHANGE THE BUFFER AGAIN
+	Graphics::Device->CreateBuffer(&ibd, &initialIndexData, indexBuffer.GetAddressOf());
 }
 
 //Draw the Geometry

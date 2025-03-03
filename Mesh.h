@@ -5,15 +5,17 @@
 class Mesh
 {
 private:
-	//Data--
-
-	//Buffer Pointers-
+	//Buffer Pointers
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertexBuffer; //vertex buffer
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer; //index buffer
 
-	//Data Counts-
+	//Data Counts
 	int indices; //index count
 	int vertices; //vertex count
+
+	//Helper Methods
+	//Create buffers from necessary data
+	void CreateBuffers(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount);
 
 public:
 	//Constructor--

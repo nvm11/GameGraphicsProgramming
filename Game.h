@@ -10,6 +10,7 @@
 #include "Mesh.h"
 #include "Entity.h"
 #include "Camera.h"
+#include "Material.h"
 //contains constant buffer structs
 #include "BufferStructs.h"
 //contains simplified shaders functionality
@@ -58,7 +59,6 @@ private:
 	std::vector<std::shared_ptr<Entity>> entities;
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
-	void LoadShaders();
 	void CreateGeometry();
 
 	//UI helper functions

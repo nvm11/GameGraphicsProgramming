@@ -13,29 +13,12 @@ Mesh::Mesh(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size
 //constructor to load objects in from .obj files
 Mesh::Mesh(const char* meshData)
 {
-	// Author: Chris Cascioli
+// Author: Chris Cascioli
 // Purpose: Basic .OBJ 3D model loading, supporting positions, uvs and normals
 // 
 // - You are allowed to directly copy/paste this into your code base
 //   for assignments, given that you clearly cite that this is not
 //   code of your own design.
-
-// *************************************
-//      IMPLEMENTATION NOTES (1/2)
-//
-//  - You'll need to #include both
-//      <fstream> and <stdexcept>
-//
-//  - This is code you will need to 
-//      integrate into a function or
-//      constructor of your own making
-//
-//  - There is MORE TO DO after pasting 
-//      this code in - see the bottom for
-//      what to do *after* including 
-//      this code in your mesh class
-//
-// *************************************
 
 // File input object
 	std::ifstream obj(meshData);
@@ -228,44 +211,6 @@ Mesh::Mesh(const char* meshData)
 
 	// Close the file and create the actual buffers
 	obj.close();
-
-	// *************************************
-	//      IMPLEMENTATION NOTES (2/2)
-	//
-	// - At this point, "verts" is a std::vector 
-	//     of Vertex structs, and can be used
-	//     to create your mesh's vertex buffer
-	//
-	// - NOTE: Use &verts[0] for the address of 
-	//     the first vertx, NOT JUST &verts
-	//
-	// - The vector "indices" is similar. It's 
-	//     a std::vector of unsigned ints and
-	//     can be used to create the index 
-	//     buffer (again, &indices[0] is the 
-	//     address of the first integer)
-	//
-	// - Make sure your mesh class actually SAVES
-	//     the number of vertices and indices, or
-	//     drawing may have unintended problems.
-	//     - "vertCounter" is the number of vertices
-	//     - "indexCounter" is the number of indices
-	//
-	// - If you dig into the code, you may notice 
-	//     that  "vertCounter" and "indexCounter" 
-	//     end up being the same.  Recall that OBJs 
-	//     do not index entire vertices, making
-	//     it complex to detect duplicate vertices.
-	//     This also means an index buffer isn't
-	//     doing much for us.  We could try to 
-	//     detect duplicate vertices ourselves, 
-	//     but at that point it would be better 
-	//     to use a more sophisticated mesh loading
-	//     library like TinyOBJLoader or 
-	//     The Open Asset Importer Library, both
-	//     of which are unnecessary for now.
-	//
-	// *************************************
 
 	//After File I/O
 	//Create buffers from data

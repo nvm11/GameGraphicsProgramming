@@ -32,6 +32,7 @@ void Game::Initialize()
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
+	LoadShaders();
 	CreateGeometry();
 
 	// Set initial graphics API state
@@ -76,6 +77,13 @@ void Game::Initialize()
 
 		activeCam = 0;
 	}
+}
+
+void Game::LoadShaders() {
+	std::shared_ptr<SimpleVertexShader> vs = std::make_shared<SimpleVertexShader>(
+		Graphics::Device, Graphics::Context, FixPath(L"VertexShader.cso").c_str());
+	std::shared_ptr<SimplePixelShader> ps = std::make_shared<SimplePixelShader>(
+		Graphics::Device, Graphics::Context, FixPath(L"PixelShader.cso").c_str());
 }
 
 

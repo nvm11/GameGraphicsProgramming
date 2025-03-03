@@ -12,6 +12,8 @@
 #include "Camera.h"
 //contains constant buffer structs
 #include "BufferStructs.h"
+//contains simplified shaders functionality
+#include "SimpleShader.h"
 
 using namespace DirectX;
 
@@ -56,6 +58,7 @@ private:
 	std::vector<std::shared_ptr<Entity>> entities;
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
+	void LoadShaders();
 	void CreateGeometry();
 
 	//UI helper functions

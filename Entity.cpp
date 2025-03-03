@@ -23,17 +23,8 @@ Transform& Entity::GetTransform()
 	return transform;
 }
 
-void Entity::Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, std::shared_ptr<Camera> activeCam)
+void Entity::Draw(std::shared_ptr<Camera> activeCam)
 {
-	//Map, Memcpy, and Unmap cbuffer
-	D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-	Graphics::Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-	memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
-	Graphics::Context->Unmap(constantBuffer.Get(), 0);
-
-	//Bind the constant buffer to the vertex shader
-	Graphics::Context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
-
 	//Set default for constant buffer
 	vsData.colorTint = DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	vsData.offset = transform.GetWorldMatrix();

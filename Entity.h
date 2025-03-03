@@ -29,6 +29,6 @@ public:
 	std::shared_ptr<Mesh> GetMesh();
 	Transform& GetTransform();
 	//Drawing
-	void Draw(Microsoft::WRL::ComPtr<ID3D11Buffer> constantBuffer, std::shared_ptr<Camera> activeCam);
+	void Draw(std::shared_ptr<Camera> activeCam);
 };
 

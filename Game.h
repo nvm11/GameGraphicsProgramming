@@ -57,6 +57,8 @@ private:
 	int activeCam; //index of active camera
 
 	//container for meshes
+	std::vector<std::shared_ptr<Mesh>> meshes;
+	//container for entities
 	std::vector<std::shared_ptr<Entity>> entities;
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.

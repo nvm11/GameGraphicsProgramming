@@ -99,7 +99,22 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	
+	//create shaders
+	std::shared_ptr<SimpleVertexShader> basicVertexShader = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"VertexShader.cso").c_str());
+	std::shared_ptr<SimplePixelShader> basicPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"PixelShader.cso").c_str());
+
+	//create pointers to meshes
+	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/sphere.obj").c_str());
+	std::shared_ptr<Mesh> cylinderMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/cylinder.obj").c_str());
+	std::shared_ptr<Mesh> helixMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/helix.obj").c_str());
+	std::shared_ptr<Mesh> sphereMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/sphere.obj").c_str());
+	std::shared_ptr<Mesh> torusMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/torus.obj").c_str());
+	std::shared_ptr<Mesh> quadMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/quad.obj").c_str());
+	std::shared_ptr<Mesh> quad2sidedMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/quad_double_sided.obj").c_str());
+
+	//add all meshes to vector
+	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
+	entities.push_back(std::make_shared<Entity>(meshes[0], std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT4(0, 1, 0, 1))));
 }
 
 
@@ -162,12 +177,10 @@ void Game::Update(float deltaTime, float totalTime)
 		}
 	}
 
-	//Update cameras
-	for (size_t i = 0; i < cams.size(); i++) {
-		cams[i]->Update(deltaTime);
-	}
+	//Only update active camera
+	cams[activeCam]->Update(deltaTime);
 
-	// Example input checking: Quit if the escape key is pressed
+	//Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();
 }

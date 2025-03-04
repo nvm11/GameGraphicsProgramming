@@ -1,10 +1,4 @@
 
-//data to manipulate pixels
-cbuffer ShaderData : register(b0)
-{
-    float3 colorTint;
-};
-
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader
 // - The name of the struct itself is unimportant

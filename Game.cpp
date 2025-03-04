@@ -102,6 +102,9 @@ void Game::CreateGeometry()
 	//create shaders
 	std::shared_ptr<SimpleVertexShader> basicVertexShader = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"VertexShader.cso").c_str());
 	std::shared_ptr<SimplePixelShader> basicPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"PixelShader.cso").c_str());
+	std::shared_ptr<SimplePixelShader> uvsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugUVsPS.cso").c_str());
+	std::shared_ptr<SimplePixelShader> normalsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugNormalsPS.cso").c_str());
+	std::shared_ptr<SimplePixelShader> customPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"CustomPS.cso").c_str());
 
 	//create pointers to meshes
 	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/sphere.obj").c_str());
@@ -114,7 +117,27 @@ void Game::CreateGeometry()
 
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
-	entities.push_back(std::make_shared<Entity>(meshes[0], std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(0, 1, 0))));
+
+	std::shared_ptr<Material> greenMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(0, 1, 0));
+	std::shared_ptr<Material> yellowMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 0));
+	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1));
+
+
+	entities.push_back(std::make_shared<Entity>(meshes[0], purpleMat));
+	entities.push_back(std::make_shared<Entity>(meshes[1], yellowMat));
+	entities.push_back(std::make_shared<Entity>(meshes[2], greenMat));
+	entities.push_back(std::make_shared<Entity>(meshes[3], yellowMat));
+	entities.push_back(std::make_shared<Entity>(meshes[4], greenMat));
+	entities.push_back(std::make_shared<Entity>(meshes[5], purpleMat));
+	entities.push_back(std::make_shared<Entity>(meshes[6], greenMat));
+
+	entities[0]->GetTransform().MoveAbsolute(-9, 0, 0);
+	entities[1]->GetTransform().MoveAbsolute(-6, 0, 0);
+	entities[2]->GetTransform().MoveAbsolute(-3, 0, 0);
+	entities[3]->GetTransform().MoveAbsolute(0, 0, 0);
+	entities[4]->GetTransform().MoveAbsolute(3, 0, 0);
+	entities[5]->GetTransform().MoveAbsolute(6, 0, 0);
+	entities[6]->GetTransform().MoveAbsolute(9, 0, 0);
 }
 
 

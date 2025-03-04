@@ -36,11 +36,14 @@ void Entity::SetMaterial(std::shared_ptr<Material> newMat)
 void Entity::Draw(std::shared_ptr<Camera> activeCam)
 {
 	std::shared_ptr<SimpleVertexShader> vs = material->GetVertexShader();
-	vs->SetFloat4("colorTint", material->GetColor()); // Strings here MUST
+	std::shared_ptr<SimplePixelShader> ps = material->GetPixelShader();
+	//vertex shader
 	vs->SetMatrix4x4("world", transform.GetWorldMatrix()); // match variable
 	vs->SetMatrix4x4("view", activeCam->GetView()); // names in your
 	vs->SetMatrix4x4("projection", activeCam->GetProjection()); // shader’s cbuffer!
 	vs->CopyAllBufferData();
+	ps->SetFloat3("colorTint", material->GetColor());
+	ps->CopyAllBufferData();
 
 	//set (activate) shaders for the entity
 	material->GetVertexShader()->SetShader();

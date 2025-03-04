@@ -1,6 +1,6 @@
 #include "Material.h"
 
-Material::Material(std::shared_ptr<SimpleVertexShader> vs, std::shared_ptr<SimplePixelShader> ps, const DirectX::XMFLOAT4 initialColor)
+Material::Material(std::shared_ptr<SimpleVertexShader> vs, std::shared_ptr<SimplePixelShader> ps, const DirectX::XMFLOAT3 initialColor)
 	:vs(vs), ps(ps), colorTint(initialColor)
 {
 }
@@ -15,7 +15,7 @@ std::shared_ptr<SimplePixelShader> Material::GetPixelShader()
 	return ps;
 }
 
-DirectX::XMFLOAT4 Material::GetColor()
+DirectX::XMFLOAT3 Material::GetColor()
 {
 	return colorTint;
 }
@@ -30,7 +30,7 @@ void Material::SetPixelShader(std::shared_ptr<SimplePixelShader> newPs)
 	ps = newPs;
 }
 
-void Material::SetColor(const DirectX::XMFLOAT4& newColor)
+void Material::SetColor(const DirectX::XMFLOAT3& newColor)
 {
 	colorTint = newColor;
 }

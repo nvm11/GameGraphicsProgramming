@@ -114,7 +114,7 @@ void Game::CreateGeometry()
 
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
-	entities.push_back(std::make_shared<Entity>(meshes[0], std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT4(0, 1, 0, 1))));
+	entities.push_back(std::make_shared<Entity>(meshes[0], std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(0, 1, 0))));
 }
 
 
@@ -163,19 +163,6 @@ void Game::Update(float deltaTime, float totalTime)
 {
 	// Must be done at very beginning so UI is up to date
 	UpdateUI(deltaTime);
-
-	//Move each entity in some way
-	for (size_t i = 0; i < entities.size(); i++) {
-		if (i % 2 == 0) {
-			entities[i]->GetTransform().SetPosition(XMFLOAT3(0.0f, (float)sin(totalTime) * .5f, 0.0f));
-			entities[i]->GetTransform().SetScale(XMFLOAT3(1.0f, ((float)sin(totalTime) + 1) * .5f + .5f, 1.0f));
-			entities[i]->GetTransform().Rotate(XMFLOAT3((float)sin(deltaTime), 0.0f, 0.0f));
-		}
-		else {
-			entities[i]->GetTransform().SetPosition(XMFLOAT3((float)sin(totalTime) * .5f, (float)sin(totalTime) * .5f, 0.0f));
-			entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.0f, (float)sin(deltaTime)));
-		}
-	}
 
 	//Only update active camera
 	cams[activeCam]->Update(deltaTime);

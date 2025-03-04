@@ -4,10 +4,9 @@
 //Currently modifies the color and position of meshes
 cbuffer ShaderData : register(b0)
 {
-	float4 colorTint;
-	matrix world;
-	matrix view;
-	matrix projection;
+    matrix world;
+    matrix view;
+    matrix projection;
 };
 
 // Struct representing a single vertex worth of data
@@ -22,9 +21,9 @@ struct VertexShaderInput
 	//  |   Name          Semantic
 	//  |    |                |
 	//  v    v                v
-	float3 localPosition : POSITION; // XYZ position
-	float2 uv			 : TEXCOORD; // UV texture coordinates
-	float3 normal		 : NORMAL; // Surface normals for lighting
+    float3 localPosition : POSITION; // XYZ position
+    float2 uv : TEXCOORD; // UV texture coordinates
+    float3 normal : NORMAL; // Surface normals for lighting
 };
 
 // Struct representing the data we're sending down the pipeline
@@ -39,8 +38,9 @@ struct VertexToPixel
 	//  |   Name          Semantic
 	//  |    |                |
 	//  v    v                v
-	float4 screenPosition : SV_POSITION; // XYZW position (System Value Position)
-	float4 color : COLOR; // RGBA color
+    float4 screenPosition : SV_POSITION; // XYZ position
+    float2 uv : TEXCOORD; // UV texture coordinates
+    float3 normal : NORMAL; // Surface normals for lighting
 };
 
 // --------------------------------------------------------
@@ -53,7 +53,7 @@ struct VertexToPixel
 VertexToPixel main(VertexShaderInput input)
 {
 	// Set up output struct
-	VertexToPixel output;
+    VertexToPixel output;
 
 	// Here we're essentially passing the input position directly through to the next
 	// stage (rasterizer), though it needs to be a 4-component vector now.  
@@ -66,15 +66,13 @@ VertexToPixel main(VertexShaderInput input)
 	// This is done using a matrix
 	// Order MATTERS as hlsl is Column-Major and D3D11 is Row-Major
 	//Multiply matrices for our camers
-	matrix worldViewProj = mul(projection, mul(view, world));
-	output.screenPosition = mul(worldViewProj, float4(input.localPosition, 1));
+    matrix worldViewProj = mul(projection, mul(view, world));
+    output.screenPosition = mul(worldViewProj, float4(input.localPosition, 1.0f));
 
-	// Pass the color through 
-	// - The values will be interpolated per-pixel by the rasterizer
-	// - We don't need to alter it here, but we do need to send it to the pixel shader
-	output.color = colorTint;
+    output.uv = input.uv;
+    output.normal = input.normal;
 
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)
-	return output;
+    return output;
 }

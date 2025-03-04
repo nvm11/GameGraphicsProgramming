@@ -123,12 +123,13 @@ void Game::CreateGeometry()
 	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1));
 	std::shared_ptr<Material> matUV = std::make_shared<Material>(basicVertexShader, uvsPixelShader, XMFLOAT3(1, 1, 1)); //textcoords
 	std::shared_ptr<Material> matNorm = std::make_shared<Material>(basicVertexShader, normalsPixelShader, XMFLOAT3(1, 1, 1));//normals
+	std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, customPixelShader, XMFLOAT3(1, 1, 1));//normals
 
 	//create initial entities
 	entities.push_back(std::make_shared<Entity>(meshes[0], purpleMat));
 	entities.push_back(std::make_shared<Entity>(meshes[1], yellowMat));
 	entities.push_back(std::make_shared<Entity>(meshes[2], greenMat));
-	entities.push_back(std::make_shared<Entity>(meshes[3], yellowMat)); //TODO: Make fancy
+	entities.push_back(std::make_shared<Entity>(meshes[3], matCustom)); //TODO: Make fancy
 	entities.push_back(std::make_shared<Entity>(meshes[4], yellowMat));
 	entities.push_back(std::make_shared<Entity>(meshes[5], purpleMat));
 	entities.push_back(std::make_shared<Entity>(meshes[6], greenMat));
@@ -251,6 +252,17 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		//Draw all Entities
 		for (size_t i = 0; i < entities.size(); i++) {
+			//Pixel Shader
+			//if the following values are not in the pixel shader,
+			//SimpleShader ignores
+			//pass in window height and width for entity's pixel shader
+			float width = static_cast<float>(Window::Width());
+			float height = static_cast<float>(Window::Height());
+			entities[i]->GetMaterial()->GetPixelShader()->SetFloat2("resolution", XMFLOAT2(width, height));
+			//pass in deltaTime for pixel shader
+			entities[i]->GetMaterial()->GetPixelShader()->SetFloat("deltaTime", deltaTime);
+			//Drawing
+			//draw entities
 			entities[i]->Draw(cams[activeCam]);
 		}
 

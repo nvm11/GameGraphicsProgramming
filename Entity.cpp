@@ -1,5 +1,6 @@
 #include "Entity.h"
 #include "Graphics.h"
+#include "Window.h"
 
 Entity::Entity(const std::shared_ptr<Mesh> mesh, const std::shared_ptr<Material> material)
 	: mesh(mesh), material(material)

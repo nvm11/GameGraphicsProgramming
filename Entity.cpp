@@ -43,7 +43,10 @@ void Entity::Draw(std::shared_ptr<Camera> activeCam)
 	vs->SetMatrix4x4("view", activeCam->GetView()); // names in your
 	vs->SetMatrix4x4("projection", activeCam->GetProjection()); // shader’s cbuffer!
 	vs->CopyAllBufferData();
+	float width = static_cast<float>(Window::Width());
+	float height = static_cast<float>(Window::Height());
 	ps->SetFloat3("colorTint", material->GetColor());
+	ps->SetFloat2("resolution", DirectX::XMFLOAT2(width, height));
 	ps->CopyAllBufferData();
 
 	//set (activate) shaders for the entity

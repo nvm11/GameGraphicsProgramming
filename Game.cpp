@@ -129,7 +129,7 @@ void Game::CreateGeometry()
 	entities.push_back(std::make_shared<Entity>(meshes[0], purpleMat));
 	entities.push_back(std::make_shared<Entity>(meshes[1], yellowMat));
 	entities.push_back(std::make_shared<Entity>(meshes[2], greenMat));
-	entities.push_back(std::make_shared<Entity>(meshes[3], matCustom)); //TODO: Make fancy
+	entities.push_back(std::make_shared<Entity>(meshes[3], matCustom));
 	entities.push_back(std::make_shared<Entity>(meshes[4], yellowMat));
 	entities.push_back(std::make_shared<Entity>(meshes[5], purpleMat));
 	entities.push_back(std::make_shared<Entity>(meshes[6], greenMat));

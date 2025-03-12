@@ -115,7 +115,8 @@ void Game::CreateGeometry()
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockSRV;
 
 	//actually load textures
-	
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/red_laterite_soil_stones_diff_4k.jpg").c_str(), 0, soilSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/tiger_rock_diff_4k.jpg").c_str(), 0, rockSRV.GetAddressOf());
 
 	//create pointers to meshes
 	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/sphere.obj").c_str());

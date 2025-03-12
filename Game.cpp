@@ -17,6 +17,9 @@
 #include "ImGui/imgui_impl_dx11.h"
 #include "ImGui/imgui_impl_win32.h"
 
+//Include DirectX Toolkit for textures
+#include "WicTextureLoader.h"
+
 // For the DirectX Math library
 using namespace DirectX;
 
@@ -105,6 +108,14 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> uvsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugUVsPS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> normalsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugNormalsPS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> customPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"CustomPS.cso").c_str());
+
+	//Load textures
+	//create SRVs for textures
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> soilSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockSRV;
+
+	//actually load textures
+	
 
 	//create pointers to meshes
 	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/sphere.obj").c_str());

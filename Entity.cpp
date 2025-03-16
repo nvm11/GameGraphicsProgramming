@@ -45,11 +45,15 @@ void Entity::Draw(std::shared_ptr<Camera> activeCam)
 	vs->CopyAllBufferData();
 	//pixel shader
 	ps->SetFloat3("colorTint", material->GetColor());
+	ps->SetFloat2("uvScale", DirectX::XMFLOAT2(1,1));
+	ps->SetFloat2("uvOffset", DirectX::XMFLOAT2(0,0));
 	ps->CopyAllBufferData();
 
 	//set (activate) shaders for the entity
 	material->GetVertexShader()->SetShader();
 	material->GetPixelShader()->SetShader();
+
+	material->PrepareMaterial();
 
 	//Responsible for:
 	//-Setting correct Vertex and Index Buffers

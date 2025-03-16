@@ -151,6 +151,14 @@ void Game::CreateGeometry()
 	std::shared_ptr<Material> matNorm = std::make_shared<Material>(basicVertexShader, normalsPixelShader, XMFLOAT3(1, 1, 1));//normals
 	std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, customPixelShader, XMFLOAT3(1, 1, 1));//normals
 
+	//add samplers to materials
+	greenMat->AddSampler("BasicSampler", sampleState);
+	purpleMat->AddSampler("BasicSampler", sampleState);
+	//add shader resource views
+	greenMat->AddTextureSRV("SoilTexture", soilSRV);
+	purpleMat->AddTextureSRV("RockTexture", rockSRV);
+
+
 	//create initial entities
 	entities.push_back(std::make_shared<Entity>(meshes[0], purpleMat));
 	entities.push_back(std::make_shared<Entity>(meshes[1], yellowMat));

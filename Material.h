@@ -2,6 +2,8 @@
 #include "SimpleShader.h"
 #include <memory>
 #include <DirectXMath.h>
+//Maps for textures
+#include <unordered_map>
 class Material
 {
 private:
@@ -9,6 +11,8 @@ private:
 	DirectX::XMFLOAT3 colorTint;
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textureSRVs; //for textures (optional)
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11SamplerState>> samplers;
 
 public:
 	//constructor
@@ -25,5 +29,9 @@ public:
 	void SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs);
 	void SetPixelShader(std::shared_ptr<SimplePixelShader> newPs);
 	void SetColor(const DirectX::XMFLOAT3& newColor);
+
+	//adding textures
+	void AddTextureSRV(std::string name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv);
+	void AddSampler(std::string name, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler);
 };
 

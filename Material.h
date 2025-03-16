@@ -33,5 +33,8 @@ public:
 	//adding textures
 	void AddTextureSRV(std::string name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv);
 	void AddSampler(std::string name, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler);
+
+	//preparing material for drawing
+	void PrepareMaterial();
 };
 

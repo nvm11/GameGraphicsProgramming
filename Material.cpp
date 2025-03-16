@@ -44,3 +44,10 @@ void Material::AddSampler(std::string name, Microsoft::WRL::ComPtr<ID3D11Sampler
 {
 	samplers.insert({ name,sampler });
 }
+
+void Material::PrepareMaterial()
+{
+	//Bind texture-related resources
+	for (auto& t : textureSRVs) { ps->SetShaderResourceView(t.first.c_str(), t.second); }
+	for (auto& s : samplers) { ps->SetSamplerState(s.first.c_str(), s.second); }
+}

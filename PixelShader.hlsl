@@ -2,8 +2,14 @@
 //data to manipulate pixels
 cbuffer ShaderData : register(b0)
 {
+	//material data
     float3 colorTint;
+    float2 uvScale; //changes how many times texture is on object
+    float2 uvOffset; //changes start position of texture
 };
+
+Texture2D SurfaceTexture : register(t0); // "t" registers for textures
+SamplerState BasicSampler : register(s0); // "s" registers for samplers
 
 // Struct representing the data we expect to receive from earlier pipeline stages
 // - Should match the output of our corresponding vertex shader
@@ -33,9 +39,14 @@ struct VertexToPixel
 // --------------------------------------------------------
 float4 main(VertexToPixel input) : SV_TARGET
 {
-	// Just return the input color
-	// - This color (like most values passing through the rasterizer) is 
-	//   interpolated for each pixel between the corresponding vertices 
-	//   of the triangle we're rendering
-    return float4(colorTint, 1);
+	//alter uv coords using offset
+    input.uv = input.uv * uvScale + uvOffset;
+	
+	//"sample" the texture and color
+	//this gives output color
+    float3 color = SurfaceTexture.Sample(BasicSampler, input.uv).rgb; //swizzle using logical indices
+    color *= colorTint;
+	
+	//return modified color
+    return float4(color, 1);
 }

@@ -118,8 +118,21 @@ void Game::CreateGeometry()
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/red_laterite_soil_stones_diff_4k.jpg").c_str(), 0, soilSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/tiger_rock_diff_4k.jpg").c_str(), 0, rockSRV.GetAddressOf());
 
+	//Define Sampler State
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
+	//Create description
+	D3D11_SAMPLER_DESC sampleDesc = {};
+	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; //how to handle outside 0-1
+	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.Filter = D3D11_FILTER_ANISOTROPIC; //"best" option
+	sampleDesc.MaxAnisotropy = 16; //set max range for filter
+	sampleDesc.MaxLOD = D3D11_FLOAT32_MAX; //minmap at all ranges
+
+	Graphics::Device->CreateSamplerState(&sampleDesc, sampleState.GetAddressOf()); //set sample state
+
 	//create pointers to meshes
-	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/sphere.obj").c_str());
+	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/cube.obj").c_str());
 	std::shared_ptr<Mesh> cylinderMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/cylinder.obj").c_str());
 	std::shared_ptr<Mesh> helixMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/helix.obj").c_str());
 	std::shared_ptr<Mesh> sphereMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/sphere.obj").c_str());

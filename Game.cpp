@@ -144,8 +144,8 @@ void Game::CreateGeometry()
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
-	std::shared_ptr<Material> greenMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(0, 1, 0));
-	std::shared_ptr<Material> yellowMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 0));
+	std::shared_ptr<Material> greenMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
+	std::shared_ptr<Material> yellowMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1));
 	std::shared_ptr<Material> matUV = std::make_shared<Material>(basicVertexShader, uvsPixelShader, XMFLOAT3(1, 1, 1)); //textcoords
 	std::shared_ptr<Material> matNorm = std::make_shared<Material>(basicVertexShader, normalsPixelShader, XMFLOAT3(1, 1, 1));//normals
@@ -155,8 +155,8 @@ void Game::CreateGeometry()
 	greenMat->AddSampler("BasicSampler", sampleState);
 	purpleMat->AddSampler("BasicSampler", sampleState);
 	//add shader resource views
-	greenMat->AddTextureSRV("SoilTexture", soilSRV);
-	purpleMat->AddTextureSRV("RockTexture", rockSRV);
+	greenMat->AddTextureSRV("SurfaceTexture", soilSRV);
+	purpleMat->AddTextureSRV("SurfaceTexture", rockSRV);
 
 
 	//create initial entities

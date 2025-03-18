@@ -45,8 +45,8 @@ float4 main(VertexToPixel input) : SV_TARGET
 	
 	//"sample" the texture and color
 	//create a texture that combines the surface and top
-    float3 surface = SurfaceTexture.Sample(BasicSampler, input.uv);
-    float3 top = TopTexture.Sample(BasicSampler, input.uv);
+    float4 surface = SurfaceTexture.Sample(BasicSampler, input.uv);
+    float4 top = TopTexture.Sample(BasicSampler, input.uv);
 	//this gives output color
     float3 color = top.rgb * surface.rgb; //swizzle using logical indices
     color *= colorTint;

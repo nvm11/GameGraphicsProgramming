@@ -404,38 +404,48 @@ void Game::DrawUI()
 		{
 			// Generate a unique identifier for each entity control group
 			std::string label = "Entity " + std::to_string(i + 1);
-			ImGui::SeparatorText(label.c_str());
+			if (ImGui::CollapsingHeader(label.c_str())) {
 
-			// Retrieve transform reference
-			Transform& transform = entities[i]->GetTransform();
+				ImGui::SeparatorText("Transform");
 
-			// Create variables for editing (ImGui needs modifiable data)
-			XMFLOAT3 position = transform.GetPosition();
-			XMFLOAT3 rotation = transform.GetRotation();
-			XMFLOAT3 scale = transform.GetScale();
+				// Retrieve transform reference
+				Transform& transform = entities[i]->GetTransform();
 
-			// Modify Position
-			if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &position.x, 0.1f, -1.0f, 1.0f))
-			{
-				transform.SetPosition(position);
-			}
+				// Create variables for editing (ImGui needs modifiable data)
+				XMFLOAT3 position = transform.GetPosition();
+				XMFLOAT3 rotation = transform.GetRotation();
+				XMFLOAT3 scale = transform.GetScale();
 
-			// Modify Rotation (ImGui uses degrees, so convert from radians)
-			XMFLOAT3 rotationDegrees = { XMConvertToDegrees(rotation.x),
-										 XMConvertToDegrees(rotation.y),
-										 XMConvertToDegrees(rotation.z) };
+				// Modify Position
+				if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &position.x, 0.1f, -100.0f, 100.0f))
+				{
+					transform.SetPosition(position);
+				}
 
-			if (ImGui::DragFloat3(("Rotation##" + std::to_string(i)).c_str(), &rotationDegrees.x, 1.0f, -360.0f, 360.0f))
-			{
-				transform.SetRotation(XMFLOAT3(XMConvertToRadians(rotationDegrees.x),
-					XMConvertToRadians(rotationDegrees.y),
-					XMConvertToRadians(rotationDegrees.z)));
-			}
+				// Modify Rotation (ImGui uses degrees, so convert from radians)
+				XMFLOAT3 rotationDegrees = { XMConvertToDegrees(rotation.x),
+											 XMConvertToDegrees(rotation.y),
+											 XMConvertToDegrees(rotation.z) };
 
-			// Modify Scale
-			if (ImGui::DragFloat3(("Scale##" + std::to_string(i)).c_str(), &scale.x, 0.1f, 0.1f, 10.0f))
-			{
-				transform.SetScale(scale);
+				if (ImGui::DragFloat3(("Rotation##" + std::to_string(i)).c_str(), &rotationDegrees.x, 1.0f, -360.0f, 360.0f))
+				{
+					transform.SetRotation(XMFLOAT3(XMConvertToRadians(rotationDegrees.x),
+						XMConvertToRadians(rotationDegrees.y),
+						XMConvertToRadians(rotationDegrees.z)));
+				}
+
+				// Modify Scale
+				if (ImGui::DragFloat3(("Scale##" + std::to_string(i)).c_str(), &scale.x, 0.1f, 0.1f, 10.0f))
+				{
+					transform.SetScale(scale);
+				}
+
+				//Display Material Info
+				ImGui::SeparatorText("Material");
+				XMFLOAT3 colorTint = entities[i]->GetMaterial()->GetColor();
+				if (ImGui::DragFloat3(("Color##" + std::to_string(i)).c_str(), &colorTint.x, 0.001f, 0.0f, 1.0f)) {
+					entities[i]->GetMaterial()->SetColor(colorTint);
+				}
 			}
 		}
 

@@ -109,6 +109,7 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> uvsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugUVsPS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> normalsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugNormalsPS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> customPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"CustomPS.cso").c_str());
+	std::shared_ptr<SimplePixelShader> twoTexturePS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"TwoTexturePS.cso").c_str());
 
 	//Load textures
 	//create SRVs for textures
@@ -149,7 +150,8 @@ void Game::CreateGeometry()
 	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1));
 	std::shared_ptr<Material> matUV = std::make_shared<Material>(basicVertexShader, uvsPixelShader, XMFLOAT3(1, 1, 1)); //textcoords
 	std::shared_ptr<Material> matNorm = std::make_shared<Material>(basicVertexShader, normalsPixelShader, XMFLOAT3(1, 1, 1));//normals
-	std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, customPixelShader, XMFLOAT3(1, 1, 1));//normals
+	//std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, customPixelShader, XMFLOAT3(1, 1, 1));//normals
+	std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, twoTexturePS, XMFLOAT3(1, 1, 1));//normals
 
 	//add samplers to materials
 	greenMat->AddSampler("BasicSampler", sampleState);
@@ -157,6 +159,9 @@ void Game::CreateGeometry()
 	//add shader resource views
 	greenMat->AddTextureSRV("SurfaceTexture", soilSRV);
 	purpleMat->AddTextureSRV("SurfaceTexture", rockSRV);
+
+	matCustom->AddTextureSRV("SurfaceTexture", rockSRV);
+	matCustom->AddTextureSRV("TopTexture", soilSRV);
 
 
 	//create initial entities

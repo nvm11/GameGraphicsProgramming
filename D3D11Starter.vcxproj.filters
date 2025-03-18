@@ -157,7 +157,7 @@
     <FxCompile Include="CustomPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="PixelShader1.hlsl">
+    <FxCompile Include="TwoTexturePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

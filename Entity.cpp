@@ -34,7 +34,7 @@ void Entity::SetMaterial(std::shared_ptr<Material> newMat)
 	material = newMat;
 }
 
-void Entity::Draw(std::shared_ptr<Camera> activeCam)
+void Entity::Draw(std::shared_ptr<Camera> activeCam, const DirectX::XMFLOAT2 uvScale, const DirectX::XMFLOAT2 uvOffset)
 {
 	std::shared_ptr<SimpleVertexShader> vs = material->GetVertexShader();
 	std::shared_ptr<SimplePixelShader> ps = material->GetPixelShader();
@@ -45,8 +45,8 @@ void Entity::Draw(std::shared_ptr<Camera> activeCam)
 	vs->CopyAllBufferData();
 	//pixel shader
 	ps->SetFloat3("colorTint", material->GetColor());
-	ps->SetFloat2("uvScale", DirectX::XMFLOAT2(1,1));
-	ps->SetFloat2("uvOffset", DirectX::XMFLOAT2(0,0));
+	ps->SetFloat2("uvScale", uvScale);
+	ps->SetFloat2("uvOffset", uvOffset);
 	ps->CopyAllBufferData();
 
 	//set (activate) shaders for the entity

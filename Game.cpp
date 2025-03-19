@@ -442,11 +442,15 @@ void Game::DrawUI()
 
 				//Display Material Info
 				ImGui::SeparatorText("Material");
+				//color
 				XMFLOAT3 colorTint = entities[i]->GetMaterial()->GetColor();
 				if (ImGui::DragFloat3(("Color##" + std::to_string(i)).c_str(), &colorTint.x, 0.001f, 0.0f, 1.0f)) {
 					entities[i]->GetMaterial()->SetColor(colorTint);
 				}
+
 				//Display texture info
+				//uvoffset
+				//uvscale
 				std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textures = entities[i]->GetMaterial()->GetTextureShaderResourceViewMap();
 				for (auto& textureInfo : textures) {
 					//get texture name

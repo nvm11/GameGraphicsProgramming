@@ -9,6 +9,8 @@ class Material
 private:
 	//fields
 	DirectX::XMFLOAT3 colorTint;
+	DirectX::XMFLOAT2 uvOffset;
+	DirectX::XMFLOAT2 uvScale;
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textureSRVs; //for textures (optional)
@@ -26,6 +28,8 @@ public:
 	DirectX::XMFLOAT3 GetColor();
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> GetTextureShaderResourceViewMap();
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11SamplerState>> GetSamplerMap();
+	DirectX::XMFLOAT2 GetUvScale();
+	DirectX::XMFLOAT2 GetUvOffset();
 
 	//setters
 	void SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs);

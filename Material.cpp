@@ -3,6 +3,8 @@
 Material::Material(std::shared_ptr<SimpleVertexShader> vs, std::shared_ptr<SimplePixelShader> ps, const DirectX::XMFLOAT3 initialColor)
 	:vs(vs), ps(ps), colorTint(initialColor)
 {
+	uvOffset = DirectX::XMFLOAT2(0, 0);
+	uvScale = DirectX::XMFLOAT2(1, 1);
 }
 
 std::shared_ptr<SimpleVertexShader> Material::GetVertexShader()
@@ -28,6 +30,16 @@ std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>
 std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11SamplerState>> Material::GetSamplerMap()
 {
 	return samplers;
+}
+
+DirectX::XMFLOAT2 Material::GetUvScale()
+{
+	return DirectX::XMFLOAT2();
+}
+
+DirectX::XMFLOAT2 Material::GetUvOffset()
+{
+	return DirectX::XMFLOAT2();
 }
 
 void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs)

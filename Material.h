@@ -35,6 +35,8 @@ public:
 	void SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs);
 	void SetPixelShader(std::shared_ptr<SimplePixelShader> newPs);
 	void SetColor(const DirectX::XMFLOAT3& newColor);
+	void SetUvScale(const DirectX::XMFLOAT2& newScale);
+	void SetUvOffset(const DirectX::XMFLOAT2& newOffset);
 
 	//adding textures
 	void AddTextureSRV(std::string name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv);

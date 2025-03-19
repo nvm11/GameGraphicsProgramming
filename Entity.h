@@ -31,6 +31,6 @@ public:
 	void SetMaterial(std::shared_ptr<Material> newMat);
 
 	//Drawing
-	void Draw(std::shared_ptr<Camera> activeCam, const DirectX::XMFLOAT2 uvScale = DirectX::XMFLOAT2(1, 1), const DirectX::XMFLOAT2 uvOffset = DirectX::XMFLOAT2(0, 0));
+	void Draw(std::shared_ptr<Camera> activeCam);
 };
 

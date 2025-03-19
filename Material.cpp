@@ -57,6 +57,16 @@ void Material::SetColor(const DirectX::XMFLOAT3& newColor)
 	colorTint = newColor;
 }
 
+void Material::SetUvScale(const DirectX::XMFLOAT2& newScale)
+{
+	uvScale = newScale;
+}
+
+void Material::SetUvOffset(const DirectX::XMFLOAT2& newOffset)
+{
+	uvOffset = newOffset;
+}
+
 void Material::AddTextureSRV(std::string name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)
 {
 	textureSRVs.insert({ name,srv });

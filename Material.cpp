@@ -34,12 +34,12 @@ std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11SamplerState>> Mate
 
 DirectX::XMFLOAT2 Material::GetUvScale()
 {
-	return DirectX::XMFLOAT2();
+	return uvScale;
 }
 
 DirectX::XMFLOAT2 Material::GetUvOffset()
 {
-	return DirectX::XMFLOAT2();
+	return uvOffset;
 }
 
 void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs)

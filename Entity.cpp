@@ -45,8 +45,8 @@ void Entity::Draw(std::shared_ptr<Camera> activeCam)
 	vs->CopyAllBufferData();
 	//pixel shader
 	ps->SetFloat3("colorTint", material->GetColor());
-	ps->SetFloat2("uvScale", material->uv);
-	ps->SetFloat2("uvOffset", uvOffset);
+	ps->SetFloat2("uvScale", material->GetUvScale());
+	ps->SetFloat2("uvOffset", material->GetUvOffset());
 	ps->CopyAllBufferData();
 
 	//set (activate) shaders for the entity

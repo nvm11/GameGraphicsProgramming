@@ -446,6 +446,22 @@ void Game::DrawUI()
 				if (ImGui::DragFloat3(("Color##" + std::to_string(i)).c_str(), &colorTint.x, 0.001f, 0.0f, 1.0f)) {
 					entities[i]->GetMaterial()->SetColor(colorTint);
 				}
+				//Display texture info
+				std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textures = entities[i]->GetMaterial()->GetTextureShaderResourceViewMap();
+				for (auto& textureInfo : textures) {
+					//get texture name
+					std::string name = textureInfo.first;
+					//get srv
+					ID3D11ShaderResourceView* srv = textureInfo.second.Get();
+
+					//check if the srv exists
+					if (srv) {
+						//display info about the texture
+						ImGui::Text("%s", name.c_str());
+						//display image of texture
+						ImGui::Image((ImTextureID)srv, ImVec2(128, 128));
+					}
+				}
 			}
 		}
 

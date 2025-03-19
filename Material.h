@@ -24,6 +24,8 @@ public:
 	std::shared_ptr<SimpleVertexShader> GetVertexShader();
 	std::shared_ptr<SimplePixelShader> GetPixelShader();
 	DirectX::XMFLOAT3 GetColor();
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> GetTextureShaderResourceViewMap();
+	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11SamplerState>> GetSamplerMap();
 
 	//setters
 	void SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs);

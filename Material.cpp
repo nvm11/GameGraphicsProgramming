@@ -20,6 +20,16 @@ DirectX::XMFLOAT3 Material::GetColor()
 	return colorTint;
 }
 
+std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> Material::GetTextureShaderResourceViewMap()
+{
+	return textureSRVs;
+}
+
+std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11SamplerState>> Material::GetSamplerMap()
+{
+	return samplers;
+}
+
 void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs)
 {
 	vs = newVs;

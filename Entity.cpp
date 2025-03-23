@@ -36,24 +36,7 @@ void Entity::SetMaterial(std::shared_ptr<Material> newMat)
 
 void Entity::Draw(std::shared_ptr<Camera> activeCam)
 {
-	std::shared_ptr<SimpleVertexShader> vs = material->GetVertexShader();
-	std::shared_ptr<SimplePixelShader> ps = material->GetPixelShader();
-	//vertex shader
-	vs->SetMatrix4x4("world", transform.GetWorldMatrix()); // match variable
-	vs->SetMatrix4x4("view", activeCam->GetView()); // names in your
-	vs->SetMatrix4x4("projection", activeCam->GetProjection()); // shader’s cbuffer!
-	vs->CopyAllBufferData();
-	//pixel shader
-	ps->SetFloat3("colorTint", material->GetColor());
-	ps->SetFloat2("uvScale", material->GetUvScale());
-	ps->SetFloat2("uvOffset", material->GetUvOffset());
-	ps->CopyAllBufferData();
-
-	//set (activate) shaders for the entity
-	material->GetVertexShader()->SetShader();
-	material->GetPixelShader()->SetShader();
-
-	material->PrepareMaterial();
+	material->PrepareMaterial(transform, activeCam);
 
 	//Responsible for:
 	//-Setting correct Vertex and Index Buffers

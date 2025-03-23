@@ -1,5 +1,6 @@
 #pragma once
 #include "SimpleShader.h"
+#include "Camera.h"
 #include <memory>
 #include <DirectXMath.h>
 //Maps for textures
@@ -47,6 +48,6 @@ public:
 	void AddSampler(std::string name, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler);
 
 	//preparing material for drawing
-	void PrepareMaterial();
+	void PrepareMaterial(Transform& transform, std::shared_ptr<Camera> activeCam);
 };
 

@@ -5,8 +5,12 @@ cbuffer ShaderData : register(b0)
 {
 	//material data
     float3 colorTint;
+    float roughness;
     float2 uvScale; //changes how many times texture is on object
     float2 uvOffset; //changes start position of texture
+    
+    //entity data
+    float3 cameraPos; //helps with specular + diffuse lighting
 };
 
 Texture2D SurfaceTexture : register(t0); // "t" registers for textures

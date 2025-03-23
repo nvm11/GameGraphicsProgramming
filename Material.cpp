@@ -1,7 +1,7 @@
 #include "Material.h"
 
-Material::Material(std::shared_ptr<SimpleVertexShader> vs, std::shared_ptr<SimplePixelShader> ps, const DirectX::XMFLOAT3 initialColor)
-	:vs(vs), ps(ps), colorTint(initialColor)
+Material::Material(std::shared_ptr<SimpleVertexShader> vs, std::shared_ptr<SimplePixelShader> ps, const DirectX::XMFLOAT3 initialColor, const float roughness)
+	:vs(vs), ps(ps), colorTint(initialColor), roughness(roughness)
 {
 	uvOffset = DirectX::XMFLOAT2(0, 0);
 	uvScale = DirectX::XMFLOAT2(1, 1);
@@ -42,6 +42,11 @@ DirectX::XMFLOAT2 Material::GetUvOffset()
 	return uvOffset;
 }
 
+float Material::GetRoughness()
+{
+	return roughness;
+}
+
 void Material::SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs)
 {
 	vs = newVs;
@@ -65,6 +70,11 @@ void Material::SetUvScale(const DirectX::XMFLOAT2& newScale)
 void Material::SetUvOffset(const DirectX::XMFLOAT2& newOffset)
 {
 	uvOffset = newOffset;
+}
+
+void Material::SetRoughness(const float newRoughness)
+{
+	roughness = newRoughness;
 }
 
 void Material::AddTextureSRV(std::string name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv)

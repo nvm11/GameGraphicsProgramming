@@ -11,6 +11,7 @@ private:
 	DirectX::XMFLOAT3 colorTint;
 	DirectX::XMFLOAT2 uvOffset;
 	DirectX::XMFLOAT2 uvScale;
+	float roughness;
 	std::shared_ptr<SimpleVertexShader> vs;
 	std::shared_ptr<SimplePixelShader> ps;
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textureSRVs; //for textures (optional)
@@ -20,7 +21,8 @@ public:
 	//constructor
 	Material(std::shared_ptr<SimpleVertexShader> vs,
 		std::shared_ptr<SimplePixelShader> ps,
-		const DirectX::XMFLOAT3 initialColor);
+		const DirectX::XMFLOAT3 initialColor,
+		const float roughness = 0.0f);
 
 	//getters
 	std::shared_ptr<SimpleVertexShader> GetVertexShader();
@@ -30,6 +32,7 @@ public:
 	std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11SamplerState>> GetSamplerMap();
 	DirectX::XMFLOAT2 GetUvScale();
 	DirectX::XMFLOAT2 GetUvOffset();
+	float GetRoughness();
 
 	//setters
 	void SetVertexShader(std::shared_ptr<SimpleVertexShader> newVs);
@@ -37,6 +40,7 @@ public:
 	void SetColor(const DirectX::XMFLOAT3& newColor);
 	void SetUvScale(const DirectX::XMFLOAT2& newScale);
 	void SetUvOffset(const DirectX::XMFLOAT2& newOffset);
+	void SetRoughness(const float newRoughness);
 
 	//adding textures
 	void AddTextureSRV(std::string name, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> srv);

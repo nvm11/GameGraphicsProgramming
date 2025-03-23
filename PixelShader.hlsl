@@ -11,6 +11,10 @@ cbuffer ShaderData : register(b0)
     
     //entity data
     float3 cameraPos; //helps with specular + diffuse lighting
+    
+    //light data
+    int numLights;
+    float3 ambientColor;
 };
 
 Texture2D SurfaceTexture : register(t0); // "t" registers for textures
@@ -33,7 +37,7 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//"sample" the texture and color
 	//this gives output color
     float3 color = SurfaceTexture.Sample(BasicSampler, input.uv).rgb; //swizzle using logical indices
-    color *= colorTint;
+    color *= colorTint * ambientColor;
 	
 	//return modified color
     return float4(color, 1);

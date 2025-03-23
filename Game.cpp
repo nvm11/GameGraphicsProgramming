@@ -111,6 +111,7 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> customPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"CustomPS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> twoTexturePS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"TwoTexturePS.cso").c_str());
 
+
 	//Load textures
 	//create SRVs for textures
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> soilSRV;
@@ -300,6 +301,7 @@ void Game::Draw(float deltaTime, float totalTime)
 			entities[i]->GetMaterial()->GetPixelShader()->SetFloat2("resolution", XMFLOAT2(width, height));
 			//pass in deltaTime for pixel shader
 			entities[i]->GetMaterial()->GetPixelShader()->SetFloat("deltaTime", deltaTime);
+			entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientLight);
 			//Drawing
 			//draw entities
 			entities[i]->Draw(cams[activeCam]);

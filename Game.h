@@ -37,8 +37,12 @@ public:
 private:
 	//UI related fields
 	bool showDemoUI = false; //only draw demo text if needed
+
 	//Local array for storing value between frames
-	float color[4] = { 0.4f, 0.6f, 0.75f, 0.0f }; //Cornflower blue
+	float color[4] = { 0.5f, 0.5f, 0.5f, 0.0f }; //Gray
+	
+	//Lighting values
+	XMFLOAT3 ambientLight = XMFLOAT3(0.25f, 0.25f, 0.25f); //complement gray "sky"
 
 	////Vertices Default Colors
 	//XMFLOAT4 top;

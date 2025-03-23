@@ -145,13 +145,13 @@ void Game::CreateGeometry()
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
-	std::shared_ptr<Material> greenMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
-	std::shared_ptr<Material> yellowMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
+	std::shared_ptr<Material> greenMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1), 1.0f);
+	std::shared_ptr<Material> yellowMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1), 0.5f);
 	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1));
 	std::shared_ptr<Material> matUV = std::make_shared<Material>(basicVertexShader, uvsPixelShader, XMFLOAT3(1, 1, 1)); //textcoords
 	std::shared_ptr<Material> matNorm = std::make_shared<Material>(basicVertexShader, normalsPixelShader, XMFLOAT3(1, 1, 1));//normals
 	//std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, customPixelShader, XMFLOAT3(1, 1, 1));//normals
-	std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, twoTexturePS, XMFLOAT3(1, 1, 1));//normals
+	std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, twoTexturePS, XMFLOAT3(1, 1, 1));//two textures
 
 	//add samplers to materials
 	greenMat->AddSampler("BasicSampler", sampleState);

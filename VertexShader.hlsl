@@ -7,6 +7,7 @@
 cbuffer ShaderData : register(b0)
 {
     matrix world;
+    matrix worldInverseTranspose;
     matrix view;
     matrix projection;
 };
@@ -37,9 +38,19 @@ VertexToPixel main(VertexShaderInput input)
     matrix worldViewProj = mul(projection, mul(view, world));
     output.screenPosition = mul(worldViewProj, float4(input.localPosition, 1.0f));
 
+	//simply pass texture coord
     output.uv = input.uv;
-    output.normal = input.normal;
+	
+	//3x3 ignores transformation operations
+	//world inverse transpose handles non uniform scaling
+    output.normal = mul((float3x3) worldInverseTranspose, input.normal);
 
+	//Get world position of vertex, pixels will be handled by other pipeline stage
+	//convert local pos to a float 4
+	//then multiply by world matrix
+	//grab the three components (x, y, z) that we care about
+    output.worldPos = mul(world, float4(input.localPosition, 1)).xyz;
+	
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)
     return output;

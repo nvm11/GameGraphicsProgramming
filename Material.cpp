@@ -90,11 +90,11 @@ void Material::AddSampler(std::string name, Microsoft::WRL::ComPtr<ID3D11Sampler
 void Material::PrepareMaterial(Transform& transform, std::shared_ptr<Camera> activeCam)
 {
 	//Send data to the shaders
-
 	//vertex shader
-	vs->SetMatrix4x4("world", transform.GetWorldMatrix()); // match variable
-	vs->SetMatrix4x4("view", activeCam->GetView()); // names in your
-	vs->SetMatrix4x4("projection", activeCam->GetProjection()); // shader’s cbuffer!
+	vs->SetMatrix4x4("world", transform.GetWorldMatrix());
+	vs->SetMatrix4x4("worldInverseTranspose", transform.GetWorldInverseTransposeMatrix());
+	vs->SetMatrix4x4("view", activeCam->GetView());
+	vs->SetMatrix4x4("projection", activeCam->GetProjection());
 	vs->CopyAllBufferData();
 	//pixel shader
 	ps->SetFloat3("colorTint", colorTint);
@@ -104,10 +104,9 @@ void Material::PrepareMaterial(Transform& transform, std::shared_ptr<Camera> act
 	ps->SetFloat3("cameraPos", activeCam->GetTransform().GetPosition());
 	ps->CopyAllBufferData();
 
-	//set (activate) shaders for the entity
+	//Set (activate) shaders for the entity
 	vs->SetShader();
 	ps->SetShader();
-
 
 	//Bind texture-related resources
 	for (auto& t : textureSRVs) { ps->SetShaderResourceView(t.first.c_str(), t.second); }

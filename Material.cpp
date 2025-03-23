@@ -100,6 +100,8 @@ void Material::PrepareMaterial(Transform& transform, std::shared_ptr<Camera> act
 	ps->SetFloat3("colorTint", colorTint);
 	ps->SetFloat2("uvScale", uvScale);
 	ps->SetFloat2("uvOffset", uvOffset);
+	ps->SetFloat("roughness", roughness);
+	ps->SetFloat3("cameraPos", activeCam->GetTransform().GetPosition());
 	ps->CopyAllBufferData();
 
 	//set (activate) shaders for the entity

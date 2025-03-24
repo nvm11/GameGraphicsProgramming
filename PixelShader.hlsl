@@ -70,6 +70,9 @@ float4 main(VertexToPixel input) : SV_TARGET
             case LIGHT_TYPE_POINT:
                 totalLight += PointLight(currentLight, input.normal, surfaceToCamera, input.worldPos, roughness, color);
                 break;
+            case LIGHT_TYPE_SPOT:
+                totalLight += SpotLight(currentLight, input.normal, surfaceToCamera, input.worldPos, roughness, color);
+                break;
         }
     }
 	

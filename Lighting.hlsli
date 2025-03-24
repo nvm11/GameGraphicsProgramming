@@ -35,7 +35,7 @@ float DiffuseLight(float3 normal, float3 directionToLight)
     return saturate(dot(normal, directionToLight)); //return direction light "bounces" off object
 }
 
-float3 PhongSpecularLight(float3 normal, float3 directionToLight, float3 surfaceToCamera, float roughness)
+float PhongSpecularLight(float3 normal, float3 directionToLight, float3 surfaceToCamera, float roughness)
 {
     //Calculate necessary vectors
     //reflect the light across the normal (direction light leaves surface)
@@ -85,5 +85,22 @@ float3 PointLight(Lights currentLight, float3 normal, float3 surfaceToCamera, fl
 
 }
 //performs all necessary calculations for a spotlight
+float3 SpotLight(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float3 color)
+{
+    //get necessary components
+    float3 surfaceToLight = normalize(currentLight.position - worldPosition);
+    float3 angle = saturate(dot(-surfaceToLight, currentLight.direction));
+    
+    //get two "cones"
+    float cosInner = cos(currentLight.spotInnerAngle);
+    float cosOuter = cos(currentLight.spotOuterAngle);
+    float falloffRange = cosOuter - cosInner;
+    
+    //simulate shrinking of the lights to form cone
+    float spotTerm = saturate((cosOuter - angle) / falloffRange).x;
+    
+    //use terms with point light calculation to create the cone
+    return PointLight(currentLight, normal, surfaceToCamera, worldPosition, roughness, color) * spotTerm;
+}
 
 #endif

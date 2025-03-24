@@ -122,7 +122,7 @@ void Game::CreateGeometry()
 	directionLight2.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
 	directionLight2.color = XMFLOAT3(0.0f, 1.0f, 0.0f); //green
 	directionLight2.intensity = 1.1f;
-	
+
 	//Point
 	pointLight1.type = LIGHT_TYPE_POINT;
 	pointLight1.position = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -136,8 +136,27 @@ void Game::CreateGeometry()
 	pointLight2.range = 15;
 	pointLight2.intensity = 1;
 
+	//Spot
+	spotLight1.type = LIGHT_TYPE_SPOT;
+	spotLight1.position = XMFLOAT3(6.0f, 1.5f, 0.0f);
+	spotLight1.direction = XMFLOAT3(0.0f, -1.0f, 0.0f); //straight down
+	spotLight1.color = XMFLOAT3(1.0f, 0.0f, 0.0f); //red
+	spotLight1.range = 5.0f;
+	spotLight1.intensity = 2.0f;
+	spotLight1.spotInnerAngle = XMConvertToRadians(30);
+	spotLight1.spotOuterAngle = XMConvertToRadians(60);
+	
+	spotLight2.type = LIGHT_TYPE_SPOT;
+	spotLight2.position = XMFLOAT3(9.0f, 1.0f, 0.0f);
+	spotLight2.direction = XMFLOAT3(0.0f, -0.8f, 0.0f); //straight down
+	spotLight2.color = XMFLOAT3(0.0f, 0.0f, 1.0f); //blue
+	spotLight2.range = 10.0f;
+	spotLight2.intensity = 1.0f;
+	spotLight2.spotInnerAngle = XMConvertToRadians(20);
+	spotLight2.spotOuterAngle = XMConvertToRadians(40);
+
 	//Add lights to vector
-	lights.insert(lights.end(), {directionLight1, directionLight2, pointLight1, pointLight2});
+	lights.insert(lights.end(), { directionLight1, directionLight2, pointLight1, pointLight2, spotLight1, spotLight2 });
 
 	//Load textures
 	//create SRVs for textures
@@ -175,7 +194,7 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<Material> greenMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1), 0.3f);
 	std::shared_ptr<Material> yellowMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
-	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1),0.7f);
+	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1), 0.7f);
 	std::shared_ptr<Material> matUV = std::make_shared<Material>(basicVertexShader, uvsPixelShader, XMFLOAT3(1, 1, 1)); //textcoords
 	std::shared_ptr<Material> matNorm = std::make_shared<Material>(basicVertexShader, normalsPixelShader, XMFLOAT3(1, 1, 1));//normals
 	//std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, customPixelShader, XMFLOAT3(1, 1, 1));//normals
@@ -331,9 +350,9 @@ void Game::Draw(float deltaTime, float totalTime)
 			entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientLight);
 			entities[i]->GetMaterial()->GetPixelShader()->SetInt("numLights", int(lights.size())); //number of lights
 			entities[i]->GetMaterial()->GetPixelShader()->SetData("lights", //shader variable name
-																   &lights[0], //address of data
-																   sizeof(Lights) * //size of data structure
-																   (int)lights.size());
+				&lights[0], //address of data
+				sizeof(Lights) * //size of data structure
+				(int)lights.size());
 			//Drawing
 			//draw entities
 			entities[i]->Draw(cams[activeCam]);

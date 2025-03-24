@@ -103,7 +103,7 @@ Game::~Game()
 // --------------------------------------------------------
 void Game::CreateGeometry()
 {
-	//create shaders
+	//Create shaders
 	std::shared_ptr<SimpleVertexShader> basicVertexShader = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"VertexShader.cso").c_str());
 	std::shared_ptr<SimplePixelShader> basicPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"PixelShader.cso").c_str());
 	std::shared_ptr<SimplePixelShader> uvsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugUVsPS.cso").c_str());
@@ -111,6 +111,11 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> customPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"CustomPS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> twoTexturePS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"TwoTexturePS.cso").c_str());
 
+	//Give data to lights
+	directionLight1.type = LIGHT_TYPE_DIRECTIONAL;
+	directionLight1.direction = XMFLOAT3(1.0f, -1.0f, 0.0f);
+	directionLight1.color = XMFLOAT3(1.0f, 0.3f, 0.4f);
+	directionLight1.intensity = 1.0f;
 
 	//Load textures
 	//create SRVs for textures

@@ -16,6 +16,7 @@
 //#include "BufferStructs.h"
 //contains simplified shaders functionality
 #include "SimpleShader.h"
+#include "Lights.h"
 
 using namespace DirectX;
 
@@ -41,8 +42,12 @@ private:
 	//Local array for storing value between frames
 	float color[4] = { 0.5f, 0.5f, 0.5f, 0.0f }; //Gray
 	
-	//Lighting values
+	//light objects
+	std::vector<Lights> lights;
+	Lights directionLight1 = {}; //zero struct
+	//lighting values
 	XMFLOAT3 ambientLight = XMFLOAT3(0.25f, 0.25f, 0.25f); //complement gray "sky"
+
 
 	////Vertices Default Colors
 	//XMFLOAT4 top;

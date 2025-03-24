@@ -59,19 +59,15 @@ float4 main(VertexToPixel input) : SV_TARGET
     {
         //grab a copy of the current index
         Lights currentLight = lights[i];
-        //get direction from surface to light
-        float3 surfaceToLight = -currentLight.direction;
-        
-        //Calculate all types of lighting
-        float diffuse = DiffuseLight(input.normal, surfaceToLight);
-        float specular = PhongSpecularLight(input.normal, surfaceToLight, surfaceToCamera, roughness);
-        
         //normalize the direction to ensure consistent results
         currentLight.direction = normalize(currentLight.direction);
-        //combine (add) the (normalized) direction to light, surface color, light color, and intensity 
-        totalLight += (diffuse + specular) *
-        currentLight.color * currentLight.intensity * color;
         
+        switch (currentLight.type)
+        {
+            case LIGHT_TYPE_DIRECTIONAL:
+                totalLight += DirectionLight(currentLight, input.normal, surfaceToCamera, roughness, color);
+                break;
+        }
     }
 	
 	//return modified color

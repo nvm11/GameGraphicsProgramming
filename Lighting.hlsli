@@ -48,6 +48,33 @@ float3 PhongSpecularLight(float3 normal, float3 directionToLight, float3 surface
     //Perform specular calculation
     return pow(max(dot(r, surfaceToCamera), 0.0f), specularExponent);
 }
+//softens the light
+float Attenuate(Lights currentLight, float3 worldPos)
+{
+    float dist = distance(currentLight.position, worldPos);
+    float attenuation = saturate(1.0f - (dist * dist / (currentLight.range * currentLight.range)));
+    return attenuation * attenuation;
+}
 
+//performs all necessary calculations for a directional light
+float3 DirectionLight(Lights currentLight, float3 normal, float3 surfaceToCamera, float roughness, float3 color) //can pass in a scalar to effect specular light on a per-pixel basis
+{
+    //get direction from surface to light
+    float3 surfaceToLight = -currentLight.direction;
+    
+    //Perform all lighting calculations (ambient is in main)
+    float diffuse = DiffuseLight(normal, surfaceToLight);
+    float specular = PhongSpecularLight(normal, surfaceToLight, surfaceToCamera, roughness);
+    
+    //return calculated light
+    return (diffuse * color + specular) * currentLight.intensity * currentLight.color;
+}
+//performs all necessary calculations for a point light
+float3 PointLight()
+{
+    return (0.0f, 0.0f, 0.0f);
+
+}
+//performs all necessary calculations for a spotlight
 
 #endif

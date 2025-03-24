@@ -29,13 +29,25 @@ struct Lights
 };
 
     //calculate diffuse lighting
-float3 DiffuseLight(float3 normal, float3 directionToLight)
+float DiffuseLight(float3 normal, float3 directionToLight)
 {
     //automatically normalizes values
     return saturate(dot(normal, directionToLight)); //return direction light "bounces" off object
-
 }
 
+float3 PhongSpecularLight(float3 normal, float3 directionToLight, float3 surfaceToCamera, float roughness)
+{
+    //Calculate necessary vectors
+    //reflect the light across the normal (direction light leaves surface)
+    float3 r = reflect(-directionToLight, normal);
+    
+    //Create an exponent value to represent the roughness of the surface
+    //high value = shiny, low = dull
+    float specularExponent = (1.0f - roughness) * MAX_SPECULAR_EXPONENT;
+    
+    //Perform specular calculation
+    return pow(max(dot(r, surfaceToCamera), 0.0f), specularExponent);
+}
 
 
 #endif

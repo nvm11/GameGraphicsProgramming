@@ -44,8 +44,36 @@ float4 main(VertexToPixel input) : SV_TARGET
 	//"sample" the texture and color
 	//this gives output color
     float3 color = SurfaceTexture.Sample(BasicSampler, input.uv).rgb; //swizzle using logical indices
-    color *= colorTint * ambientColor;
+    //tint color with colorTint
+    color *= colorTint;
+    
+    //Begin lighting calculations
+    //include ambient lighting ONCE
+    float3 totalLight = color * ambientColor;
+    
+    //angle the surface is viewed from
+    float3 surfaceToCamera = normalize(cameraPos - input.worldPos);
+    
+    //loop through lights
+    for (int i = 0; i < numLights; i++)
+    {
+        //grab a copy of the current index
+        Lights currentLight = lights[i];
+        //get direction from surface to light
+        float3 surfaceToLight = -currentLight.direction;
+        
+        //Calculate all types of lighting
+        float diffuse = DiffuseLight(input.normal, surfaceToLight);
+        float specular = PhongSpecularLight(input.normal, surfaceToLight, surfaceToCamera, roughness);
+        
+        //normalize the direction to ensure consistent results
+        currentLight.direction = normalize(currentLight.direction);
+        //combine (add) the (normalized) direction to light, surface color, light color, and intensity 
+        totalLight += (diffuse + specular) *
+        currentLight.color * currentLight.intensity * color;
+        
+    }
 	
 	//return modified color
-    return float4(color, 1);
+        return float4(totalLight, 1);
 }

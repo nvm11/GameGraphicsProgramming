@@ -117,8 +117,13 @@ void Game::CreateGeometry()
 	directionLight1.color = XMFLOAT3(1.0f, 0.3f, 0.4f);
 	directionLight1.intensity = 1.0f;
 
+	directionLight2.type = LIGHT_TYPE_DIRECTIONAL;
+	directionLight2.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	directionLight2.color = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	directionLight2.intensity = 1.1f;
+
 	//Add lights to vector
-	lights.push_back(directionLight1);
+	lights.insert(lights.end(), {directionLight1, directionLight2});
 
 	//Load textures
 	//create SRVs for textures

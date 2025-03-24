@@ -45,6 +45,7 @@ private:
 	//light objects
 	std::vector<Lights> lights;
 	Lights directionLight1 = {}; //zero struct
+	Lights directionLight2 = {};
 	//lighting values
 	XMFLOAT3 ambientLight = XMFLOAT3(0.25f, 0.25f, 0.25f); //complement gray "sky"
 

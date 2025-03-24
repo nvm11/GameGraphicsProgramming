@@ -1,4 +1,5 @@
 #include "Structs.hlsli"
+#include "Lighting.hlsli"
 
 //data to manipulate pixels
 cbuffer ShaderData : register(b0)
@@ -15,6 +16,9 @@ cbuffer ShaderData : register(b0)
     //light data
     int numLights;
     float3 ambientColor;
+    
+    //light objects
+    Lights lights[MAX_LIGHTS];
 };
 
 Texture2D SurfaceTexture : register(t0); // "t" registers for textures

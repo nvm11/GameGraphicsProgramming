@@ -70,9 +70,18 @@ float3 DirectionLight(Lights currentLight, float3 normal, float3 surfaceToCamera
     return (diffuse * color + specular) * currentLight.intensity * currentLight.color;
 }
 //performs all necessary calculations for a point light
-float3 PointLight()
+float3 PointLight(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float color)
 {
-    return (0.0f, 0.0f, 0.0f);
+    //get distance from light
+    float3 surfaceToLight = normalize(currentLight.position - worldPosition);
+    
+    //Preform all lighting calculations
+    float diffuse = DiffuseLight(normal, surfaceToLight);
+    float specular = PhongSpecularLight(normal, surfaceToLight, surfaceToCamera, roughness);
+    float attenuation = Attenuate(currentLight, worldPosition);
+    
+    //return lighting results
+    return (diffuse * color + specular) * attenuation * currentLight.intensity;
 
 }
 //performs all necessary calculations for a spotlight

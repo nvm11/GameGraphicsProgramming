@@ -112,18 +112,30 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> twoTexturePS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"TwoTexturePS.cso").c_str());
 
 	//Give data to lights
+	//Direction
 	directionLight1.type = LIGHT_TYPE_DIRECTIONAL;
 	directionLight1.direction = XMFLOAT3(1.0f, 0.1f, 0.0f);
-	directionLight1.color = XMFLOAT3(1.0f, 0.3f, 0.4f);
+	directionLight1.color = XMFLOAT3(1.0f, 0.3f, 0.4f); //maroon
 	directionLight1.intensity = 1.0f;
 
 	directionLight2.type = LIGHT_TYPE_DIRECTIONAL;
 	directionLight2.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	directionLight2.color = XMFLOAT3(0.0f, 1.0f, 0.0f);
+	directionLight2.color = XMFLOAT3(0.0f, 1.0f, 0.0f); //green
 	directionLight2.intensity = 1.1f;
+	
+	//Point
+	pointLight1.type = LIGHT_TYPE_POINT;
+	pointLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f); //white
+	pointLight1.range = 10;
+	pointLight1.intensity = 2;
+
+	pointLight2.type = LIGHT_TYPE_POINT;
+	pointLight2.color = XMFLOAT3(0.0f, 0.5f, 1.0f); //teal
+	pointLight2.range = 5;
+	pointLight2.intensity = 1;
 
 	//Add lights to vector
-	lights.insert(lights.end(), {directionLight1, directionLight2});
+	lights.insert(lights.end(), {directionLight1, directionLight2, pointLight1, pointLight2});
 
 	//Load textures
 	//create SRVs for textures

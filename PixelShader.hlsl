@@ -33,6 +33,9 @@ float4 main(VertexToPixel input) : SV_TARGET
 {
 	//alter uv coords using offset
     input.uv = input.uv * uvScale + uvOffset;
+    
+    //normalize input normals
+    input.normal = normalize(input.normal);
 	
 	//"sample" the texture and color
 	//this gives output color

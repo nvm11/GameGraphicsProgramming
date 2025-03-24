@@ -117,6 +117,9 @@ void Game::CreateGeometry()
 	directionLight1.color = XMFLOAT3(1.0f, 0.3f, 0.4f);
 	directionLight1.intensity = 1.0f;
 
+	//Add lights to vector
+	lights.push_back(directionLight1);
+
 	//Load textures
 	//create SRVs for textures
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> soilSRV;
@@ -307,6 +310,11 @@ void Game::Draw(float deltaTime, float totalTime)
 			//pass in deltaTime for pixel shader
 			entities[i]->GetMaterial()->GetPixelShader()->SetFloat("deltaTime", deltaTime);
 			entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientLight);
+			entities[i]->GetMaterial()->GetPixelShader()->SetInt("numLights", int(lights.size())); //number of lights
+			entities[i]->GetMaterial()->GetPixelShader()->SetData("lights", //shader variable name
+																   &lights[0], //address of data
+																   sizeof(Lights) * //size of data structure
+																   (int)lights.size());
 			//Drawing
 			//draw entities
 			entities[i]->Draw(cams[activeCam]);

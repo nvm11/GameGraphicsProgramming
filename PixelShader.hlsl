@@ -67,9 +67,12 @@ float4 main(VertexToPixel input) : SV_TARGET
             case LIGHT_TYPE_DIRECTIONAL:
                 totalLight += DirectionLight(currentLight, input.normal, surfaceToCamera, roughness, color);
                 break;
+            case LIGHT_TYPE_POINT:
+                totalLight += PointLight(currentLight, input.normal, surfaceToCamera, input.worldPos, roughness, color);
+                break;
         }
     }
 	
 	//return modified color
-        return float4(totalLight, 1);
+    return float4(totalLight, 1);
 }

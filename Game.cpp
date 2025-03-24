@@ -125,13 +125,15 @@ void Game::CreateGeometry()
 	
 	//Point
 	pointLight1.type = LIGHT_TYPE_POINT;
+	pointLight1.position = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	pointLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f); //white
 	pointLight1.range = 10;
 	pointLight1.intensity = 2;
 
 	pointLight2.type = LIGHT_TYPE_POINT;
-	pointLight2.color = XMFLOAT3(0.0f, 0.5f, 1.0f); //teal
-	pointLight2.range = 5;
+	pointLight1.position = XMFLOAT3(6.0f, 1.0f, 0.0f);
+	pointLight2.color = XMFLOAT3(1.0f, 1.0f, 0.0f); //yellow
+	pointLight2.range = 15;
 	pointLight2.intensity = 1;
 
 	//Add lights to vector

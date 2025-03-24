@@ -70,7 +70,7 @@ float3 DirectionLight(Lights currentLight, float3 normal, float3 surfaceToCamera
     return (diffuse * color + specular) * currentLight.intensity * currentLight.color;
 }
 //performs all necessary calculations for a point light
-float3 PointLight(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float color)
+float3 PointLight(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float3 color)
 {
     //get distance from light
     float3 surfaceToLight = normalize(currentLight.position - worldPosition);

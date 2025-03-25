@@ -145,7 +145,7 @@ void Game::CreateGeometry()
 	spotLight1.intensity = 2.0f;
 	spotLight1.spotInnerAngle = XMConvertToRadians(30);
 	spotLight1.spotOuterAngle = XMConvertToRadians(60);
-	
+
 	spotLight2.type = LIGHT_TYPE_SPOT;
 	spotLight2.position = XMFLOAT3(9.0f, 1.0f, 0.0f);
 	spotLight2.direction = XMFLOAT3(0.0f, -0.8f, 0.0f); //straight down
@@ -435,8 +435,8 @@ void Game::DrawUI()
 
 			ImGui::Unindent();
 		}
-		
-		
+
+
 		ImGui::Unindent();
 	}
 
@@ -456,8 +456,8 @@ void Game::DrawUI()
 		}
 
 		//Entities
-		if(ImGui::CollapsingHeader("Entities")){
-		// Alter Matrices of Entities
+		if (ImGui::CollapsingHeader("Entities")) {
+			// Alter Matrices of Entities
 			for (size_t i = 0; i < entities.size(); i++)
 			{
 				// Generate a unique identifier for each entity control group
@@ -544,6 +544,38 @@ void Game::DrawUI()
 			ImGui::SeparatorText("Universal Lighting");
 			ImGui::DragFloat3("Ambient Light", &ambientLight.x, 0.001f, 0.0f, 1.5f);
 			ImGui::DragFloat3("Background Color", &color[0], 0.001f, 0.0f, 1.5f);
+			ImGui::SeparatorText("Light Sources");
+			if (ImGui::CollapsingHeader("Lights")) {
+				for (size_t i = 0; i < lights.size(); i++) {
+					std::string label = "Light " + std::to_string(i + 1);
+					if (ImGui::CollapsingHeader(label.c_str())) {
+						//Could reorganize conditionals for efficency
+
+						//all light types
+						ImGui::DragFloat3(("Color##" + std::to_string(i)).c_str(), &lights[i].color.x, 0.001f, 0.0f, 1.5f); //color
+						ImGui::DragFloat(("Intensity##" + std::to_string(i)).c_str(), &lights[i].intensity, 0.01f, 0.0f, 1.5f); //intensity
+						ImGui::DragFloat3(("Driection##" + std::to_string(i)).c_str(), &lights[i].direction.x, 0.1f, XMConvertToRadians(-360.0f), XMConvertToRadians(360.0f)); //direction
+
+						//directional lights are done
+						if (lights[i].type == LIGHT_TYPE_DIRECTIONAL) {
+							continue;
+						}
+
+						//shared by point and spot
+						ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &lights[i].position.x, 0.1f, -20.0f, 20.0f); //position
+						ImGui::DragFloat(("Range##" + std::to_string(i)).c_str(), &lights[i].range, 0.1f, 0.0f, 50.0f); //range
+
+						//point lights are done
+						if (lights[i].type == LIGHT_TYPE_POINT) {
+							continue;
+						}
+
+						//only spot lights
+						ImGui::DragFloat(("Inner Spotlight##" + std::to_string(i)).c_str(), &lights[i].spotInnerAngle, 0.1f, XMConvertToRadians(-360.0f), XMConvertToRadians(360.0f)); //inner angle
+						ImGui::DragFloat(("Outer Spotlight##" + std::to_string(i)).c_str(), &lights[i].spotOuterAngle, 0.1f, XMConvertToRadians(-360.0f), XMConvertToRadians(360.0f)); //inner angle
+					}
+				}
+			}
 		}
 
 		//ImGui::SeparatorText("Defaults");

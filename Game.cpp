@@ -435,6 +435,8 @@ void Game::DrawUI()
 
 			ImGui::Unindent();
 		}
+		
+		
 		ImGui::Unindent();
 	}
 
@@ -452,85 +454,96 @@ void Game::DrawUI()
 				activeCam = (int)i; // Update active camera index
 			}
 		}
+
+		//Entities
+		if(ImGui::CollapsingHeader("Entities")){
 		// Alter Matrices of Entities
-		for (size_t i = 0; i < entities.size(); i++)
-		{
-			// Generate a unique identifier for each entity control group
-			std::string label = "Entity " + std::to_string(i + 1);
-			if (ImGui::CollapsingHeader(label.c_str())) {
+			for (size_t i = 0; i < entities.size(); i++)
+			{
+				// Generate a unique identifier for each entity control group
+				std::string label = "Entity " + std::to_string(i + 1);
+				if (ImGui::CollapsingHeader(label.c_str())) {
 
-				ImGui::SeparatorText("Transform");
+					ImGui::SeparatorText("Transform");
 
-				// Retrieve transform reference
-				Transform& transform = entities[i]->GetTransform();
+					// Retrieve transform reference
+					Transform& transform = entities[i]->GetTransform();
 
-				// Create variables for editing (ImGui needs modifiable data)
-				XMFLOAT3 position = transform.GetPosition();
-				XMFLOAT3 rotation = transform.GetRotation();
-				XMFLOAT3 scale = transform.GetScale();
+					// Create variables for editing (ImGui needs modifiable data)
+					XMFLOAT3 position = transform.GetPosition();
+					XMFLOAT3 rotation = transform.GetRotation();
+					XMFLOAT3 scale = transform.GetScale();
 
-				// Modify Position
-				if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &position.x, 0.1f, -100.0f, 100.0f))
-				{
-					transform.SetPosition(position);
-				}
+					// Modify Position
+					if (ImGui::DragFloat3(("Position##" + std::to_string(i)).c_str(), &position.x, 0.1f, -100.0f, 100.0f))
+					{
+						transform.SetPosition(position);
+					}
 
-				// Modify Rotation (ImGui uses degrees, so convert from radians)
-				XMFLOAT3 rotationDegrees = { XMConvertToDegrees(rotation.x),
-											 XMConvertToDegrees(rotation.y),
-											 XMConvertToDegrees(rotation.z) };
+					// Modify Rotation (ImGui uses degrees, so convert from radians)
+					XMFLOAT3 rotationDegrees = { XMConvertToDegrees(rotation.x),
+												 XMConvertToDegrees(rotation.y),
+												 XMConvertToDegrees(rotation.z) };
 
-				if (ImGui::DragFloat3(("Rotation##" + std::to_string(i)).c_str(), &rotationDegrees.x, 1.0f, -360.0f, 360.0f))
-				{
-					transform.SetRotation(XMFLOAT3(XMConvertToRadians(rotationDegrees.x),
-						XMConvertToRadians(rotationDegrees.y),
-						XMConvertToRadians(rotationDegrees.z)));
-				}
+					if (ImGui::DragFloat3(("Rotation##" + std::to_string(i)).c_str(), &rotationDegrees.x, 1.0f, -360.0f, 360.0f))
+					{
+						transform.SetRotation(XMFLOAT3(XMConvertToRadians(rotationDegrees.x),
+							XMConvertToRadians(rotationDegrees.y),
+							XMConvertToRadians(rotationDegrees.z)));
+					}
 
-				// Modify Scale
-				if (ImGui::DragFloat3(("Scale##" + std::to_string(i)).c_str(), &scale.x, 0.1f, 0.1f, 10.0f))
-				{
-					transform.SetScale(scale);
-				}
+					// Modify Scale
+					if (ImGui::DragFloat3(("Scale##" + std::to_string(i)).c_str(), &scale.x, 0.1f, 0.1f, 10.0f))
+					{
+						transform.SetScale(scale);
+					}
 
-				//Display Material Info
-				ImGui::SeparatorText("Material");
-				//store material
-				std::shared_ptr<Material> mat = entities[i]->GetMaterial();
-				//color
-				XMFLOAT3 colorTint = mat->GetColor();
-				if (ImGui::DragFloat3(("Color##" + std::to_string(i)).c_str(), &colorTint.x, 0.001f, 0.0f, 1.0f)) {
-					entities[i]->GetMaterial()->SetColor(colorTint);
-				}
+					//Display Material Info
+					ImGui::SeparatorText("Material");
+					//store material
+					std::shared_ptr<Material> mat = entities[i]->GetMaterial();
+					//color
+					XMFLOAT3 colorTint = mat->GetColor();
+					if (ImGui::DragFloat3(("Color##" + std::to_string(i)).c_str(), &colorTint.x, 0.001f, 0.0f, 1.0f)) {
+						entities[i]->GetMaterial()->SetColor(colorTint);
+					}
 
-				//Display texture info
-				//uvoffset
-				XMFLOAT2 uvOffset = mat->GetUvOffset();
-				if (ImGui::DragFloat2(("UV Offset##" + std::to_string(i)).c_str(), &uvOffset.x, 0.01f, 0.1f, 10.0f)) {
-					mat->SetUvOffset(uvOffset);
-				}
-				//scale
-				XMFLOAT2 uvScale = mat->GetUvScale();
-				if (ImGui::DragFloat2(("UV Scale##" + std::to_string(i)).c_str(), &uvScale.x, 0.01f, 0.1f, 10.0f)) {
-					mat->SetUvScale(uvScale);
-				}
+					//Display texture info
+					//uvoffset
+					XMFLOAT2 uvOffset = mat->GetUvOffset();
+					if (ImGui::DragFloat2(("UV Offset##" + std::to_string(i)).c_str(), &uvOffset.x, 0.01f, 0.1f, 10.0f)) {
+						mat->SetUvOffset(uvOffset);
+					}
+					//scale
+					XMFLOAT2 uvScale = mat->GetUvScale();
+					if (ImGui::DragFloat2(("UV Scale##" + std::to_string(i)).c_str(), &uvScale.x, 0.01f, 0.1f, 10.0f)) {
+						mat->SetUvScale(uvScale);
+					}
 
-				std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textures = entities[i]->GetMaterial()->GetTextureShaderResourceViewMap();
-				for (auto& textureInfo : textures) {
-					//get texture name
-					std::string name = textureInfo.first;
-					//get srv
-					ID3D11ShaderResourceView* srv = textureInfo.second.Get();
+					std::unordered_map<std::string, Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>> textures = entities[i]->GetMaterial()->GetTextureShaderResourceViewMap();
+					for (auto& textureInfo : textures) {
+						//get texture name
+						std::string name = textureInfo.first;
+						//get srv
+						ID3D11ShaderResourceView* srv = textureInfo.second.Get();
 
-					//check if the srv exists
-					if (srv) {
-						//display info about the texture
-						ImGui::Text("%s", name.c_str());
-						//display image of texture
-						ImGui::Image((ImTextureID)srv, ImVec2(128, 128));
+						//check if the srv exists
+						if (srv) {
+							//display info about the texture
+							ImGui::Text("%s", name.c_str());
+							//display image of texture
+							ImGui::Image((ImTextureID)srv, ImVec2(128, 128));
+						}
 					}
 				}
 			}
+		}
+
+		//Lights
+		if (ImGui::CollapsingHeader("Lighting")) {
+			ImGui::SeparatorText("Universal Lighting");
+			ImGui::DragFloat3("Ambient Light", &ambientLight.x, 0.001f, 0.0f, 1.5f);
+			ImGui::DragFloat3("Background Color", &color[0], 0.001f, 0.0f, 1.5f);
 		}
 
 		//ImGui::SeparatorText("Defaults");

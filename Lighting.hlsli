@@ -103,4 +103,33 @@ float3 SpotLight(Lights currentLight, float3 normal, float3 surfaceToCamera, flo
     return PointLight(currentLight, normal, surfaceToCamera, worldPosition, roughness, color) * spotTerm;
 }
 
+float3 CalculateTotalLight(int numLights, Lights lights[MAX_LIGHTS], float3 normal, float3 surfaceToCamera, float3 worldPos, float roughness, float3 color)
+{
+    
+    float3 totalLight; //store total lighting
+    //loop through lights
+    for (int i = 0; i < numLights; i++)
+    {
+        //grab a copy of the current index
+        Lights currentLight = lights[i];
+        //normalize the direction to ensure consistent results
+        currentLight.direction = normalize(currentLight.direction);
+        
+        switch (currentLight.type)
+        {
+            case LIGHT_TYPE_DIRECTIONAL:
+                totalLight += DirectionLight(currentLight, normal, surfaceToCamera, roughness, color);
+                break;
+            case LIGHT_TYPE_POINT:
+                totalLight += PointLight(currentLight, normal, surfaceToCamera, worldPos, roughness, color);
+                break;
+            case LIGHT_TYPE_SPOT:
+                totalLight += SpotLight(currentLight, normal, surfaceToCamera, worldPos, roughness, color);
+                break;
+        }
+    }
+    
+    return totalLight;
+}
+
 #endif

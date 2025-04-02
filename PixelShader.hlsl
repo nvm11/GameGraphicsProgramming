@@ -53,29 +53,10 @@ float4 main(VertexToPixel input) : SV_TARGET
     
     //angle the surface is viewed from
     float3 surfaceToCamera = normalize(cameraPos - input.worldPos);
-    
-    //loop through lights
-    for (int i = 0; i < numLights; i++)
-    {
-        //grab a copy of the current index
-        Lights currentLight = lights[i];
-        //normalize the direction to ensure consistent results
-        currentLight.direction = normalize(currentLight.direction);
-        
-        switch (currentLight.type)
-        {
-            case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += DirectionLight(currentLight, input.normal, surfaceToCamera, roughness, color);
-                break;
-            case LIGHT_TYPE_POINT:
-                totalLight += PointLight(currentLight, input.normal, surfaceToCamera, input.worldPos, roughness, color);
-                break;
-            case LIGHT_TYPE_SPOT:
-                totalLight += SpotLight(currentLight, input.normal, surfaceToCamera, input.worldPos, roughness, color);
-                break;
-        }
-    }
-	
+
+    //apply the total lighting
+    totalLight += CalculateTotalLight(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, color);
+
 	//return modified color
     return float4(totalLight, 1);
 }

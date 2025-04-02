@@ -16,7 +16,7 @@ struct VertexShaderInput
     float3 localPosition : POSITION; // XYZ position
     float2 uv : TEXCOORD; // UV texture coordinates
     float3 normal : NORMAL; // Surface normals for lighting
-    float3 tangent : TANGENT;
+    float3 tangent : TANGENT; // Normal from normal map
 };
 
 // Struct representing the data we're sending down the pipeline
@@ -35,6 +35,20 @@ struct VertexToPixel
     float2 uv : TEXCOORD; // UV texture coordinates
     float3 normal : NORMAL; // Surface normals for lighting
     float3 worldPos : POSITION; //world space position
+};
+
+struct VertexToNormalMapPS
+{
+	// Data type
+	//  |
+	//  |   Name          Semantic
+	//  |    |                |
+	//  v    v                v
+    float4 screenPosition : SV_POSITION; // XYZ position
+    float2 uv : TEXCOORD; // UV texture coordinates
+    float3 normal : NORMAL; // Surface normals for lighting
+    float3 worldPos : POSITION; //world space position
+    float3 tangent : TANGENT; //tangent from normal map
 };
 
 #endif

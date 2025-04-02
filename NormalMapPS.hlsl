@@ -41,7 +41,12 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
 
 	//normalize input normals
 	input.normal = normalize(input.normal);
-	
+
+	//unpack normal
+	float3 unpackedNormal = NormalMap.Sample(BasicSampler, input.uv).rgb * 2 - 1;
+	//normalize resulting normal
+	unpackedNormal = normalize(unpackedNormal);
+
 	//"sample" the texture and color
 	//this gives output color
 	float3 color = SurfaceTexture.Sample(BasicSampler, input.uv).rgb; //swizzle using logical indices

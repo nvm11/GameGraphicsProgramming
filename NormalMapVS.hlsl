@@ -22,7 +22,7 @@ cbuffer ShaderData : register(b0)
 VertexToNormalMapPS main(VertexShaderInput input)
 {
 	// Set up output struct
-	VertexToPixel output;
+	VertexToNormalMapPS output;
 
 	// Here we're essentially passing the input position directly through to the next
 	// stage (rasterizer), though it needs to be a 4-component vector now.  

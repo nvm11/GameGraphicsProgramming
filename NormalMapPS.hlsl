@@ -22,6 +22,7 @@ cbuffer ShaderData : register(b0)
 };
 
 Texture2D SurfaceTexture : register(t0); // "t" registers for textures
+Texture2D NormalMap : register(t1); //second register for normal map
 SamplerState BasicSampler : register(s0); // "s" registers for samplers
 
 // --------------------------------------------------------

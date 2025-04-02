@@ -10,27 +10,27 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer; //index buffer
 
 	//Data Counts
-	int indices; //index count
-	int vertices; //vertex count
+	unsigned int indices; //index count
+	unsigned int vertices; //vertex count
 
 	//Helper Methods
 	//Create buffers from necessary data
 	void CreateBuffers(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount);
 
 public:
-	//Constructor--
+	//Constructor
 	//Creates buffers and 
 	Mesh(Vertex* vertexData, unsigned int* indexData, size_t vertexCount, size_t indexCount);
 
 	Mesh(const char* meshData);
 
-	//Destructor--
+	//Destructor
 	//most likely empty, still necessary so ComPtrs clean up
 	~Mesh();
 
-	//Methods--
+	//Methods
 
-	//Getters-
+	//Getters
 	//Returns the vertex buffer ComPtr
 	Microsoft::WRL::ComPtr<ID3D11Buffer> GetVertexBuffer() const;
 	//Returns index buffer ComPtr
@@ -40,8 +40,11 @@ public:
 	//Returns number of vertices
 	int GetVertexCount() const;
 
-	//Output-
+	//Output
 	//Sets buffers and draws using indices count
 	void Draw();
+
+	//Helpers
+	void CalculateTangents(Vertex* verts, int numVerts, unsigned int* indices, int numIndices);
 };
 

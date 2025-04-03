@@ -5,20 +5,20 @@
 cbuffer ShaderData : register(b0)
 {
 	//material data
-	float3 colorTint;
-	float roughness;
-	float2 uvScale; //changes how many times texture is on object
-	float2 uvOffset; //changes start position of texture
+    float3 colorTint;
+    float roughness;
+    float2 uvScale; //changes how many times texture is on object
+    float2 uvOffset; //changes start position of texture
 
 	//entity data
-	float3 cameraPos; //helps with specular + diffuse lighting
+    float3 cameraPos; //helps with specular + diffuse lighting
 
 	//light data
-	int numLights;
-	float3 ambientColor;
+    int numLights;
+    float3 ambientColor;
 
 	//light objects
-	Lights lights[MAX_LIGHTS];
+    Lights lights[MAX_LIGHTS];
 };
 
 Texture2D SurfaceTexture : register(t0); // "t" registers for textures
@@ -37,32 +37,46 @@ SamplerState BasicSampler : register(s0); // "s" registers for samplers
 float4 main(VertexToNormalMapPS input) : SV_TARGET
 {
 	//alter uv coords using offset
-	input.uv = input.uv * uvScale + uvOffset;
+    input.uv = input.uv * uvScale + uvOffset;
 
-	//normalize input normals
-	input.normal = normalize(input.normal);
+	//normalize input normal
+    input.normal = normalize(input.normal);
+	//normalize input tangent
+    input.tangent = normalize(input.tangent);
 
 	//unpack normal
-	float3 unpackedNormal = NormalMap.Sample(BasicSampler, input.uv).rgb * 2 - 1;
+    float3 unpackedNormal = NormalMap.Sample(BasicSampler, input.uv).rgb * 2 - 1;
 	//normalize resulting normal
-	unpackedNormal = normalize(unpackedNormal);
+    unpackedNormal = normalize(unpackedNormal);
+	
+	//build the tbn matrix
+	//t = normalized tangent
+	//b = bitangent (cross of t and n)
+	//n = normalized surface normal
+	//creates a local set of orthonormal vectors
+	//where the normal (z) is pointing out of the surface
+	//x is along u, and y is along v
+    float3x3 tbn = float3x3(input.tangent, cross(input.tangent, input.normal), input.normal);
+	
+	//apply transformation to unpacked normal
+    input.normal = mul(unpackedNormal, tbn);
 
 	//"sample" the texture and color
 	//this gives output color
-	float3 color = SurfaceTexture.Sample(BasicSampler, input.uv).rgb; //swizzle using logical indices
+    float3 color = SurfaceTexture.Sample(BasicSampler, input.uv).rgb; //swizzle using logical indices
 	//tint color with colorTint
-	color *= colorTint;
+    color *= colorTint;
 	
 	//Begin lighting calculations
 	//include ambient lighting ONCE
-	float3 totalLight = color * ambientColor;
+    float3 totalLight = color * ambientColor;
 	
 	//angle the surface is viewed from
-	float3 surfaceToCamera = normalize(cameraPos - input.worldPos);
+    float3 surfaceToCamera = normalize(cameraPos - input.worldPos);
 	
 	//apply the total lighting
-	totalLight += CalculateTotalLight(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, color);
+    totalLight += CalculateTotalLight(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, color);
 	
 	//return modified color
-	return float4(totalLight, 1);
+    return float4(input.normal, 1);
 }

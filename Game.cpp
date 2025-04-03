@@ -104,12 +104,17 @@ Game::~Game()
 void Game::CreateGeometry()
 {
 	//Create shaders
+	//one texture, no normal map
 	std::shared_ptr<SimpleVertexShader> basicVertexShader = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"VertexShader.cso").c_str());
 	std::shared_ptr<SimplePixelShader> basicPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"PixelShader.cso").c_str());
-	std::shared_ptr<SimplePixelShader> uvsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugUVsPS.cso").c_str());
-	std::shared_ptr<SimplePixelShader> normalsPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"DebugNormalsPS.cso").c_str());
-	std::shared_ptr<SimplePixelShader> customPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"CustomPS.cso").c_str());
+
+	//two textures, no normal map
 	std::shared_ptr<SimplePixelShader> twoTexturePS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"TwoTexturePS.cso").c_str());
+
+	//one texture with normal map
+	std::shared_ptr<SimpleVertexShader> normalMapVS = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapVS.cso").c_str());
+	std::shared_ptr<SimplePixelShader> normalMapPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapPS.cso").c_str());
+
 
 	//Give data to lights
 	//Direction
@@ -192,33 +197,22 @@ void Game::CreateGeometry()
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
-	std::shared_ptr<Material> greenMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1), 0.3f);
-	std::shared_ptr<Material> yellowMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
-	std::shared_ptr<Material> purpleMat = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 0, 1), 0.7f);
-	std::shared_ptr<Material> matUV = std::make_shared<Material>(basicVertexShader, uvsPixelShader, XMFLOAT3(1, 1, 1)); //textcoords
-	std::shared_ptr<Material> matNorm = std::make_shared<Material>(basicVertexShader, normalsPixelShader, XMFLOAT3(1, 1, 1));//normals
-	//std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, customPixelShader, XMFLOAT3(1, 1, 1));//normals
-	std::shared_ptr<Material> matCustom = std::make_shared<Material>(basicVertexShader, twoTexturePS, XMFLOAT3(1, 1, 1));//two textures
+	std::shared_ptr<Material> normalMapMaterial = std::make_shared<Material>(normalMapVS, normalMapPS, XMFLOAT3(1, 1, 1)); //textcoords
 
 	//add samplers to materials
-	greenMat->AddSampler("BasicSampler", sampleState);
-	purpleMat->AddSampler("BasicSampler", sampleState);
+	normalMapMaterial->AddSampler("BasicSampler", sampleState);
 	//add shader resource views
-	greenMat->AddTextureSRV("SurfaceTexture", soilSRV);
-	purpleMat->AddTextureSRV("SurfaceTexture", rockSRV);
-
-	matCustom->AddTextureSRV("SurfaceTexture", rockSRV);
-	matCustom->AddTextureSRV("TopTexture", soilSRV);
+	normalMapMaterial->AddTextureSRV("SurfaceTexture", soilSRV);
 
 
 	//create initial entities
-	entities.push_back(std::make_shared<Entity>(meshes[0], purpleMat));
-	entities.push_back(std::make_shared<Entity>(meshes[1], yellowMat));
-	entities.push_back(std::make_shared<Entity>(meshes[2], greenMat));
-	entities.push_back(std::make_shared<Entity>(meshes[3], matCustom));
-	entities.push_back(std::make_shared<Entity>(meshes[4], yellowMat));
-	entities.push_back(std::make_shared<Entity>(meshes[5], purpleMat));
-	entities.push_back(std::make_shared<Entity>(meshes[6], greenMat));
+	entities.push_back(std::make_shared<Entity>(meshes[0], normalMapMaterial));
+	entities.push_back(std::make_shared<Entity>(meshes[1], normalMapMaterial));
+	entities.push_back(std::make_shared<Entity>(meshes[2], normalMapMaterial));
+	entities.push_back(std::make_shared<Entity>(meshes[3], normalMapMaterial));
+	entities.push_back(std::make_shared<Entity>(meshes[4], normalMapMaterial));
+	entities.push_back(std::make_shared<Entity>(meshes[5], normalMapMaterial));
+	entities.push_back(std::make_shared<Entity>(meshes[6], normalMapMaterial));
 	//move them for spacing
 	entities[0]->GetTransform().MoveAbsolute(-9, 0, 0);
 	entities[1]->GetTransform().MoveAbsolute(-6, 0, 0);
@@ -237,8 +231,8 @@ void Game::CreateGeometry()
 		//get mesh of entity
 		std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
 		//create new entities with normal and uv materials
-		std::shared_ptr<Entity> entityUV = std::make_shared<Entity>(mesh, matUV);
-		std::shared_ptr<Entity> entityNormal = std::make_shared<Entity>(mesh, matNorm);
+		std::shared_ptr<Entity> entityUV = std::make_shared<Entity>(mesh, normalMapMaterial);
+		std::shared_ptr<Entity> entityNormal = std::make_shared<Entity>(mesh, normalMapMaterial);
 		//move horizontal
 		entityUV->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
 		entityNormal->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());

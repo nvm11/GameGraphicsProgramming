@@ -183,12 +183,12 @@
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
     <None Include="Lighting.hlsli">
       <Filter>Shaders</Filter>
     </None>
     <None Include="Structs.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

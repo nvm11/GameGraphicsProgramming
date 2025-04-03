@@ -37,6 +37,12 @@ struct VertexToPixel
     float3 worldPos : POSITION; //world space position
 };
 
+struct VertexToPixelSky
+{
+    float4 position : SV_POSITION;
+    float3 sampleDir : DIRECTION; //direction towards sky
+};
+
 struct VertexToNormalMapPS
 {
 	// Data type

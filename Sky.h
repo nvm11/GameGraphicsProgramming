@@ -20,6 +20,6 @@ class Sky
 	std::shared_ptr<Mesh> cubeMesh;
 
 	//Constructor
-	Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler)
+	Sky(std::shared_ptr<Mesh> mesh, Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler);
 };
 

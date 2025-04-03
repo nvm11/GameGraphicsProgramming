@@ -43,23 +43,8 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
     input.normal = normalize(input.normal);
 	//normalize input tangent
     input.tangent = normalize(input.tangent);
-
-	//unpack normal
-    float3 unpackedNormal = NormalMap.Sample(BasicSampler, input.uv).rgb * 2 - 1;
-	//normalize resulting normal
-    unpackedNormal = normalize(unpackedNormal);
 	
-	//build the tbn matrix
-	//t = normalized tangent
-	//b = bitangent (cross of t and n)
-	//n = normalized surface normal
-	//creates a local set of orthonormal vectors
-	//where the normal (z) is pointing out of the surface
-	//x is along u, and y is along v
-    float3x3 tbn = float3x3(input.tangent, cross(input.tangent, input.normal), input.normal);
-	
-	//apply transformation to unpacked normal
-    input.normal = mul(unpackedNormal, tbn);
+    input.normal = NormalFromMap(NormalMap, BasicSampler, input.uv, input.normal, input.tangent);
 
 	//"sample" the texture and color
 	//this gives output color
@@ -78,5 +63,5 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
     totalLight += CalculateTotalLight(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, color);
 	
 	//return modified color
-    return float4(input.normal, 1);
+    return float4(totalLight, 1);
 }

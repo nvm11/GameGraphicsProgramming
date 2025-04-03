@@ -132,4 +132,20 @@ float3 CalculateTotalLight(int numLights, Lights lights[MAX_LIGHTS], float3 norm
     return totalLight;
 }
 
+float3 NormalFromMap(Texture2D normalMap, SamplerState sample, float2 uv, float3 normal, float3 tangent)
+{
+    //sample the normal map and "unpack" result
+    float3 normalMapData = normalMap.Sample(sample, uv).rgb * 2.0f - 1.0f;
+    
+    //build the tbn matrix
+	//t = normalized tangent along u
+	//b = bitangent (cross of t and n) along v
+	//n = normalized surface normal
+    float3 t = normalize(tangent - normal * dot(tangent, normal));
+    float3x3 tbn = float3x3(t, cross(t, normal), normal);
+    
+    //put normal map value in world space using tbn
+    return normalize(mul(normalMapData, tbn));
+}
+
 #endif

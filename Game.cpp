@@ -165,12 +165,14 @@ void Game::CreateGeometry()
 
 	//Load textures
 	//create SRVs for textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> soilSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> rockSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNormalsSRV;
 
-	//actually load textures
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/red_laterite_soil_stones_diff_4k.jpg").c_str(), 0, soilSRV.GetAddressOf());
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/tiger_rock_diff_4k.jpg").c_str(), 0, rockSRV.GetAddressOf());
+	//Load textures
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/cobblestone.png").c_str(), 0, cobblestoneSRV.GetAddressOf());
+	
+	//Load normal maps
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/cobblestone_normals.png").c_str(), 0, cobblestoneNormalsSRV.GetAddressOf());
 
 	//Define Sampler State
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
@@ -202,7 +204,8 @@ void Game::CreateGeometry()
 	//add samplers to materials
 	normalMapMaterial->AddSampler("BasicSampler", sampleState);
 	//add shader resource views
-	normalMapMaterial->AddTextureSRV("SurfaceTexture", soilSRV);
+	normalMapMaterial->AddTextureSRV("SurfaceTexture", cobblestoneSRV);
+	normalMapMaterial->AddTextureSRV("NormalMap", cobblestoneNormalsSRV);
 
 
 	//create initial entities
@@ -571,63 +574,6 @@ void Game::DrawUI()
 				}
 			}
 		}
-
-		//ImGui::SeparatorText("Defaults");
-		////Toggle Demo Visibility
-		//ImGui::Checkbox("Show Demo UI", &showDemoUI);
-
-		//ImGui::SeparatorText("Color");
-		////Color Selector
-		//ImGui::ColorEdit4("Background Color", color);
-
-		////local variable to help convert from xmfloat to float and back
-		//float shaderColor[] = { vsData.colorTint.x,vsData.colorTint.y ,vsData.colorTint.z };
-		//ImGui::ColorEdit4("Color Tint", &vsData.colorTint.x);
-
-		////moving meshes
-		//ImGui::SeparatorText("Movement");
-		//ImGui::SliderFloat3("Offset", &vsData.offset.x, -1.0f, 1.0f);
-
-
-		//CreateGeometry() is called to update 
-		//the buffer with new colors and positions
-
-
-		//Sub-Header
-		//ImGui::SeparatorText("Triangle Colors");
-		//ImGui::Text("--Top Vertex--");
-		//if (ImGui::SliderFloat("R - Top", &top.x, 0.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("G - Top", &top.y, 0.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("B - Top", &top.z, 0.0f, 1.0f)) CreateGeometry();
-		//ImGui::Text("--Left Vertex--");
-		//if (ImGui::SliderFloat("R - Left", &left.x, 0.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("G - Left", &left.y, 0.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("B - Left", &left.z, 0.0f, 1.0f)) CreateGeometry();
-		//ImGui::Text("--Right Vertex--");
-		//if (ImGui::SliderFloat("R - Right", &right.x, 0.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("G - Right", &right.y, 0.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("B - Right", &right.z, 0.0f, 1.0f)) CreateGeometry();
-
-		////Positions
-		//ImGui::SeparatorText("Position");
-		//ImGui::Text("--Top Vertex--");
-		//if (ImGui::SliderFloat("Top X", &topPosition.x, -1.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("Top Y", &topPosition.y, -1.0f, 1.0f)) CreateGeometry();
-		//ImGui::Text("--Left Vertex--");
-		//if (ImGui::SliderFloat("Left X", &leftPosition.x, -1.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("Left Y", &leftPosition.y, -1.0f, 1.0f)) CreateGeometry();
-		//ImGui::Text("--Right Vertex--");
-		//if (ImGui::SliderFloat("Right X", &rightPosition.x, -1.0f, 1.0f)) CreateGeometry();
-		//if (ImGui::SliderFloat("Right Y", &rightPosition.y, -1.0f, 1.0f)) CreateGeometry();
-
-		//Reset Position and Color
-		//ImGui::SeparatorText("Reset");
-		//if (ImGui::Button("Reset")) {
-		//	//Reset positions and colors
-		//	ResetVertices();
-		//	//send to gpu
-		//	CreateGeometry();
-		//}
 	}
 
 	ImGui::End();

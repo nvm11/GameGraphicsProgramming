@@ -40,7 +40,7 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 // another face.  Afterwards, creates a shader resource view for
 // the cube map and cleans up all of the temporary resources.
 // --------------------------------------------------------
-Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Sky::CreateCubemap(
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Sky::CreateCubemap(
 	const wchar_t* right,
 	const wchar_t* left,
 	const wchar_t* up,

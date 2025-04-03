@@ -50,7 +50,7 @@ class Sky
 	// --- HEADER ---
 	
 	// Helper for creating a cubemap from 6 individual textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
+		static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
 		const wchar_t* right,
 		const wchar_t* left,
 		const wchar_t* up,

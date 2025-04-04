@@ -3,22 +3,12 @@
 #include <memory> //smart pointers
 #include "Mesh.h"
 #include "SimpleShader.h" //shader info
+#include "Camera.h"
 
 #pragma once
 class Sky
 {
-	//Fields
-	//d3d11 objs
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler; //sampler options
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skySRV; //cube map texture
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthState; //depth buffer comparison type
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState; //rasterizer options
-	//shaders
-	std::shared_ptr<SimpleVertexShader> vs;
-	std::shared_ptr<SimplePixelShader> ps;
-	//other objs
-	std::shared_ptr<Mesh> cubeMesh;
-
+public:
 	//Constructor
 	//with already loaded in resources
 	Sky(std::shared_ptr<Mesh> mesh,
@@ -45,17 +35,34 @@ class Sky
 	//   ComPtr called “device”.  Make any adjustments necessary for
 	//   your own implementation.
 	// --------------------------------------------------------
-	
-	
+
+
 	// --- HEADER ---
-	
+
 	// Helper for creating a cubemap from 6 individual textures
-		static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
+	static Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> CreateCubemap(
 		const wchar_t* right,
 		const wchar_t* left,
 		const wchar_t* up,
 		const wchar_t* down,
 		const wchar_t* front,
 		const wchar_t* back);
+
+	void Draw(std::shared_ptr<Camera> activeCam);
+
+private:
+	//Fields
+	//d3d11 objs
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler; //sampler options
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skySRV; //cube map texture
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthState; //depth buffer comparison type
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterState; //rasterizer options
+	//shaders
+	std::shared_ptr<SimpleVertexShader> vs;
+	std::shared_ptr<SimplePixelShader> ps;
+	//other objs
+	std::shared_ptr<Mesh> cubeMesh;
+
+	void CreateInitialRenderStates();
 };
 

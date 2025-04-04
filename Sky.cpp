@@ -11,7 +11,8 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skySRV)
 	: cubeMesh(mesh), sampler(sampler), vs(vs), ps(ps), skySRV(skySRV) //list of variables set
 {
-	//do anything extra here
+	//Create initial render states
+	CreateInitialRenderStates();
 }
 
 Sky::Sky(std::shared_ptr<Mesh> mesh,
@@ -32,6 +33,8 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 	vs = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"SkyVS.cso").c_str());
 	ps = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"SkyPS.cso").c_str());
 
+	//Create initial render states
+	CreateInitialRenderStates();
 }
 
 // --------------------------------------------------------
@@ -121,3 +124,40 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 	// Send back the SRV, which is what we need for our shaders
 	return cubeSRV;
 }
+
+	void Sky::CreateInitialRenderStates()
+	{
+		//initial rasterizer state
+		D3D11_RASTERIZER_DESC rasterInit = {};
+		rasterInit.FillMode = D3D11_FILL_SOLID;
+		rasterInit.CullMode = D3D11_CULL_FRONT; //inside is rendered
+		Graphics::Device->CreateRasterizerState(&rasterInit, rasterState.GetAddressOf());
+
+		//initial depth state to accept pixels with maximum depth
+		D3D11_DEPTH_STENCIL_DESC depthInit = {};
+		depthInit.DepthEnable = true;
+		depthInit.DepthFunc = D3D11_COMPARISON_LESS_EQUAL; //less than or equal to existing values
+		Graphics::Device->CreateDepthStencilState(&depthInit, depthState.GetAddressOf());
+	}
+
+	void Sky::Draw(std::shared_ptr<Camera> activeCam) 
+	{
+		//set skybox specific states
+		Graphics::Context->RSSetState(rasterState.Get());
+		Graphics::Context->OMSetDepthStencilState(depthState.Get(), 0);
+
+		//set shaders
+		vs->SetShader();
+		ps->SetShader();
+
+		//provide necessary data to the ps
+		ps->SetShaderResourceView("", skySRV);
+		ps->SetSamplerState("BasicSampler", sampler);
+
+		//draw mesh
+		cubeMesh->Draw();
+
+		//reset states using null/0
+		Graphics::Context->RSSetState(0);
+		Graphics::Context->OMSetDepthStencilState(0, 0);
+	}

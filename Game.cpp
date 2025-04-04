@@ -542,7 +542,7 @@ void Game::DrawUI()
 		//Lights
 		if (ImGui::CollapsingHeader("Lighting")) {
 			ImGui::SeparatorText("Universal Lighting");
-			ImGui::DragFloat3("Ambient Light", &ambientLight.x, 0.001f, 0.0f, 1.5f);
+			ImGui::ColorPicker3("Ambient Light", &ambientLight.x);
 			ImGui::DragFloat3("Background Color", &color[0], 0.001f, 0.0f, 1.5f);
 			ImGui::SeparatorText("Light Sources");
 			if (ImGui::CollapsingHeader("Lights")) {
@@ -552,7 +552,7 @@ void Game::DrawUI()
 						//Could reorganize conditionals for efficency
 
 						//all light types
-						ImGui::DragFloat3(("Color##" + std::to_string(i)).c_str(), &lights[i].color.x, 0.001f, 0.0f, 1.5f); //color
+						ImGui::ColorPicker3(("Color##" + std::to_string(i)).c_str(), &lights[i].color.x); //color
 						ImGui::DragFloat(("Intensity##" + std::to_string(i)).c_str(), &lights[i].intensity, 0.01f, 0.0f, 1.5f); //intensity
 						ImGui::DragFloat3(("Driection##" + std::to_string(i)).c_str(), &lights[i].direction.x, 0.1f, XMConvertToRadians(-360.0f), XMConvertToRadians(360.0f)); //direction
 

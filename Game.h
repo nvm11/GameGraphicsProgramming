@@ -41,7 +41,7 @@ private:
 	bool showDemoUI = false; //only draw demo text if needed
 
 	//Local array for storing value between frames
-	float color[4] = { 0.5f, 0.5f, 0.5f, 0.0f }; //Gray
+	float color[4] = { 0.87f, 0.72f, 0.87f, 0.0f }; //Gray
 	
 	//light objects
 	std::vector<Lights> lights;

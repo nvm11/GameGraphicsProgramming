@@ -150,6 +150,11 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 		vs->SetShader();
 		ps->SetShader();
 
+		//give vs data
+		vs->SetMatrix4x4("view", activeCam->GetView());
+		vs->SetMatrix4x4("projection", activeCam->GetProjection());
+		vs->CopyAllBufferData();
+
 		//provide necessary data to the ps
 		ps->SetShaderResourceView("SkyBox", skySRV);
 		ps->SetSamplerState("BasicSampler", sampler);

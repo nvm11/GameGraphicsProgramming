@@ -17,6 +17,7 @@
 //contains simplified shaders functionality
 #include "SimpleShader.h"
 #include "Lights.h"
+#include "Sky.h"
 
 using namespace DirectX;
 
@@ -56,6 +57,9 @@ private:
 	
 	//lighting values
 	XMFLOAT3 ambientLight = XMFLOAT3(0.25f, 0.25f, 0.25f); //complement gray "sky"
+
+	//sky
+	std::shared_ptr<Sky> defaultSky;
 
 
 	////Vertices Default Colors

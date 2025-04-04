@@ -17,17 +17,17 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 
 Sky::Sky(std::shared_ptr<Mesh> mesh,
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampler,
-	const wchar_t* cubeMapPath) 
+	const wchar_t* right,
+	const wchar_t* left,
+	const wchar_t* up,
+	const wchar_t* down,
+	const wchar_t* front,
+	const wchar_t* back)
 	: cubeMesh(mesh), sampler(sampler)
 {
 	//create cube map resource
 	//assumes indices of cubeMapPath are in order
-	skySRV = CreateCubemap(&cubeMapPath[0],
-						   &cubeMapPath[1],
-						   &cubeMapPath[2],
-						   &cubeMapPath[3],
-						   &cubeMapPath[4],
-						   &cubeMapPath[5]);
+	skySRV = CreateCubemap(right,left,up,down,front,back);
 	//create shaders
 	//uses default skybox shaders
 	vs = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"SkyVS.cso").c_str());
@@ -151,8 +151,9 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 		ps->SetShader();
 
 		//provide necessary data to the ps
-		ps->SetShaderResourceView("", skySRV);
+		ps->SetShaderResourceView("SkyBox", skySRV);
 		ps->SetSamplerState("BasicSampler", sampler);
+		ps->CopyAllBufferData();
 
 		//draw mesh
 		cubeMesh->Draw();

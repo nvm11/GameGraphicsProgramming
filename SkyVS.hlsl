@@ -9,7 +9,7 @@ cbuffer ShaderData : register(b0)
 VertexToPixelSky main(VertexShaderInput input)
 {
     //create struct to pass through
-    VertexToPixelSky output = { };
+    VertexToPixelSky output;
     
     //copy the view matrix
     matrix viewCopy = view;

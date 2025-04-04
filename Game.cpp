@@ -246,6 +246,15 @@ void Game::CreateGeometry()
 		entities.push_back(entityUV);
 		entities.push_back(entityNormal);
 	}
+
+	//create sky
+	defaultSky = std::make_shared<Sky>(cubeMesh, sampleState, 
+		FixPath(L"../../Assets/Skyboxes/Pink/right.png").c_str(),
+		FixPath(L"../../Assets/Skyboxes/Pink/left.png").c_str(), 
+		FixPath(L"../../Assets/Skyboxes/Pink/up.png").c_str(), 
+		FixPath(L"../../Assets/Skyboxes/Pink/down.png").c_str(), 
+		FixPath(L"../../Assets/Skyboxes/Pink/front.png").c_str(),
+		FixPath(L"../../Assets/Skyboxes/Pink/back.png").c_str());
 }
 
 
@@ -318,14 +327,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 	}
 
-	//Move to Entity's Draw
-	//handle the contant buffer mapping and unmapping
-	//D3D11_MAPPED_SUBRESOURCE mappedBuffer = {};
-	//Graphics::Context->Map(constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedBuffer);
-	//memcpy(mappedBuffer.pData, &vsData, sizeof(vsData));
-	//Graphics::Context->Unmap(constantBuffer.Get(), 0);
-
-
 	// Frame END
 	// - These should happen exactly ONCE PER FRAME
 	// - At the very end of the frame (after drawing *everything*)
@@ -354,6 +355,8 @@ void Game::Draw(float deltaTime, float totalTime)
 			//draw entities
 			entities[i]->Draw(cams[activeCam]);
 		}
+
+		defaultSky->Draw(cams[activeCam]);
 
 		// UI is drawn last so it is on top
 		DrawUI();

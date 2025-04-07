@@ -148,4 +148,27 @@ float3 NormalFromMap(Texture2D normalMap, SamplerState sample, float2 uv, float3
     return normalize(mul(normalMapData, tbn));
 }
 
+float FresnelReflection(float3 view, float3 surfaceNormal, float specularValue)
+{
+    //uses Schilick's aproxximation of the Fresnel term:
+    //F(n, v, f0) = f0 + (1 - f0)(1 - (n dot v))^5
+    //N == normal vector
+    //V = view vector
+    //f0 = Specular value (usually 0.0f for non metals)
+    
+    //dot product the normal with the view
+    float NdotV = saturate(dot(surfaceNormal, view)); //makes light different at glancing angles
+    return specularValue + (1 - specularValue) * pow(1 - NdotV, 5); //return reflection strength
+}
+
+float3 ApplyFresnelReflection(float3 cameraPos, float3 worldPos, float3 surfaceNormal, float3 totalLight, SamplerState BasicSampler, TextureCube Skybox, float specularValue)
+{
+    //get view vector
+    float3 view = normalize(cameraPos - worldPos);
+    //get reflection of light (camera to pixel vector)
+    float3 reflection = reflect(-view, surfaceNormal);
+    //combine with skybox color, surface color, and reflection strength
+    return lerp(totalLight, Skybox.Sample(BasicSampler, reflection).rgb, FresnelReflection(view, surfaceNormal, specularValue));
+}
+
 #endif

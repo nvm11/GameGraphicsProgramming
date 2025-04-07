@@ -55,6 +55,8 @@ public:
 
 	void Draw(std::shared_ptr<Camera> activeCam);
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> GetSkySRV();
+
 private:
 	//Fields
 	//d3d11 objs

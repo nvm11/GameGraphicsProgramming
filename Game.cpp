@@ -114,6 +114,7 @@ void Game::CreateGeometry()
 	//one texture with normal map
 	std::shared_ptr<SimpleVertexShader> normalMapVS = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapVS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> normalMapPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapPS.cso").c_str());
+	std::shared_ptr<SimplePixelShader> normalMapSkyPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapSkyPS.cso").c_str()); //reflect sky on objects
 
 
 	//Give data to lights
@@ -196,16 +197,34 @@ void Game::CreateGeometry()
 	std::shared_ptr<Mesh> quadMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/quad.obj").c_str());
 	std::shared_ptr<Mesh> quad2sidedMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/quad_double_sided.obj").c_str());
 
+
+	//create sky
+	defaultSky = std::make_shared<Sky>(cubeMesh, sampleState,
+		FixPath(L"../../Assets/Skyboxes/Pink/right.png").c_str(),
+		FixPath(L"../../Assets/Skyboxes/Pink/left.png").c_str(),
+		FixPath(L"../../Assets/Skyboxes/Pink/up.png").c_str(),
+		FixPath(L"../../Assets/Skyboxes/Pink/down.png").c_str(),
+		FixPath(L"../../Assets/Skyboxes/Pink/front.png").c_str(),
+		FixPath(L"../../Assets/Skyboxes/Pink/back.png").c_str());
+
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
 	std::shared_ptr<Material> normalMapMaterial = std::make_shared<Material>(normalMapVS, normalMapPS, XMFLOAT3(1, 1, 1)); //textcoords
+	std::shared_ptr<Material> normalMapSkyMaterial = std::make_shared<Material>(normalMapVS, normalMapSkyPS, XMFLOAT3(1, 1, 1)); //textcoords and skybox
 
 	//add samplers to materials
 	normalMapMaterial->AddSampler("BasicSampler", sampleState);
 	//add shader resource views
 	normalMapMaterial->AddTextureSRV("SurfaceTexture", cobblestoneSRV);
 	normalMapMaterial->AddTextureSRV("NormalMap", cobblestoneNormalsSRV);
+
+	//add samplers to materials
+	normalMapSkyMaterial->AddSampler("BasicSampler", sampleState);
+	//add shader resource views
+	normalMapSkyMaterial->AddTextureSRV("SurfaceTexture", cobblestoneSRV);
+	normalMapSkyMaterial->AddTextureSRV("NormalMap", cobblestoneNormalsSRV);
+	normalMapSkyMaterial->AddTextureSRV("SkyBox", defaultSky->GetSkySRV());
 
 
 	//create initial entities
@@ -234,7 +253,7 @@ void Game::CreateGeometry()
 		//get mesh of entity
 		std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
 		//create new entities with normal and uv materials
-		std::shared_ptr<Entity> entityUV = std::make_shared<Entity>(mesh, normalMapMaterial);
+		std::shared_ptr<Entity> entityUV = std::make_shared<Entity>(mesh, normalMapSkyMaterial);
 		std::shared_ptr<Entity> entityNormal = std::make_shared<Entity>(mesh, normalMapMaterial);
 		//move horizontal
 		entityUV->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
@@ -246,15 +265,6 @@ void Game::CreateGeometry()
 		entities.push_back(entityUV);
 		entities.push_back(entityNormal);
 	}
-
-	//create sky
-	defaultSky = std::make_shared<Sky>(cubeMesh, sampleState, 
-		FixPath(L"../../Assets/Skyboxes/Pink/right.png").c_str(),
-		FixPath(L"../../Assets/Skyboxes/Pink/left.png").c_str(), 
-		FixPath(L"../../Assets/Skyboxes/Pink/up.png").c_str(), 
-		FixPath(L"../../Assets/Skyboxes/Pink/down.png").c_str(), 
-		FixPath(L"../../Assets/Skyboxes/Pink/front.png").c_str(),
-		FixPath(L"../../Assets/Skyboxes/Pink/back.png").c_str());
 }
 
 

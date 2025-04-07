@@ -167,3 +167,8 @@ Sky::Sky(std::shared_ptr<Mesh> mesh,
 		Graphics::Context->RSSetState(0);
 		Graphics::Context->OMSetDepthStencilState(0, 0);
 	}
+
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> Sky::GetSkySRV()
+	{
+		return skySRV;
+	}

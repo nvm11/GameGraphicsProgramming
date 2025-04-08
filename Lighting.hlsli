@@ -171,4 +171,11 @@ float3 ApplyFresnelReflection(float3 cameraPos, float3 worldPos, float3 surfaceN
     return lerp(totalLight, Skybox.Sample(BasicSampler, reflection).rgb, FresnelReflection(view, surfaceNormal, specularValue));
 }
 
+float3 GammaCorrect(float3 totalLight)
+{
+    //simply raise the total light to the 1/2.2 power
+    return pow(totalLight, 1.0f / 2.2f);
+
+}
+
 #endif

@@ -124,23 +124,23 @@ void Game::CreateGeometry()
 	directionLight1.color = XMFLOAT3(1.0f, 0.3f, 0.4f); //maroon
 	directionLight1.intensity = 1.0f;
 
-	directionLight2.type = LIGHT_TYPE_DIRECTIONAL;
-	directionLight2.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
-	directionLight2.color = XMFLOAT3(0.0f, 1.0f, 0.0f); //green
-	directionLight2.intensity = 1.1f;
+	//directionLight2.type = LIGHT_TYPE_DIRECTIONAL;
+	//directionLight2.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	//directionLight2.color = XMFLOAT3(0.0f, 1.0f, 0.0f); //green
+	//directionLight2.intensity = 1.1f;
 
 	//Point
-	pointLight1.type = LIGHT_TYPE_POINT;
-	pointLight1.position = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	pointLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f); //white
-	pointLight1.range = 10;
-	pointLight1.intensity = 2;
+	//pointLight1.type = LIGHT_TYPE_POINT;
+	//pointLight1.position = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	//pointLight1.color = XMFLOAT3(1.0f, 1.0f, 1.0f); //white
+	//pointLight1.range = 10;
+	//pointLight1.intensity = 2;
 
-	pointLight2.type = LIGHT_TYPE_POINT;
-	pointLight1.position = XMFLOAT3(6.0f, 1.0f, 0.0f);
-	pointLight2.color = XMFLOAT3(1.0f, 1.0f, 0.0f); //yellow
-	pointLight2.range = 15;
-	pointLight2.intensity = 1;
+	//pointLight2.type = LIGHT_TYPE_POINT;
+	//pointLight1.position = XMFLOAT3(6.0f, 1.0f, 0.0f);
+	//pointLight2.color = XMFLOAT3(1.0f, 1.0f, 0.0f); //yellow
+	//pointLight2.range = 15;
+	//pointLight2.intensity = 1;
 
 	//Spot
 	spotLight1.type = LIGHT_TYPE_SPOT;
@@ -162,7 +162,7 @@ void Game::CreateGeometry()
 	spotLight2.spotOuterAngle = XMConvertToRadians(40);
 
 	//Add lights to vector
-	lights.insert(lights.end(), { directionLight1, directionLight2, pointLight1, pointLight2, spotLight1, spotLight2 });
+	lights.insert(lights.end(), { directionLight1, spotLight1, spotLight2 });
 
 	//Load textures
 	//create SRVs for textures
@@ -210,6 +210,7 @@ void Game::CreateGeometry()
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
+	std::shared_ptr<Material> basicMaterial = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> normalMapMaterial = std::make_shared<Material>(normalMapVS, normalMapPS, XMFLOAT3(1, 1, 1)); //textcoords
 	std::shared_ptr<Material> normalMapSkyMaterial = std::make_shared<Material>(normalMapVS, normalMapSkyPS, XMFLOAT3(1, 1, 1)); //textcoords and skybox
 
@@ -253,17 +254,17 @@ void Game::CreateGeometry()
 		//get mesh of entity
 		std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
 		//create new entities with normal and uv materials
-		std::shared_ptr<Entity> entityUV = std::make_shared<Entity>(mesh, normalMapSkyMaterial);
-		std::shared_ptr<Entity> entityNormal = std::make_shared<Entity>(mesh, normalMapMaterial);
+		std::shared_ptr<Entity> normalMapSky = std::make_shared<Entity>(mesh, normalMapSkyMaterial);
+		std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, basicMaterial);
 		//move horizontal
-		entityUV->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
-		entityNormal->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
+		normalMapSky->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
+		noNormalMap->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
 		//move vertical
-		entityUV->GetTransform().MoveAbsolute(0, 3, 0);
-		entityNormal->GetTransform().MoveAbsolute(0, 6, 0);
+		normalMapSky->GetTransform().MoveAbsolute(0, 3, 0);
+		noNormalMap->GetTransform().MoveAbsolute(0, 6, 0);
 		//add them to entities
-		entities.push_back(entityUV);
-		entities.push_back(entityNormal);
+		entities.push_back(normalMapSky);
+		entities.push_back(noNormalMap);
 	}
 }
 

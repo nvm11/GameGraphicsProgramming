@@ -49,7 +49,7 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
 
 	//"sample" the texture and color
 	//this gives output color
-    float3 color = SurfaceTexture.Sample(BasicSampler, input.uv).rgb; //swizzle using logical indices
+    float3 color = pow(SurfaceTexture.Sample(BasicSampler, input.uv).rgb, 2.2f); //swizzle using logical indices
 	//tint color with colorTint
     color *= colorTint;
 	
@@ -62,7 +62,9 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
 	
 	//apply the total lighting
     totalLight += CalculateTotalLight(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, color);
+    totalLight = GammaCorrect(totalLight);
+    totalLight = ApplyFresnelReflection(cameraPos, input.worldPos, input.normal, totalLight, BasicSampler, SkyBox, 0.04);
 	
 	//return modified color
-    return float4(ApplyFresnelReflection(cameraPos, input.worldPos, input.normal, totalLight, BasicSampler, SkyBox, 0.04), 1);
+    return float4(totalLight, 1);
 }

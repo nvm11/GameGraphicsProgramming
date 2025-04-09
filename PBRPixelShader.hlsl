@@ -21,9 +21,11 @@ cbuffer ShaderData : register(b0)
     Lights lights[MAX_LIGHTS];
 };
 
-Texture2D SurfaceTexture : register(t0); // "t" registers for textures
-Texture2D NormalMap : register(t1); //second register for normal map
-SamplerState BasicSampler : register(s0); // "s" registers for samplers
+Texture2D Albedo : register(t0); //whiteness map (surface texture)
+Texture2D NormalMap : register(t1); //normal map
+Texture2D RoughnessMap : register(t2); //roughness map (similar to specular maps)
+Texture2D MetalnessMap : register(t3); //metalness map (0 or 1)
+SamplerState BasicSampler : register(s0); //"s" registers for samplers
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader

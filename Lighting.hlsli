@@ -70,7 +70,7 @@ float3 DirectionLight(Lights currentLight, float3 normal, float3 surfaceToCamera
     
     //Perform all lighting calculations (ambient is in main)
     float diffuse = DiffuseLight(normal, surfaceToLight);
-    float specular = PhongSpecularLight(normal, surfaceToLight, surfaceToCamera, roughness);
+    float3 specular = 
     
     //return calculated light
     return (diffuse * color + specular) * currentLight.intensity * currentLight.color;
@@ -255,4 +255,32 @@ float G_SchlickGGX(float3 n, float3 v, float roughness)
     return 1 / (NdotV * (1 - k) + k);
 }
 
+// Cook-Torrance Microfacet BRDF (Specular)
+//
+// f(l,v) = D(h)F(v,h)G(l,v,h) / 4(n dot l)(n dot v)
+// - parts of the denominator are canceled out by numerator (see below)
+//
+// D() - Normal Distribution Function - Trowbridge-Reitz (GGX)
+// F() - Fresnel - Schlick approx
+// G() - Geometric Shadowing - Schlick-GGX
+float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 specColor, float3out F_out)
+{
+// Other vectors
+    float3 h = normalize(v + l); // That’s an L, not a 1! Careful copy/pasting from a PDF!
+// Run numerator functions
+    float D = D_GGX(n, h, roughness);
+    float3 F = F_Schlick(v, h, f0);
+    float G = G_SchlickGGX(n, v, roughness) * G_SchlickGGX(n, l, roughness);
+// Pass F out of the function for diffuse balance
+    F_out = F;
+// Final specular formula
+// Note: The denominator SHOULD contain (NdotV)(NdotL), but they'd be
+// canceled out by our G() term. As such, they have been removed
+// from BOTH places to prevent floating point rounding errors.
+    float3 specularResult = (D * F * G) / 4;
+// One last non-obvious requirement: According to the rendering equation,
+// specular must have the same NdotL applied as diffuse! We'll apply
+// that here so that minimal changes are required elsewhere.
+    return specularResult * max(dot(n, l), 0);
+}
 #endif

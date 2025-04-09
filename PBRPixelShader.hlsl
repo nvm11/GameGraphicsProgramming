@@ -50,7 +50,22 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
 
 	//"sample" the texture and color
 	//this gives output color
-    float3 color = pow(SurfaceTexture.Sample(BasicSampler, input.uv).rgb, 2.2f); //swizzle using logical indices
+	//use pow for "unpacking" gamma correction
+    float3 color = pow(Albedo.Sample(BasicSampler, input.uv).rgb, 2.2f); //swizzle using logical indices
+	
+	//detemrined by a single float, simply sample the red channel
+    float roughness = RoughnessMap.Sample(BasicSampler, input.uv).r;
+	
+	//also a single float
+    float metalness = MetalnessMap.Sample(BasicSampler, input.uv).r;
+	
+	//now, a specular color is needed
+	//metals generally tint reflections, while nonmetals generally have
+	//the same specular color throughout (obtained using 0.04)
+	//metalness is usually 0 or 1, bu might be inbetween because of
+	//linear texture sampling, lerp is used on the specular color to match this
+    float3 specularColor = lerp(F0_NON_METAL, color.rgb, metalness);
+	
 	//tint color with colorTint
     color *= colorTint;
 	

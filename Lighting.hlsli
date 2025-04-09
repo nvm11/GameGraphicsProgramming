@@ -13,6 +13,12 @@
 
 #define MAX_SPECULAR_EXPONENT 256.0f
 
+//a constant Fresnel value for non-metals (glass and plastic have values of about 0.04)
+static const float F0_NON_METAL = 0.04f;
+//minimum roughness for when spec distribution function denominator goes to zero
+static const float MIN_ROUGHNESS = 0.0000001f;
+static const float PI = 3.14159265359f;
+
 //see Lights.h for explanation of fields
 struct Lights
 {
@@ -176,6 +182,77 @@ float3 GammaCorrect(float3 totalLight)
     //simply raise the total light to the 1/2.2 power
     return pow(totalLight, 1.0f / 2.2f);
 
+}
+
+//lambert diffuse BRDF (same as the basic lighting diffuse calculation)
+//this function assumes the vectors are already normalized
+float DiffusePBR(float3 normal, float3 dirToLight)
+{
+    return saturate(dot(normal, dirToLight));
+}
+
+//calculates diffuse amount based on energy conservation
+// diffuse - diffuse amount
+// F - Fresnel result from microfacet BRDF
+// metalness - surface metalness amount
+float3 DiffuseEnergyConserve(float3 diffuse, float3 F, float metalness)
+{
+    return diffuse * (1 - F) * (1 - metalness);
+}
+
+// normal distribution function: GGX (Trowbridge-Reitz)
+// a - Roughness
+// h - Half vector: (V + L)/2
+// n - Normal
+// D(h, n, a) = a^2 / pi * ((n dot h)^2 * (a^2 - 1) + 1)^2
+float D_GGX(float3 n, float3 h, float roughness)
+{
+    //necessary vectors
+    float NdotH = saturate(dot(n, h));
+    float NdotH2 = NdotH * NdotH;
+    float a = roughness * roughness;
+    //apply AFTER squaring (remapping) roughness
+    float a2 = max(a * a, MIN_ROUGHNESS);
+    //((n dot h)^2 * (a^2 - 1) + 1)
+    //can go to zero if roughness is 0 and NdotH is 1; MIN_ROUGHNESS helps here
+    float denomToSquare = NdotH2 * (a2 - 1) + 1;
+// Final value
+    return a2 / (PI * denomToSquare * denomToSquare);
+}
+
+// Fresnel term - Schlick approx.
+// v - view vector
+// h - half vector
+// f0 - value when l = n
+//
+// F(v,h,f0) = f0 + (1-f0)(1 - (v dot h))^5
+float3 F_Schlick(float3 v, float3 h, float3 f0)
+{
+    float VdotH = saturate(dot(v, h));
+    //final value
+    return f0 + (1 - f0) * pow(1 - VdotH, 5);
+}
+
+// Geometric Shadowing - Schlick-GGX
+// - k is remapped to a / 2, roughness remapped to (r+1)/2 before squaring!
+//
+// n - Normal
+// v - View vector
+//
+// G_Schlick(n,v,a) = (n dot v) / ((n dot v) * (1 - k) * k)
+//
+// Full G(n,v,l,a) term = G_SchlickGGX(n,v,a) * G_SchlickGGX(n,l,a)
+float G_SchlickGGX(float3 n, float3 v, float roughness)
+{
+// End result of remapping:
+    float k = pow(roughness + 1, 2) / 8.0f;
+    float NdotV = saturate(dot(n, v));
+
+//numerator should be NdotV (or NdotL depending on parameters)
+//these are also in the BRDF's denominator, so they'll cancel
+//leaving them out here AND in the BRDF function because the
+//dot products can get very small and cause rounding errors
+    return 1 / (NdotV * (1 - k) + k);
 }
 
 #endif

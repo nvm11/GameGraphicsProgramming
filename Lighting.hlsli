@@ -70,7 +70,7 @@ float3 DirectionLight(Lights currentLight, float3 normal, float3 surfaceToCamera
     
     //Perform all lighting calculations (ambient is in main)
     float diffuse = DiffuseLight(normal, surfaceToLight);
-    float3 specular = 
+    float3 specular = PhongSpecularLight(normal, surfaceToLight, surfaceToCamera, roughness);
     
     //return calculated light
     return (diffuse * color + specular) * currentLight.intensity * currentLight.color;
@@ -87,7 +87,7 @@ float3 PointLight(Lights currentLight, float3 normal, float3 surfaceToCamera, fl
     float attenuation = Attenuate(currentLight, worldPosition);
     
     //return lighting results
-    return (diffuse * color + specular) * attenuation * currentLight.intensity;
+    return (diffuse * color + specular) * attenuation * currentLight.intensity * currentLight.color;
 
 }
 //performs all necessary calculations for a spotlight
@@ -263,7 +263,7 @@ float G_SchlickGGX(float3 n, float3 v, float roughness)
 // D() - Normal Distribution Function - Trowbridge-Reitz (GGX)
 // F() - Fresnel - Schlick approx
 // G() - Geometric Shadowing - Schlick-GGX
-float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 specColor, float3out F_out)
+float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, out float3 F_out)
 {
 // Other vectors
     float3 h = normalize(v + l); // That’s an L, not a 1! Careful copy/pasting from a PDF!
@@ -282,5 +282,90 @@ float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 spec
 // specular must have the same NdotL applied as diffuse! We'll apply
 // that here so that minimal changes are required elsewhere.
     return specularResult * max(dot(n, l), 0);
+}
+
+//performs all necessary calculations for a direction light (PBR variant)
+float3 DirectionLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float roughness, float metalness, float3 color)
+{
+    //get direction from surface to light
+    float3 surfaceToLight = -currentLight.direction;
+    
+    //perform all lighting calculations
+    float diffuse = DiffusePBR(normal, surfaceToLight);
+    float F;
+    float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, color, F);
+    
+    //calculate diffused light with energy conservation
+    diffuse = DiffuseEnergyConserve(diffuse, F, metalness);
+    
+    //return calculated light
+    return (diffuse * color + specular) * currentLight.intensity * currentLight.color;
+}
+
+//performs all necessary calculations for a point light (PBR variant)
+float3 PointLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float metalness, float3 color)
+{
+    //get distance from light
+    float3 surfaceToLight = normalize(currentLight.position - worldPosition);
+    
+    //Preform all lighting calculations
+    float diffuse = DiffusePBR(normal, surfaceToLight);
+    float F;
+    float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, color, F);
+    float attenuation = Attenuate(currentLight, worldPosition);
+    
+    //energy conservation
+    diffuse = DiffuseEnergyConserve(diffuse, F, metalness);
+    
+    //return lighting results
+    return (diffuse * color + specular) * attenuation * currentLight.intensity * currentLight.color;
+}
+
+//performs all necessary calculations for a spotlight (PBR variant)
+float3 SpotLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float metalness, float3 color)
+{
+    //get necessary components
+    float3 surfaceToLight = normalize(currentLight.position - worldPosition);
+    float3 angle = saturate(dot(-surfaceToLight, currentLight.direction));
+    
+    //get two "cones"
+    float cosInner = cos(currentLight.spotInnerAngle);
+    float cosOuter = cos(currentLight.spotOuterAngle);
+    float falloffRange = cosOuter - cosInner;
+    
+    //simulate shrinking of the lights to form cone
+    float spotTerm = saturate((cosOuter - angle) / falloffRange).x;
+    
+    //use terms with point light calculation to create the cone
+    return PointLightPBR(currentLight, normal, surfaceToCamera, worldPosition, roughness, metalness, color) * spotTerm;
+}
+
+float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 normal, float3 surfaceToCamera, float3 worldPos, float roughness, float metalness, float3 color)
+{
+    
+    float3 totalLight; //store total lighting
+    //loop through lights
+    for (int i = 0; i < numLights; i++)
+    {
+        //grab a copy of the current index
+        Lights currentLight = lights[i];
+        //normalize the direction to ensure consistent results
+        currentLight.direction = normalize(currentLight.direction);
+        
+        switch (currentLight.type)
+        {
+            case LIGHT_TYPE_DIRECTIONAL:
+                totalLight += DirectionLightPBR(currentLight, normal, surfaceToCamera, roughness, metalness, color);
+                break;
+            case LIGHT_TYPE_POINT:
+                totalLight += PointLightPBR(currentLight, normal, surfaceToCamera, worldPos, roughness, metalness, color);
+                break;
+            case LIGHT_TYPE_SPOT:
+                totalLight += SpotLightPBR(currentLight, normal, surfaceToCamera, worldPos, roughness, metalness, color);
+                break;
+        }
+    }
+    
+    return totalLight;
 }
 #endif

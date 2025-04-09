@@ -19,6 +19,18 @@
     <Filter Include="Source Files\ImGui">
       <UniqueIdentifier>{f6d8fd9e-a8f0-4b85-9cf2-02fddafe3ea2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Debug">
+      <UniqueIdentifier>{8f73d57e-4607-4e25-bd2d-93dd2841d217}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\DepricatedPS">
+      <UniqueIdentifier>{11d2972d-442e-46e7-800b-8d7b84ada007}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\DepricatedVS">
+      <UniqueIdentifier>{fae35f63-e2a5-4f9e-ab1e-540ca7bc56df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Skybox">
+      <UniqueIdentifier>{22460cb4-d551-4fef-a409-7bc4a2db1f1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -151,38 +163,41 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="PixelShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="DebugUVsPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="DebugNormalsPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="CustomPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="TwoTexturePS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="NormalMapPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="NormalMapVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SkyPS.hlsl">
+    <FxCompile Include="PBRPixelShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SkyVS.hlsl">
-      <Filter>Shaders</Filter>
+    <FxCompile Include="DebugNormalsPS.hlsl">
+      <Filter>Shaders\Debug</Filter>
+    </FxCompile>
+    <FxCompile Include="DebugUVsPS.hlsl">
+      <Filter>Shaders\Debug</Filter>
+    </FxCompile>
+    <FxCompile Include="NormalMapPS.hlsl">
+      <Filter>Shaders\DepricatedPS</Filter>
     </FxCompile>
     <FxCompile Include="NormalMapSkyPS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\DepricatedPS</Filter>
+    </FxCompile>
+    <FxCompile Include="TwoTexturePS.hlsl">
+      <Filter>Shaders\DepricatedPS</Filter>
+    </FxCompile>
+    <FxCompile Include="CustomPS.hlsl">
+      <Filter>Shaders\DepricatedPS</Filter>
+    </FxCompile>
+    <FxCompile Include="PixelShader.hlsl">
+      <Filter>Shaders\DepricatedPS</Filter>
+    </FxCompile>
+    <FxCompile Include="VertexShader.hlsl">
+      <Filter>Shaders\DepricatedVS</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyPS.hlsl">
+      <Filter>Shaders\Skybox</Filter>
+    </FxCompile>
+    <FxCompile Include="SkyVS.hlsl">
+      <Filter>Shaders\Skybox</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

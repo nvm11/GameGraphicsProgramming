@@ -77,7 +77,7 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
     float3 surfaceToCamera = normalize(cameraPos - input.worldPos);
 	
 	//apply the total lighting
-    totalLight += CalculateTotalLight(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, color);
+    totalLight += CalculateTotalLightPBR(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, metalness, color);
 	
 	//return modified color
     return float4(GammaCorrect(totalLight), 1);

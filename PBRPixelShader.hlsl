@@ -5,8 +5,8 @@
 cbuffer ShaderData : register(b0)
 {
 	//material data
-    float3 colorTint;
-    float roughness;
+    //float3 colorTint;
+    //float roughness;
     float2 uvScale; //changes how many times texture is on object
     float2 uvOffset; //changes start position of texture
 
@@ -15,7 +15,6 @@ cbuffer ShaderData : register(b0)
 
 	//light data
     int numLights;
-    float3 ambientColor;
 
 	//light objects
     Lights lights[MAX_LIGHTS];
@@ -47,6 +46,7 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
     input.tangent = normalize(input.tangent);
 	
     input.normal = NormalFromMap(NormalMap, BasicSampler, input.uv, input.normal, input.tangent);
+	
 
 	//"sample" the texture and color
 	//this gives output color
@@ -54,7 +54,7 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
     float3 color = pow(Albedo.Sample(BasicSampler, input.uv).rgb, 2.2f); //swizzle using logical indices
 	
 	//detemrined by a single float, simply sample the red channel
-    float roughness = RoughnessMap.Sample(BasicSampler, input.uv).r;
+    float roughnessFromMap = RoughnessMap.Sample(BasicSampler, input.uv).r;
 	
 	//also a single float
     float metalness = MetalnessMap.Sample(BasicSampler, input.uv).r;
@@ -66,18 +66,15 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
 	//linear texture sampling, lerp is used on the specular color to match this
     float3 specularColor = lerp(F0_NON_METAL, color.rgb, metalness);
 	
-	//tint color with colorTint
-    color *= colorTint;
-	
 	//Begin lighting calculations
 	//include ambient lighting ONCE
-    float3 totalLight = color * ambientColor;
+    float3 totalLight = color;
 	
 	//angle the surface is viewed from
     float3 surfaceToCamera = normalize(cameraPos - input.worldPos);
 	
 	//apply the total lighting
-    totalLight += CalculateTotalLightPBR(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughness, metalness, color);
+    totalLight += CalculateTotalLightPBR(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughnessFromMap, metalness, specularColor);
 	
 	//return modified color
     return float4(GammaCorrect(totalLight), 1);

@@ -292,14 +292,14 @@ float3 DirectionLightPBR(Lights currentLight, float3 normal, float3 surfaceToCam
     
     //perform all lighting calculations
     float diffuse = DiffusePBR(normal, surfaceToLight);
-    float F;
+    float3 F;
     float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, color, F);
     
     //calculate diffused light with energy conservation
-    diffuse = DiffuseEnergyConserve(diffuse, F, metalness);
+    float3 balancedDiffuse = DiffuseEnergyConserve(diffuse, specular, metalness);
     
     //return calculated light
-    return (diffuse * color + specular) * currentLight.intensity * currentLight.color;
+    return (balancedDiffuse * color + specular) * currentLight.intensity * currentLight.color;
 }
 
 //performs all necessary calculations for a point light (PBR variant)
@@ -310,15 +310,15 @@ float3 PointLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera,
     
     //Preform all lighting calculations
     float diffuse = DiffusePBR(normal, surfaceToLight);
-    float F;
+    float3 F;
     float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, color, F);
     float attenuation = Attenuate(currentLight, worldPosition);
     
     //energy conservation
-    diffuse = DiffuseEnergyConserve(diffuse, F, metalness);
+    float3 balancedDiffuse = DiffuseEnergyConserve(diffuse, specular, metalness);
     
     //return lighting results
-    return (diffuse * color + specular) * attenuation * currentLight.intensity * currentLight.color;
+    return (balancedDiffuse * color + specular) * attenuation * currentLight.intensity * currentLight.color;
 }
 
 //performs all necessary calculations for a spotlight (PBR variant)

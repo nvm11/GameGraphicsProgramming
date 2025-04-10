@@ -116,6 +116,8 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> normalMapPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapPS.cso").c_str());
 	std::shared_ptr<SimplePixelShader> normalMapSkyPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapSkyPS.cso").c_str()); //reflect sky on objects
 
+	std::shared_ptr<SimplePixelShader> PBRPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"PBRPixelShader.cso").c_str()); //physically based
+
 
 	//Give data to lights
 	//Direction
@@ -166,14 +168,19 @@ void Game::CreateGeometry()
 
 	//Load textures
 	//create SRVs for textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> cobblestoneNormalsSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeNormalsSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeRoughnessSRV;
 
-	//Load textures
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/cobblestone.png").c_str(), 0, cobblestoneSRV.GetAddressOf());
-	
+	//Load textures (albedo)
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
 	//Load normal maps
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/cobblestone_normals.png").c_str(), 0, cobblestoneNormalsSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze.png").c_str(), 0, bronzeNormalsSRV.GetAddressOf());
+	//Load metalness
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
+	//Load roughness
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
 
 	//Define Sampler State
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
@@ -210,32 +217,25 @@ void Game::CreateGeometry()
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
-	std::shared_ptr<Material> basicMaterial = std::make_shared<Material>(basicVertexShader, basicPixelShader, XMFLOAT3(1, 1, 1));
-	std::shared_ptr<Material> normalMapMaterial = std::make_shared<Material>(normalMapVS, normalMapPS, XMFLOAT3(1, 1, 1)); //textcoords
-	std::shared_ptr<Material> normalMapSkyMaterial = std::make_shared<Material>(normalMapVS, normalMapSkyPS, XMFLOAT3(1, 1, 1)); //textcoords and skybox
+	std::shared_ptr<Material> matPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 
 	//add samplers to materials
-	normalMapMaterial->AddSampler("BasicSampler", sampleState);
-	//add shader resource views
-	normalMapMaterial->AddTextureSRV("SurfaceTexture", cobblestoneSRV);
-	normalMapMaterial->AddTextureSRV("NormalMap", cobblestoneNormalsSRV);
-
-	//add samplers to materials
-	normalMapSkyMaterial->AddSampler("BasicSampler", sampleState);
-	//add shader resource views
-	normalMapSkyMaterial->AddTextureSRV("SurfaceTexture", cobblestoneSRV);
-	normalMapSkyMaterial->AddTextureSRV("NormalMap", cobblestoneNormalsSRV);
-	normalMapSkyMaterial->AddTextureSRV("SkyBox", defaultSky->GetSkySRV());
+	matPBR->AddSampler("BasicSampler", sampleState);
+	//add matPBR->AddTextureSRV("SurfaceTexture", bronzeSRV);
+	matPBR->AddTextureSRV("Albedo", bronzeSRV);
+	matPBR->AddTextureSRV("NormalMap", bronzeNormalsSRV);
+	matPBR->AddTextureSRV("RoughnessMap", bronzeRoughnessSRV);
+	matPBR->AddTextureSRV("MetalnessMap", bronzeMetalSRV);
 
 
 	//create initial entities
-	entities.push_back(std::make_shared<Entity>(meshes[0], normalMapMaterial));
-	entities.push_back(std::make_shared<Entity>(meshes[1], normalMapMaterial));
-	entities.push_back(std::make_shared<Entity>(meshes[2], normalMapMaterial));
-	entities.push_back(std::make_shared<Entity>(meshes[3], normalMapMaterial));
-	entities.push_back(std::make_shared<Entity>(meshes[4], normalMapMaterial));
-	entities.push_back(std::make_shared<Entity>(meshes[5], normalMapMaterial));
-	entities.push_back(std::make_shared<Entity>(meshes[6], normalMapMaterial));
+	entities.push_back(std::make_shared<Entity>(meshes[0], matPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[1], matPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[2], matPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[3], matPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[4], matPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[5], matPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[6], matPBR));
 	//move them for spacing
 	entities[0]->GetTransform().MoveAbsolute(-9, 0, 0);
 	entities[1]->GetTransform().MoveAbsolute(-6, 0, 0);
@@ -246,26 +246,26 @@ void Game::CreateGeometry()
 	entities[6]->GetTransform().MoveAbsolute(9, 0, 0);
 
 
-	//store size of entities
-	size_t count = entities.size();
-	//create more!
-	for (size_t i = 0; i < count; i++)
-	{
-		//get mesh of entity
-		std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
-		//create new entities with normal and uv materials
-		std::shared_ptr<Entity> normalMapSky = std::make_shared<Entity>(mesh, normalMapSkyMaterial);
-		std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, basicMaterial);
-		//move horizontal
-		normalMapSky->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
-		noNormalMap->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
-		//move vertical
-		normalMapSky->GetTransform().MoveAbsolute(0, 3, 0);
-		noNormalMap->GetTransform().MoveAbsolute(0, 6, 0);
-		//add them to entities
-		entities.push_back(normalMapSky);
-		entities.push_back(noNormalMap);
-	}
+	////store size of entities
+	//size_t count = entities.size();
+	////create more!
+	//for (size_t i = 0; i < count; i++)
+	//{
+	//	//get mesh of entity
+	//	std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
+	//	//create new entities with normal and uv materials
+	//	std::shared_ptr<Entity> normalMapSky = std::make_shared<Entity>(mesh, matpb);
+	//	std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, basicMaterial);
+	//	//move horizontal
+	//	normalMapSky->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
+	//	noNormalMap->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
+	//	//move vertical
+	//	normalMapSky->GetTransform().MoveAbsolute(0, 3, 0);
+	//	noNormalMap->GetTransform().MoveAbsolute(0, 6, 0);
+	//	//add them to entities
+	//	entities.push_back(normalMapSky);
+	//	entities.push_back(noNormalMap);
+	//}
 }
 
 

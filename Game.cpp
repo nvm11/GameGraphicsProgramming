@@ -176,11 +176,11 @@ void Game::CreateGeometry()
 	//Load textures (albedo)
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
 	//Load normal maps
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze.png").c_str(), 0, bronzeNormalsSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_normals.png").c_str(), 0, bronzeNormalsSRV.GetAddressOf());
 	//Load metalness
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_metal.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
 	//Load roughness
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
 
 	//Define Sampler State
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
@@ -221,7 +221,6 @@ void Game::CreateGeometry()
 
 	//add samplers to materials
 	matPBR->AddSampler("BasicSampler", sampleState);
-	//add matPBR->AddTextureSRV("SurfaceTexture", bronzeSRV);
 	matPBR->AddTextureSRV("Albedo", bronzeSRV);
 	matPBR->AddTextureSRV("NormalMap", bronzeNormalsSRV);
 	matPBR->AddTextureSRV("RoughnessMap", bronzeRoughnessSRV);

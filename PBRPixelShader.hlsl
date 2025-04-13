@@ -68,7 +68,7 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
 	
 	//Begin lighting calculations
 	//include ambient lighting ONCE
-    float3 totalLight = color;
+    float3 totalLight = float3(0, 0, 0);
 	
 	//angle the surface is viewed from
     float3 surfaceToCamera = normalize(cameraPos - input.worldPos);

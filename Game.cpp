@@ -178,18 +178,27 @@ void Game::CreateGeometry()
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedMetalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedRoughnessSRV;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>paintSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>paintNormalsSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>paintMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>paintRoughnessSRV;
+
 	//Load textures (albedo)
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_albedo.png").c_str(), 0, scratchedSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_albedo.png").c_str(), 0, paintSRV.GetAddressOf());
 	//Load normal maps
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_normals.png").c_str(), 0, bronzeNormalsSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_normals.png").c_str(), 0, scratchedNormalsSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_normals.png").c_str(), 0, paintNormalsSRV.GetAddressOf());
 	//Load metalness
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_metal.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_metal.png").c_str(), 0, scratchedMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_metal.png").c_str(), 0, paintMetalSRV.GetAddressOf());
 	//Load roughness
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_roughness.png").c_str(), 0, scratchedRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_roughness.png").c_str(), 0, paintRoughnessSRV.GetAddressOf());
 
 	//Define Sampler State
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
@@ -228,6 +237,7 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<Material> matBronzePBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> matScratchedPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
+	std::shared_ptr<Material> matPaintPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 
 	//add samplers to materials
 	matBronzePBR->AddSampler("BasicSampler", sampleState);
@@ -242,6 +252,12 @@ void Game::CreateGeometry()
 	matScratchedPBR->AddTextureSRV("NormalMap", scratchedNormalsSRV);
 	matScratchedPBR->AddTextureSRV("RoughnessMap", scratchedRoughnessSRV);
 	matScratchedPBR->AddTextureSRV("MetalnessMap", scratchedMetalSRV);
+
+	matPaintPBR->AddSampler("BasicSampler", sampleState);
+	matPaintPBR->AddTextureSRV("Albedo", paintSRV);
+	matPaintPBR->AddTextureSRV("NormalMap", paintNormalsSRV);
+	matPaintPBR->AddTextureSRV("RoughnessMap", paintRoughnessSRV);
+	matPaintPBR->AddTextureSRV("MetalnessMap", paintMetalSRV);
 
 
 	//create initial entities
@@ -271,7 +287,7 @@ void Game::CreateGeometry()
 		std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
 		//create new entities with normal and uv materials
 		std::shared_ptr<Entity> normalMapSky = std::make_shared<Entity>(mesh, matScratchedPBR);
-		std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, matBronzePBR);
+		std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, matPaintPBR);
 		//move horizontal
 		normalMapSky->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
 		noNormalMap->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());

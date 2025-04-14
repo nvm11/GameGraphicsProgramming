@@ -141,7 +141,7 @@ float3 CalculateTotalLight(int numLights, Lights lights[MAX_LIGHTS], float3 norm
 float3 NormalFromMap(Texture2D normalMap, SamplerState sample, float2 uv, float3 normal, float3 tangent)
 {
     //sample the normal map and "unpack" result
-    float3 normalMapData = normalMap.Sample(sample, uv).rgb * 2.0f - 1.0f;
+    float3 normalMapData = normalize(normalMap.Sample(sample, uv).rgb * 2.0f - 1.0f);
     
     //build the tbn matrix
 	//t = normalized tangent along u
@@ -285,7 +285,7 @@ float3 MicrofacetBRDF(float3 n, float3 l, float3 v, float roughness, float3 f0, 
 }
 
 //performs all necessary calculations for a direction light (PBR variant)
-float3 DirectionLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float roughness, float metalness, float3 color)
+float3 DirectionLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float roughness, float metalness, float3 surfaceColor, float3 specularColor)
 {
     //get direction from surface to light
     float3 surfaceToLight = -currentLight.direction;
@@ -293,17 +293,18 @@ float3 DirectionLightPBR(Lights currentLight, float3 normal, float3 surfaceToCam
     //perform all lighting calculations
     float diffuse = DiffusePBR(normal, surfaceToLight);
     float3 F;
-    float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, color, F);
+    //this needs specular color (metal or not)
+    float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, specularColor, F);
     
     //calculate diffused light with energy conservation
     float3 balancedDiffuse = DiffuseEnergyConserve(diffuse, specular, metalness);
-    
     //return calculated light
-    return (balancedDiffuse * color + specular) * currentLight.intensity * currentLight.color;
+    //this needs surface color
+    return (balancedDiffuse * surfaceColor + specular) * currentLight.intensity * currentLight.color;
 }
 
 //performs all necessary calculations for a point light (PBR variant)
-float3 PointLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float metalness, float3 color)
+float3 PointLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float metalness, float3 surfaceColor, float3 specularColor)
 {
     //get distance from light
     float3 surfaceToLight = normalize(currentLight.position - worldPosition);
@@ -311,18 +312,18 @@ float3 PointLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera,
     //Preform all lighting calculations
     float diffuse = DiffusePBR(normal, surfaceToLight);
     float3 F;
-    float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, color, F);
+    float3 specular = MicrofacetBRDF(normal, surfaceToLight, surfaceToCamera, roughness, specularColor, F);
     float attenuation = Attenuate(currentLight, worldPosition);
     
     //energy conservation
     float3 balancedDiffuse = DiffuseEnergyConserve(diffuse, specular, metalness);
     
     //return lighting results
-    return (balancedDiffuse * color + specular) * attenuation * currentLight.intensity * currentLight.color;
+    return (balancedDiffuse * surfaceColor + specular) * attenuation * currentLight.intensity * currentLight.color;
 }
 
 //performs all necessary calculations for a spotlight (PBR variant)
-float3 SpotLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float metalness, float3 color)
+float3 SpotLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, float3 worldPosition, float roughness, float metalness, float3 surfaceColor, float3 specularColor)
 {
     //get necessary components
     float3 surfaceToLight = normalize(currentLight.position - worldPosition);
@@ -337,10 +338,10 @@ float3 SpotLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, 
     float spotTerm = saturate((cosOuter - angle) / falloffRange).x;
     
     //use terms with point light calculation to create the cone
-    return PointLightPBR(currentLight, normal, surfaceToCamera, worldPosition, roughness, metalness, color) * spotTerm;
+    return PointLightPBR(currentLight, normal, surfaceToCamera, worldPosition, roughness, metalness, surfaceColor, specularColor) * spotTerm;
 }
 
-float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 normal, float3 surfaceToCamera, float3 worldPos, float roughness, float metalness, float3 color)
+float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 normal, float3 surfaceToCamera, float3 worldPos, float roughness, float metalness, float3 surfaceColor, float3 specularColor)
 {
     
     float3 totalLight; //store total lighting
@@ -355,13 +356,14 @@ float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 n
         switch (currentLight.type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += DirectionLightPBR(currentLight, normal, surfaceToCamera, roughness, metalness, color);
+                totalLight += DirectionLightPBR(currentLight, normal, surfaceToCamera, roughness, metalness, surfaceColor, specularColor);
+            return totalLight;
                 break;
             case LIGHT_TYPE_POINT:
-                totalLight += PointLightPBR(currentLight, normal, surfaceToCamera, worldPos, roughness, metalness, color);
+                totalLight += PointLightPBR(currentLight, normal, surfaceToCamera, worldPos, roughness, metalness, surfaceColor, specularColor);
                 break;
             case LIGHT_TYPE_SPOT:
-                totalLight += SpotLightPBR(currentLight, normal, surfaceToCamera, worldPos, roughness, metalness, color);
+                totalLight += SpotLightPBR(currentLight, normal, surfaceToCamera, worldPos, roughness, metalness, surfaceColor, specularColor);
                 break;
         }
     }

@@ -350,6 +350,12 @@ void Game::Update(float deltaTime, float totalTime)
 	//Only update active camera
 	cams[activeCam]->Update(deltaTime);
 
+	//rotate all entities
+	for (auto& e : entities)
+	{
+		e->GetTransform().Rotate(XMFLOAT3(0.0f, 0.1f * deltaTime, 0.0f));
+	}
+
 	//Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
 		Window::Quit();

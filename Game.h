@@ -83,6 +83,9 @@ private:
 	//container for entities
 	std::vector<std::shared_ptr<Entity>> entities;
 
+	//variable for floor
+	std::shared_ptr<Entity> floor;
+
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void CreateGeometry();
 

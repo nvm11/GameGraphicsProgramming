@@ -79,7 +79,65 @@ void Game::Initialize()
 		cams.push_back(cam2);
 
 		activeCam = 0;
+
+		shadowMapResolution = 1024; //set shadow map resolution
+		
+		//create shadow mapping resources
+		CreateShadowMap();
 	}
+}
+
+void Game::CreateShadowMap() {
+	//Create a description for the Shadow Map
+	D3D11_TEXTURE2D_DESC shadowDesc = {};
+	shadowDesc.Width = shadowMapResolution; //ideally a power of 2 (like 1024)
+	shadowDesc.Height = shadowMapResolution; //ideally a power of 2 (like 1024)
+	shadowDesc.ArraySize = 1;
+	shadowDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
+	shadowDesc.CPUAccessFlags = 0;
+	shadowDesc.Format = DXGI_FORMAT_R32_TYPELESS;
+	shadowDesc.MipLevels = 1;
+	shadowDesc.MiscFlags = 0;
+	shadowDesc.SampleDesc.Count = 1;
+	shadowDesc.SampleDesc.Quality = 0;
+	shadowDesc.Usage = D3D11_USAGE_DEFAULT;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> shadowTexture;
+	Graphics::Device->CreateTexture2D(&shadowDesc, 0, shadowTexture.GetAddressOf());
+
+	//Create the depth/stencil view
+	D3D11_DEPTH_STENCIL_VIEW_DESC shadowDSDesc = {};
+	shadowDSDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	shadowDSDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D; //2d in our case
+	shadowDSDesc.Texture2D.MipSlice = 0; //depth to mip map (none for this)
+	Graphics::Device->CreateDepthStencilView(
+		shadowTexture.Get(),
+		&shadowDSDesc,
+		shadowDSV.GetAddressOf());
+	//Create the SRV for the shadow map
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+	srvDesc.Format = DXGI_FORMAT_R32_FLOAT; //format specific for depth
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	Graphics::Device->CreateShaderResourceView(
+		shadowTexture.Get(),
+		&srvDesc,
+		shadowSRV.GetAddressOf());
+
+	//Create the matrices for shadow
+	XMVECTOR lightDirection = XMLoadFloat3(&directionLight1.direction);
+	XMMATRIX lightView = XMMatrixLookToLH(
+		lightDirection* -20, // Position: "Backing up" 20 units from origin
+		lightDirection, // Direction: light's direction
+		XMVectorSet(0, 1, 0, 0)); // Up: World up vector (Y axis)
+
+	lightProjectionSize = 15.0f; // Tweak for your scene!
+	XMMATRIX lightProjection = XMMatrixOrthographicLH(
+		lightProjectionSize,
+		lightProjectionSize,
+		1.0f,
+		100.0f);
+
 }
 
 
@@ -188,6 +246,19 @@ void Game::CreateGeometry()
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>roughMetalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>roughRoughnessSRV;
 
+	//Define Sampler State
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
+	//Create description
+	D3D11_SAMPLER_DESC sampleDesc = {};
+	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; //how to handle outside 0-1
+	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampleDesc.Filter = D3D11_FILTER_ANISOTROPIC; //"best" option
+	sampleDesc.MaxAnisotropy = 16; //set max range for filter
+	sampleDesc.MaxLOD = D3D11_FLOAT32_MAX; //minmap at all ranges
+
+	Graphics::Device->CreateSamplerState(&sampleDesc, sampleState.GetAddressOf()); //set sample state
+
 	//Load textures (albedo)
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_albedo.png").c_str(), 0, scratchedSRV.GetAddressOf());
@@ -206,18 +277,6 @@ void Game::CreateGeometry()
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_roughness.png").c_str(), 0, scratchedRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_roughness.png").c_str(), 0, roughRoughnessSRV.GetAddressOf());
 
-	//Define Sampler State
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
-	//Create description
-	D3D11_SAMPLER_DESC sampleDesc = {};
-	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP; //how to handle outside 0-1
-	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampleDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampleDesc.Filter = D3D11_FILTER_ANISOTROPIC; //"best" option
-	sampleDesc.MaxAnisotropy = 16; //set max range for filter
-	sampleDesc.MaxLOD = D3D11_FLOAT32_MAX; //minmap at all ranges
-
-	Graphics::Device->CreateSamplerState(&sampleDesc, sampleState.GetAddressOf()); //set sample state
 
 	//create pointers to meshes
 	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/cube.obj").c_str());

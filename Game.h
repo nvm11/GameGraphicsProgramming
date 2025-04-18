@@ -93,6 +93,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> shadowSampler;
 	DirectX::XMFLOAT4X4 lightViewMatrix;
 	DirectX::XMFLOAT4X4 lightProjectionMatrix;
+	unsigned int shadowMapResolution;
+	float lightProjectionSize;
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void CreateGeometry();
@@ -103,6 +105,8 @@ private:
 
 	//Reset color and position values
 	void ResetVertices();
+
+	void CreateShadowMap();
 
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the

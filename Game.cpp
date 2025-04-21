@@ -139,6 +139,10 @@ void Game::CreateShadowMap() {
 		1.0f,
 		100.0f);
 	XMStoreFloat4x4(&lightProjectionMatrix, lightMatrix);
+
+	shadowMapVS->SetMatrix4x4("lightView", lightViewMatrix);
+	shadowMapVS->SetMatrix4x4("lightProj", lightProjectionMatrix);
+
 }
 
 
@@ -466,8 +470,14 @@ void Game::DrawShadowMap() {
 		//set shader data
 		shadowMapVS->SetMatrix4x4("world", e->GetTransform().GetWorldMatrix());
 		shadowMapVS->CopyAllBufferData();
+
 		//actually draw to shadow map
 		e->GetMesh()->Draw();
+
+		//send shadow map to entity
+		e->GetMaterial()->GetVertexShader()->SetMatrix4x4("lightView", lightViewMatrix);
+		e->GetMaterial()->GetVertexShader()->SetMatrix4x4("lightProj", lightProjectionMatrix);
+		e->GetMaterial()->GetPixelShader()->SetShaderResourceView("ShadowMap", shadowSRV);
 	}
 
 	//reset after drawing
@@ -522,6 +532,7 @@ void Game::Draw(float deltaTime, float totalTime)
 				&lights[0], //address of data
 				sizeof(Lights) * //size of data structure
 				(int)lights.size());
+
 			//Drawing
 			//draw entities
 			e->Draw(cams[activeCam]);

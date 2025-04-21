@@ -94,6 +94,10 @@ private:
 	DirectX::XMFLOAT4X4 lightViewMatrix;
 	DirectX::XMFLOAT4X4 lightProjectionMatrix;
 	unsigned int shadowMapResolution;
+
+	std::shared_ptr<SimpleVertexShader> shadowMapVS;
+	std::shared_ptr<SimplePixelShader> shadowMapPS;
+
 	float lightProjectionSize;
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
@@ -107,6 +111,7 @@ private:
 	void ResetVertices();
 
 	void CreateShadowMap();
+	void DrawShadowMap();
 
 	// Note the usage of ComPtr below
 	//  - This is a smart pointer for objects that abide by the

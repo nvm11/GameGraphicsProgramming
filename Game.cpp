@@ -130,14 +130,15 @@ void Game::CreateShadowMap() {
 		lightDirection* -20, // Position: "Backing up" 20 units from origin
 		lightDirection, // Direction: light's direction
 		XMVectorSet(0, 1, 0, 0)); // Up: World up vector (Y axis)
+	XMStoreFloat4x4(&lightViewMatrix, lightView);
 
-	lightProjectionSize = 15.0f; // Tweak for your scene!
-	XMMATRIX lightProjection = XMMatrixOrthographicLH(
+	lightProjectionSize = 15.0f;
+	XMMATRIX lightMatrix = XMMatrixOrthographicLH(
 		lightProjectionSize,
 		lightProjectionSize,
 		1.0f,
 		100.0f);
-
+	XMStoreFloat4x4(&lightProjectionMatrix, lightMatrix);
 }
 
 
@@ -176,11 +177,15 @@ void Game::CreateGeometry()
 
 	std::shared_ptr<SimplePixelShader> PBRPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"PBRPixelShader.cso").c_str()); //physically based
 
+	//shadows
+	shadowMapVS = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"ShadowMapVS.cso").c_str());
+	shadowMapPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"ShadowMapPS.cso").c_str());
+
 
 	//Give data to lights
 	//Direction
 	directionLight1.type = LIGHT_TYPE_DIRECTIONAL;
-	directionLight1.direction = XMFLOAT3(1.0f, 0.1f, 0.0f);
+	directionLight1.direction = XMFLOAT3(1.0f, -1.5f, 2.0f);
 	directionLight1.color = XMFLOAT3(1.0f, 0.3f, 0.4f); //maroon
 	directionLight1.intensity = 1.0f;
 
@@ -437,6 +442,44 @@ void Game::Update(float deltaTime, float totalTime)
 		Window::Quit();
 }
 
+void Game::DrawShadowMap() {
+	//Clear Depth stencil view
+	//all depth values now = 1
+	Graphics::Context->ClearDepthStencilView(shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+	//Set shadow map as current depth buffer amd unbingd the back buffer to prevent color output
+	ID3D11RenderTargetView* nullRTV{};
+	Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowDSV.Get());
+	//unbind pixel shader
+	Graphics::Context->PSSetShader(0, 0, 0);
+	//Change viewport
+	D3D11_VIEWPORT viewport = {};
+	viewport.Width = (float)shadowMapResolution;
+	viewport.Height = (float)shadowMapResolution;
+	viewport.MaxDepth = 1.0f;
+	Graphics::Context->RSSetViewports(1, &viewport);
+
+	shadowMapVS->SetShader();
+	shadowMapVS->SetMatrix4x4("view", lightViewMatrix);
+	shadowMapVS->SetMatrix4x4("projection", lightProjectionMatrix);
+
+	for (auto& e : entities) {
+		//set shader data
+		shadowMapVS->SetMatrix4x4("world", e->GetTransform().GetWorldMatrix());
+		shadowMapVS->CopyAllBufferData();
+		//actually draw to shadow map
+		e->GetMesh()->Draw();
+	}
+
+	//reset after drawing
+	viewport.Width = Window::Width();
+	viewport.Height = Window::Height();
+	Graphics::Context->RSSetViewports(1, &viewport);
+	Graphics::Context->OMSetRenderTargets(
+		1,
+		Graphics::BackBufferRTV.GetAddressOf(),
+		Graphics::DepthBufferDSV.Get());
+}
+
 
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user
@@ -459,26 +502,29 @@ void Game::Draw(float deltaTime, float totalTime)
 		// Present at the end of the frame
 		bool vsync = Graphics::VsyncState();
 
+		//handle shadows
+		DrawShadowMap();
+
 		//Draw all Entities
-		for (size_t i = 0; i < entities.size(); i++) {
+		for (auto& e : entities) {
 			//Pixel Shader
 			//if the following values are not in the pixel shader,
 			//SimpleShader ignores
 			//pass in window height and width for entity's pixel shader
 			float width = static_cast<float>(Window::Width());
 			float height = static_cast<float>(Window::Height());
-			entities[i]->GetMaterial()->GetPixelShader()->SetFloat2("resolution", XMFLOAT2(width, height));
+			e->GetMaterial()->GetPixelShader()->SetFloat2("resolution", XMFLOAT2(width, height));
 			//pass in deltaTime for pixel shader
-			entities[i]->GetMaterial()->GetPixelShader()->SetFloat("deltaTime", deltaTime);
-			entities[i]->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientLight);
-			entities[i]->GetMaterial()->GetPixelShader()->SetInt("numLights", int(lights.size())); //number of lights
-			entities[i]->GetMaterial()->GetPixelShader()->SetData("lights", //shader variable name
+			e->GetMaterial()->GetPixelShader()->SetFloat("deltaTime", deltaTime);
+			e->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientLight);
+			e->GetMaterial()->GetPixelShader()->SetInt("numLights", int(lights.size())); //number of lights
+			e->GetMaterial()->GetPixelShader()->SetData("lights", //shader variable name
 				&lights[0], //address of data
 				sizeof(Lights) * //size of data structure
 				(int)lights.size());
 			//Drawing
 			//draw entities
-			entities[i]->Draw(cams[activeCam]);
+			e->Draw(cams[activeCam]);
 		}
 
 		floor->Draw(cams[activeCam]);
@@ -703,6 +749,8 @@ void Game::DrawUI()
 					}
 				}
 			}
+			ImGui::SeparatorText("Shadow Map");
+			ImGui::Image((ImTextureID)shadowSRV.Get(), ImVec2(512, 512));
 		}
 	}
 

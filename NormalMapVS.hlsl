@@ -10,6 +10,10 @@ cbuffer ShaderData : register(b0)
 	matrix worldInverseTranspose;
 	matrix view;
 	matrix projection;
+	
+	//shadow map
+    matrix lightView;
+    matrix lightProj;
 };
 
 // --------------------------------------------------------
@@ -54,6 +58,11 @@ VertexToNormalMapPS main(VertexShaderInput input)
 	//then multiply by world matrix
 	//grab the three components (x, y, z) that we care about
 	output.worldPos = mul(world, float4(input.localPosition, 1)).xyz;
+	
+	//get where the vertex is from the shadow's pov
+    matrix shadowWVP = mul(lightProj, mul(lightView, world));
+	//requires some repeat work
+    output.shadowMapPos = mul(shadowWVP, float4(input.localPosition, 1.0f));
 
 	// Whatever we return will make its way through the pipeline to the
 	// next programmable stage we're using (the pixel shader for now)

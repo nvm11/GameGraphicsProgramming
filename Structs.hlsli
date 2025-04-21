@@ -55,6 +55,7 @@ struct VertexToNormalMapPS
     float3 normal : NORMAL; // Surface normals for lighting
     float3 worldPos : POSITION; //world space position
     float3 tangent : TANGENT; //tangent from normal map
+    float4 shadowMapPos : SHADOW_POSITION; //position on the shadow map
 };
 
 #endif

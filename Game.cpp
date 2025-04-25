@@ -30,9 +30,6 @@ using namespace DirectX;
 // --------------------------------------------------------
 void Game::Initialize()
 {
-	//Assign starting values for colors and vertices
-	ResetVertices();
-
 	// Helper methods for loading shaders, creating some basic
 	// geometry to draw and some simple camera matrices.
 	//  - You'll be expanding and/or replacing these later
@@ -166,7 +163,11 @@ void Game::CreateShadowMap() {
 //Setup the Sampler and texture descriptions
 //for post process effects
 //should be called when screen resizes
-void Game::SetupPostProcess() {
+void Game::ResetPostProcess() {
+	//reset them if they exist
+	ppSRV.Reset();
+	ppRTV.Reset();
+
 	// Sampler state for post processing
 	D3D11_SAMPLER_DESC ppSampDesc = {};
 	ppSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -469,7 +470,7 @@ void Game::OnResize()
 	}
 	
 	//reset post process
-	SetupPostProcess();
+	ResetPostProcess();
 }
 
 void Game::UpdateUI(float deltaTime)
@@ -562,7 +563,8 @@ void Game::DrawShadowMap() {
 	Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
 }
 
-void Game::DrawPostProcess() {
+//prepares all needed operations before drawing to post process
+void Game::PreparePostProcess() {
 	//reset to "background" color
 	Graphics::Context->ClearRenderTargetView(ppRTV.Get(), color);
 	//swap the active render target
@@ -581,6 +583,9 @@ void Game::Draw(float deltaTime, float totalTime)
 		// Clear the back buffer (erase what's on screen) and depth buffer
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+		//do the same for post processes
+		PreparePostProcess();
 	}
 
 	// Frame END
@@ -625,6 +630,18 @@ void Game::Draw(float deltaTime, float totalTime)
 		}
 
 		defaultSky->Draw(cams[activeCam]);
+
+		
+		Graphics::Context->OMSetRenderTargets(1, ppRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+
+		// Activate shaders and bind resources
+		// Also set any required cbuffer data (not shown)
+		ppVS->SetShader();
+		ppPS->SetShader();
+		ppPS->SetShaderResourceView("Pixels", ppSRV.Get());
+		ppPS->SetSamplerState("ClampSampler", ppSampler.Get());
+		Graphics::Context->Draw(3, 0); // Draw exactly 3 vertices (one triangle)
+
 		ID3D11ShaderResourceView* nullSRVs[128] = {};
 		Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
 
@@ -856,16 +873,5 @@ void Game::DrawUI()
 	//These lines go AFTER ui elements are created
 	ImGui::Render(); // Turns this frame’s UI into renderable triangles
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // Draws it to the screen
-}
-
-void Game::ResetVertices() {
-	////default colors
-	//top = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	//left = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	//right = XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f);
-	////default positions
-	//topPosition = XMFLOAT3(0.0f, 0.5f, 0.0f);
-	//leftPosition = XMFLOAT3(-0.5f, -0.5f, 0.0f);
-	//rightPosition = XMFLOAT3(0.5f, -0.5f, 0.0f);
 }
 

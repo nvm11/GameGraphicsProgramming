@@ -41,8 +41,8 @@ private:
 	bool showDemoUI = false; //only draw demo text if needed
 
 	//Local array for storing value between frames
-	float color[4] = { 0.87f, 0.72f, 0.87f, 0.0f }; //Gray
-	
+	float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f }; //black
+
 	//light objects
 	std::vector<Lights> lights;
 	//direction lights
@@ -54,7 +54,7 @@ private:
 	//point lights
 	//Lights pointLight1 = {};
 	//Lights pointLight2 = {};
-	
+
 	//lighting values
 	XMFLOAT3 ambientLight = XMFLOAT3(0.25f, 0.25f, 0.25f); //complement gray "sky"
 
@@ -116,13 +116,10 @@ private:
 	void UpdateUI(float deltaTime);
 	void DrawUI();
 
-	//Reset color and position values
-	void ResetVertices();
-
 	void CreateShadowMap();
 	void DrawShadowMap();
 
-	void SetupPostProcess();
-	void DrawPostProcess();
+	void ResetPostProcess();
+	void PreparePostProcess();
 };
 

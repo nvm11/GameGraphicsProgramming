@@ -28,6 +28,7 @@ Texture2D MetalnessMap : register(t3); //metalness map (0 or 1)
 Texture2D ShadowMap : register(t4);
 
 SamplerState BasicSampler : register(s0); //"s" registers for samplers
+SamplerComparisonState ShadowSampler : register(s1); //comparison sampler
 
 // --------------------------------------------------------
 // The entry point (main method) for our pixel shader
@@ -40,18 +41,6 @@ SamplerState BasicSampler : register(s0); //"s" registers for samplers
 // --------------------------------------------------------
 float4 main(VertexToNormalMapPS input) : SV_TARGET
 {
-	//check shadow map before lighting
-    input.shadowMapPos /= input.shadowMapPos.w;
-	//convert the normalized device coordinates to UVs for sampling
-    float2 shadowUV = input.shadowMapPos.xy * 0.5f + 0.5f;
-    shadowUV.y = 1 - shadowUV.y; // Flip the Y
-	//grab the distances we need: light-to-pixel and closest-surface
-    float distToLight = input.shadowMapPos.z;
-    float distShadowMap = ShadowMap.Sample(BasicSampler, shadowUV).r;
-	//for testing, just return black where there are shadows.
-    if (distShadowMap < distToLight)
-        return float4(0, 0, 0, 1);
-	
 	
 	//alter uv coords using offset
     input.uv = input.uv * uvScale + uvOffset;
@@ -82,6 +71,17 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
 	//linear texture sampling, lerp is used on the specular color to match this
     float3 specularColor = lerp(F0_NON_METAL, color.rgb, metalness);
 	
+	//Shadow mapping
+    float2 shadowUV = input.shadowMapPos.xy / input.shadowMapPos.w * 0.5f + 0.5f;
+    shadowUV.y = 1.0f - shadowUV.y;
+	
+	//get pixel's depth from the shadow
+    float depthFromLight = input.shadowMapPos.z / input.shadowMapPos.w;
+	
+	//sample shadow map with a COMPARISON sampler
+	//compares depth value from the light and the value in shadow map
+    float shadowAmount = ShadowMap.SampleCmpLevelZero(ShadowSampler, shadowUV, depthFromLight).r;
+	
 	//Begin lighting calculations
 	//include ambient lighting ONCE
     float3 totalLight = float3(0, 0, 0);
@@ -90,7 +90,7 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
     float3 surfaceToCamera = normalize(cameraPos - input.worldPos);
 	
 	//apply the total lighting
-    totalLight += CalculateTotalLightPBR(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughnessFromMap, metalness, color, specularColor);
+    totalLight += CalculateTotalLightPBR(numLights, lights, input.normal, surfaceToCamera, input.worldPos, roughnessFromMap, metalness, color, specularColor, shadowAmount);
 	
 	//return modified color
     return float4(GammaCorrect(totalLight), 1);

@@ -124,6 +124,24 @@ void Game::CreateShadowMap() {
 		&srvDesc,
 		shadowSRV.GetAddressOf());
 
+	//create the rasterizer state for a shadow map
+	D3D11_RASTERIZER_DESC shadowRastDesc = {};
+	shadowRastDesc.FillMode = D3D11_FILL_SOLID;
+	shadowRastDesc.CullMode = D3D11_CULL_BACK;
+	shadowRastDesc.DepthClipEnable = true;
+	shadowRastDesc.DepthBias = 1000; // Min. precision units, not world units!
+	shadowRastDesc.SlopeScaledDepthBias = 1.0f; // Bias more based on slope
+	Graphics::Device->CreateRasterizerState(&shadowRastDesc, &shadowRasterizer);
+
+	D3D11_SAMPLER_DESC shadowSampDesc = {};
+	shadowSampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR;
+	shadowSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS;
+	shadowSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	shadowSampDesc.BorderColor[0] = 1.0f; // Only need the first component
+	Graphics::Device->CreateSamplerState(&shadowSampDesc, &shadowSampler);
+
 	//Create the matrices for shadow
 	XMVECTOR lightDirection = XMLoadFloat3(&directionLight1.direction);
 	XMMATRIX lightView = XMMatrixLookToLH(
@@ -362,27 +380,28 @@ void Game::CreateGeometry()
 	//scale and move it
 	floor->GetTransform().SetScale(XMFLOAT3(15.0f, 1.0f, 15.0f));
 	floor->GetTransform().MoveAbsolute(XMFLOAT3(0.0f, -2.0f, 0.0f));
+	entities.push_back(floor);
 
 	//store size of entities
 	size_t count = entities.size();
-	//create more!
-	for (size_t i = 0; i < count; i++)
-	{
-		//get mesh of entity
-		std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
-		//create new entities with normal and uv materials
-		std::shared_ptr<Entity> normalMapSky = std::make_shared<Entity>(mesh, matScratchedPBR);
-		std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, matRoughPBR);
-		//move horizontal
-		normalMapSky->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
-		noNormalMap->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
-		//move vertical
-		normalMapSky->GetTransform().MoveAbsolute(0, 3, 0);
-		noNormalMap->GetTransform().MoveAbsolute(0, 6, 0);
-		//add them to entities
-		entities.push_back(normalMapSky);
-		entities.push_back(noNormalMap);
-	}
+	////create more!
+	//for (size_t i = 0; i < count; i++)
+	//{
+	//	//get mesh of entity
+	//	std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
+	//	//create new entities with normal and uv materials
+	//	std::shared_ptr<Entity> normalMapSky = std::make_shared<Entity>(mesh, matScratchedPBR);
+	//	std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, matRoughPBR);
+	//	//move horizontal
+	//	normalMapSky->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
+	//	noNormalMap->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
+	//	//move vertical
+	//	normalMapSky->GetTransform().MoveAbsolute(0, 3, 0);
+	//	noNormalMap->GetTransform().MoveAbsolute(0, 6, 0);
+	//	//add them to entities
+	//	entities.push_back(normalMapSky);
+	//	entities.push_back(noNormalMap);
+	//}
 }
 
 
@@ -436,9 +455,9 @@ void Game::Update(float deltaTime, float totalTime)
 	cams[activeCam]->Update(deltaTime);
 
 	//rotate all entities
-	for (auto& e : entities)
+	for (size_t i = 0; i < entities.size() -1; i++)
 	{
-		e->GetTransform().Rotate(XMFLOAT3(0.0f, 0.1f * deltaTime, 0.0f));
+		entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.1f * deltaTime, 0.0f));
 	}
 
 	//Example input checking: Quit if the escape key is pressed
@@ -450,6 +469,9 @@ void Game::DrawShadowMap() {
 	//Clear Depth stencil view
 	//all depth values now = 1
 	Graphics::Context->ClearDepthStencilView(shadowDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+
+	Graphics::Context->RSSetState(shadowRasterizer.Get());
+
 	//Set shadow map as current depth buffer amd unbingd the back buffer to prevent color output
 	ID3D11RenderTargetView* nullRTV{};
 	Graphics::Context->OMSetRenderTargets(1, &nullRTV, shadowDSV.Get());
@@ -473,11 +495,6 @@ void Game::DrawShadowMap() {
 
 		//actually draw to shadow map
 		e->GetMesh()->Draw();
-
-		//send shadow map to entity
-		e->GetMaterial()->GetVertexShader()->SetMatrix4x4("lightView", lightViewMatrix);
-		e->GetMaterial()->GetVertexShader()->SetMatrix4x4("lightProj", lightProjectionMatrix);
-		e->GetMaterial()->GetPixelShader()->SetShaderResourceView("ShadowMap", shadowSRV);
 	}
 
 	//reset after drawing
@@ -488,6 +505,10 @@ void Game::DrawShadowMap() {
 		1,
 		Graphics::BackBufferRTV.GetAddressOf(),
 		Graphics::DepthBufferDSV.Get());
+	Graphics::Context->RSSetState(0);
+
+	ID3D11ShaderResourceView* nullSRVs[128] = {};
+	Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
 }
 
 
@@ -517,6 +538,14 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		//Draw all Entities
 		for (auto& e : entities) {
+			
+			//Shadow Mapping
+			//send shadow map to entity
+			e->GetMaterial()->GetVertexShader()->SetMatrix4x4("lightView", lightViewMatrix);
+			e->GetMaterial()->GetVertexShader()->SetMatrix4x4("lightProj", lightProjectionMatrix);
+			e->GetMaterial()->GetPixelShader()->SetShaderResourceView("ShadowMap", shadowSRV);
+			e->GetMaterial()->AddSampler("ShadowSampler", shadowSampler);
+
 			//Pixel Shader
 			//if the following values are not in the pixel shader,
 			//SimpleShader ignores
@@ -538,9 +567,9 @@ void Game::Draw(float deltaTime, float totalTime)
 			e->Draw(cams[activeCam]);
 		}
 
-		floor->Draw(cams[activeCam]);
-
 		defaultSky->Draw(cams[activeCam]);
+		ID3D11ShaderResourceView* nullSRVs[128] = {};
+		Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
 
 		// UI is drawn last so it is on top
 		DrawUI();

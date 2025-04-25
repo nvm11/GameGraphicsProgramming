@@ -34,6 +34,9 @@
     <Filter Include="Shaders\ShadowMaps">
       <UniqueIdentifier>{18e99e0c-88d5-4f65-a31f-98abfe6d1c47}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\PostProcessing">
+      <UniqueIdentifier>{06cc8667-e1b8-4960-a693-1ea33edca0af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -207,6 +210,12 @@
     </FxCompile>
     <FxCompile Include="ShadowMapPS.hlsl">
       <Filter>Shaders\ShadowMaps</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurPPVS.hlsl">
+      <Filter>Shaders\PostProcessing</Filter>
+    </FxCompile>
+    <FxCompile Include="BlurPPPS.hlsl">
+      <Filter>Shaders\PostProcessing</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

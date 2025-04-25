@@ -341,7 +341,7 @@ float3 SpotLightPBR(Lights currentLight, float3 normal, float3 surfaceToCamera, 
     return PointLightPBR(currentLight, normal, surfaceToCamera, worldPosition, roughness, metalness, surfaceColor, specularColor) * spotTerm;
 }
 
-float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 normal, float3 surfaceToCamera, float3 worldPos, float roughness, float metalness, float3 surfaceColor, float3 specularColor)
+float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 normal, float3 surfaceToCamera, float3 worldPos, float roughness, float metalness, float3 surfaceColor, float3 specularColor, float shadowAmount)
 {
     
     float3 totalLight; //store total lighting
@@ -356,7 +356,17 @@ float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 n
         switch (currentLight.type)
         {
             case LIGHT_TYPE_DIRECTIONAL:
-                totalLight += DirectionLightPBR(currentLight, normal, surfaceToCamera, roughness, metalness, surfaceColor, specularColor);
+                float3 directionLight = DirectionLightPBR(currentLight, normal, surfaceToCamera, roughness, metalness, surfaceColor, specularColor);
+                
+                if (i == 0)
+                {
+                    totalLight += directionLight * shadowAmount;
+                }
+                else
+                {
+                    totalLight += directionLight;
+
+                }
                 break;
             case LIGHT_TYPE_POINT:
                 totalLight += PointLightPBR(currentLight, normal, surfaceToCamera, worldPos, roughness, metalness, surfaceColor, specularColor);

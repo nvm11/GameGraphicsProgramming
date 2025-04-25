@@ -100,6 +100,15 @@ private:
 
 	float lightProjectionSize;
 
+	//Post Processing
+	//resources that are shared among all post processes
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> ppSampler;
+	std::shared_ptr<SimpleVertexShader> ppVS;
+	//resources that are tied to a particular post process
+	std::shared_ptr<SimplePixelShader> ppPS;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ppRTV; //rendering
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ppSRV; //sampling
+
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void CreateGeometry();
 
@@ -112,10 +121,5 @@ private:
 
 	void CreateShadowMap();
 	void DrawShadowMap();
-
-	// Note the usage of ComPtr below
-	//  - This is a smart pointer for objects that abide by the
-	//     Component Object Model, which DirectX objects do
-	//  - More info here: https://github.com/Microsoft/DirectXTK/wiki/ComPtr
 };
 

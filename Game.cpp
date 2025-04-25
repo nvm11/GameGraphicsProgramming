@@ -549,8 +549,8 @@ void Game::DrawShadowMap() {
 	}
 
 	//reset after drawing
-	viewport.Width = Window::Width();
-	viewport.Height = Window::Height();
+	viewport.Width = (float)Window::Width();
+	viewport.Height = (float)Window::Height();
 	Graphics::Context->RSSetViewports(1, &viewport);
 	Graphics::Context->OMSetRenderTargets(
 		1,

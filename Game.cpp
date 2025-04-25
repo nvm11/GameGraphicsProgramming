@@ -562,6 +562,12 @@ void Game::DrawShadowMap() {
 	Graphics::Context->PSSetShaderResources(0, 128, nullSRVs);
 }
 
+void Game::DrawPostProcess() {
+	//reset to "background" color
+	Graphics::Context->ClearRenderTargetView(ppRTV.Get(), color);
+	//swap the active render target
+	Graphics::Context->OMSetRenderTargets(1, ppRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+}
 
 // --------------------------------------------------------
 // Clear the screen, redraw everything, present to the user

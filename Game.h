@@ -123,5 +123,6 @@ private:
 	void DrawShadowMap();
 
 	void SetupPostProcess();
+	void DrawPostProcess();
 };
 

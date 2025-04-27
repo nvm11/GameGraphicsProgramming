@@ -108,6 +108,7 @@ private:
 	std::shared_ptr<SimplePixelShader> ppPS;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ppRTV; //rendering
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ppSRV; //sampling
+	int blurRadius = 4;
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void CreateGeometry();

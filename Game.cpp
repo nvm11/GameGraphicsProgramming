@@ -78,9 +78,11 @@ void Game::Initialize()
 		activeCam = 0;
 
 		shadowMapResolution = 1024; //set shadow map resolution
-		
+
 		//create shadow mapping resources
 		CreateShadowMap();
+		//setup post processing
+		ResetPostProcess();
 	}
 }
 
@@ -142,7 +144,7 @@ void Game::CreateShadowMap() {
 	//Create the matrices for shadow
 	XMVECTOR lightDirection = XMLoadFloat3(&directionLight1.direction);
 	XMMATRIX lightView = XMMatrixLookToLH(
-		lightDirection* -20, // Position: "Backing up" 20 units from origin
+		lightDirection * -20, // Position: "Backing up" 20 units from origin
 		lightDirection, // Direction: light's direction
 		XMVectorSet(0, 1, 0, 0)); // Up: World up vector (Y axis)
 	XMStoreFloat4x4(&lightViewMatrix, lightView);
@@ -190,6 +192,7 @@ void Game::ResetPostProcess() {
 	textureDesc.SampleDesc.Count = 1;
 	textureDesc.SampleDesc.Quality = 0;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
+
 	// Create the resource (no need to track it after the views are created below)
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> ppTexture;
 	Graphics::Device->CreateTexture2D(&textureDesc, 0, ppTexture.GetAddressOf());
@@ -251,6 +254,10 @@ void Game::CreateGeometry()
 	//shadows
 	shadowMapVS = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"ShadowMapVS.cso").c_str());
 	shadowMapPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"ShadowMapPS.cso").c_str());
+
+	//post processing
+	ppVS = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"BlurPPVS.cso").c_str());
+	ppPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"BlurPPPS.cso").c_str());
 
 
 	//Give data to lights
@@ -468,9 +475,12 @@ void Game::OnResize()
 	for (size_t i = 0; i < cams.size(); i++) {
 		cams[i]->UpdateProjectionMatrix(aspectRatio);
 	}
-	
-	//reset post process
-	ResetPostProcess();
+
+	//null check
+	if (Graphics::Device) {
+		//reset post process
+		ResetPostProcess();
+	}
 }
 
 void Game::UpdateUI(float deltaTime)
@@ -507,7 +517,7 @@ void Game::Update(float deltaTime, float totalTime)
 	cams[activeCam]->Update(deltaTime);
 
 	//rotate all entities
-	for (size_t i = 0; i < entities.size() -1; i++)
+	for (size_t i = 0; i < entities.size() - 1; i++)
 	{
 		entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.1f * deltaTime, 0.0f));
 	}
@@ -583,9 +593,6 @@ void Game::Draw(float deltaTime, float totalTime)
 		// Clear the back buffer (erase what's on screen) and depth buffer
 		Graphics::Context->ClearRenderTargetView(Graphics::BackBufferRTV.Get(), color);
 		Graphics::Context->ClearDepthStencilView(Graphics::DepthBufferDSV.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-		//do the same for post processes
-		PreparePostProcess();
 	}
 
 	// Frame END
@@ -598,9 +605,12 @@ void Game::Draw(float deltaTime, float totalTime)
 		//handle shadows
 		DrawShadowMap();
 
+		//do the same for post processes
+		PreparePostProcess();
+
 		//Draw all Entities
 		for (auto& e : entities) {
-			
+
 			//Shadow Mapping
 			//send shadow map to entity
 			e->GetMaterial()->GetVertexShader()->SetMatrix4x4("lightView", lightViewMatrix);
@@ -631,15 +641,22 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		defaultSky->Draw(cams[activeCam]);
 
-		
-		Graphics::Context->OMSetRenderTargets(1, ppRTV.GetAddressOf(), Graphics::DepthBufferDSV.Get());
+		//stsrt post process
+		Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 
 		// Activate shaders and bind resources
-		// Also set any required cbuffer data (not shown)
+		// Also set any required cbuffer data
 		ppVS->SetShader();
 		ppPS->SetShader();
 		ppPS->SetShaderResourceView("Pixels", ppSRV.Get());
 		ppPS->SetSamplerState("ClampSampler", ppSampler.Get());
+		ppPS->SetInt("blurRadius", blurRadius);
+		ppPS->SetFloat("pixelWidth", 1.0f / Window::Width());
+		ppPS->SetFloat("pixelHeight", 1.0f / Window::Height());
+
+		ppVS->CopyAllBufferData();
+		ppPS->CopyAllBufferData();
+
 		Graphics::Context->Draw(3, 0); // Draw exactly 3 vertices (one triangle)
 
 		ID3D11ShaderResourceView* nullSRVs[128] = {};
@@ -865,6 +882,7 @@ void Game::DrawUI()
 			}
 			ImGui::SeparatorText("Shadow Map");
 			ImGui::Image((ImTextureID)shadowSRV.Get(), ImVec2(512, 512));
+			ImGui::Image((ImTextureID)ppSRV.Get(), ImVec2(512, 512));
 		}
 	}
 

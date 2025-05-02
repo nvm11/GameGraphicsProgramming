@@ -138,17 +138,22 @@ float3 CalculateTotalLight(int numLights, Lights lights[MAX_LIGHTS], float3 norm
     return totalLight;
 }
 
-float3 NormalFromMap(Texture2D normalMap, SamplerState sample, float2 uv, float3 normal, float3 tangent)
+float3x3 CreateTBN(float3 normal, float3 tangent)
 {
-    //sample the normal map and "unpack" result
-    float3 normalMapData = normalize(normalMap.Sample(sample, uv).rgb * 2.0f - 1.0f);
-    
     //build the tbn matrix
 	//t = normalized tangent along u
 	//b = bitangent (cross of t and n) along v
 	//n = normalized surface normal
     float3 t = normalize(tangent - normal * dot(tangent, normal));
-    float3x3 tbn = float3x3(t, cross(t, normal), normal);
+    return float3x3(t, cross(t, normal), normal);
+}
+
+float3 NormalFromMap(Texture2D normalMap, SamplerState sample, float2 uv, float3 normal, float3 tangent)
+{
+    //sample the normal map and "unpack" result
+    float3 normalMapData = normalize(normalMap.Sample(sample, uv).rgb * 2.0f - 1.0f);
+    
+    float3x3 tbn = CreateTBN(normal, tangent);
     
     //put normal map value in world space using tbn
     return normalize(mul(normalMapData, tbn));
@@ -379,4 +384,41 @@ float3 CalculateTotalLightPBR(int numLights, Lights lights[MAX_LIGHTS], float3 n
     
     return totalLight;
 }
+
+float2 GetParallaxUV(Texture2D HeightMap, SamplerState BasicSampler, float2 uv, float3 view, float3x3 TBN, int samples, float scale)
+{
+// Get tangent space view vector
+// Note: Multiplying in opposite order is effectively
+// transposing the matrix, which acts like an
+// invert on a pure 3x3 rotation matrix!
+    float3 view_TS = mul(TBN, view); // World to Tangent space - NOTE: B must be negated first!
+// Calculate the ray direction, including proper length based on scale
+    float viewLength = length(view_TS);
+    float parallaxLength = sqrt(viewLength * viewLength - view_TS.z * view_TS.z) / view_TS.z;
+    float2 rayDir = normalize(view_TS.xy) * parallaxLength * scale;
+// Tracking height and position during raymarch
+    float currentHeight = 1.0f;
+    float2 currentPos = uv;
+    float stepSize = 1.0f / samples;
+    float2 uvStep = rayDir * stepSize;
+// Calculate uv derivates to support texture sampling
+// in a loop with variable iterations
+    float2 dx = ddx(uv);
+    float2 dy = ddy(uv);
+// Raymarch through surface
+    for (int i = 0; i < samples; i++)
+    {
+// Offset along ray and grab the height there
+        currentPos -= uvStep;
+        currentHeight -= stepSize;
+        float heightAtPos = HeightMap.SampleGrad(BasicSampler, currentPos, dx, dy).r;
+// If we've gone "below" the heightmap, we've hit!
+        if (currentHeight < heightAtPos)
+        {
+            break;
+        }
+    }
+    return currentPos;
+}
+
 #endif

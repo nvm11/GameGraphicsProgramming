@@ -217,6 +217,9 @@
     <FxCompile Include="BlurPPPS.hlsl">
       <Filter>Shaders\PostProcessing</Filter>
     </FxCompile>
+    <FxCompile Include="ParallaxPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Lighting.hlsli">

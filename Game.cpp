@@ -250,6 +250,7 @@ void Game::CreateGeometry()
 	std::shared_ptr<SimplePixelShader> normalMapSkyPS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"NormalMapSkyPS.cso").c_str()); //reflect sky on objects
 
 	std::shared_ptr<SimplePixelShader> PBRPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"PBRPixelShader.cso").c_str()); //physically based
+	std::shared_ptr<SimplePixelShader> parallaxPixelShader = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"ParallaxPS.cso").c_str()); //parallax
 
 	//shadows
 	shadowMapVS = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"ShadowMapVS.cso").c_str());
@@ -329,6 +330,8 @@ void Game::CreateGeometry()
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>roughMetalSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>roughRoughnessSRV;
 
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>heightSRV;
+
 	//Define Sampler State
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> sampleState;
 	//Create description
@@ -343,23 +346,24 @@ void Game::CreateGeometry()
 	Graphics::Device->CreateSamplerState(&sampleDesc, sampleState.GetAddressOf()); //set sample state
 
 	//Load textures (albedo)
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_albedo.png").c_str(), 0, scratchedSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_albedo.png").c_str(), 0, paintSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_albedo.png").c_str(), 0, roughSRV.GetAddressOf());
 	//Load normal maps
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_normals.png").c_str(), 0, bronzeNormalsSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_normals.png").c_str(), 0, bronzeNormalsSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_normals.png").c_str(), 0, scratchedNormalsSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_normals.png").c_str(), 0, roughNormalsSRV.GetAddressOf());
 	//Load metalness
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_metal.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
+	//CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_metal.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_metal.png").c_str(), 0, scratchedMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_metal.png").c_str(), 0, roughMetalSRV.GetAddressOf());
 	//Load roughness
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_roughness.png").c_str(), 0, scratchedRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_roughness.png").c_str(), 0, roughRoughnessSRV.GetAddressOf());
-
+	//Load Height Map
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_height.png").c_str(), 0, heightSRV.GetAddressOf());
 
 	//create pointers to meshes
 	std::shared_ptr<Mesh> cubeMesh = std::make_shared<Mesh>(FixPath("../../Assets/Models/cube.obj").c_str());
@@ -383,7 +387,7 @@ void Game::CreateGeometry()
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
-	std::shared_ptr<Material> matBronzePBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
+	std::shared_ptr<Material> matBronzePBR = std::make_shared<Material>(normalMapVS, parallaxPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> matScratchedPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> matPaintPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> matRoughPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
@@ -394,6 +398,7 @@ void Game::CreateGeometry()
 	matBronzePBR->AddTextureSRV("NormalMap", bronzeNormalsSRV);
 	matBronzePBR->AddTextureSRV("RoughnessMap", bronzeRoughnessSRV);
 	matBronzePBR->AddTextureSRV("MetalnessMap", bronzeMetalSRV);
+	matBronzePBR->AddTextureSRV("HeightMap", heightSRV);
 
 	//do it again for scratched metal
 	matScratchedPBR->AddSampler("BasicSampler", sampleState);
@@ -516,11 +521,11 @@ void Game::Update(float deltaTime, float totalTime)
 	//Only update active camera
 	cams[activeCam]->Update(deltaTime);
 
-	//rotate all entities
-	for (size_t i = 0; i < entities.size() - 1; i++)
-	{
-		entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.1f * deltaTime, 0.0f));
-	}
+	////rotate all entities
+	//for (size_t i = 0; i < entities.size() - 1; i++)
+	//{
+	//	entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.1f * deltaTime, 0.0f));
+	//}
 
 	//Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))

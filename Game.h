@@ -109,6 +109,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> ppRTV; //rendering
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> ppSRV; //sampling
 	int blurRadius = 0;
+	float parallaxScale = 0.001f;
+	int parallaxSamples = 5;
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void CreateGeometry();

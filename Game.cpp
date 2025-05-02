@@ -632,6 +632,8 @@ void Game::Draw(float deltaTime, float totalTime)
 			e->GetMaterial()->GetPixelShader()->SetFloat2("resolution", XMFLOAT2(width, height));
 			//pass in deltaTime for pixel shader
 			e->GetMaterial()->GetPixelShader()->SetFloat("deltaTime", deltaTime);
+			e->GetMaterial()->GetPixelShader()->SetFloat("parallaxScale", parallaxScale);
+			e->GetMaterial()->GetPixelShader()->SetInt("parallaxSamples", parallaxSamples);
 			e->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientLight);
 			e->GetMaterial()->GetPixelShader()->SetInt("numLights", int(lights.size())); //number of lights
 			e->GetMaterial()->GetPixelShader()->SetData("lights", //shader variable name
@@ -766,6 +768,13 @@ void Game::DrawUI()
 
 		//Entities
 		if (ImGui::CollapsingHeader("Entities")) {
+
+			//Height/Parallax Mapping
+			if (ImGui::CollapsingHeader("Parallax Mapping")) {
+				ImGui::DragFloat("Scale", &parallaxScale, 0.001f, 0.0f, 0.1f);
+				ImGui::DragInt("Samples", &parallaxSamples, 0.2f, 0, 10);
+			}
+
 			// Alter Matrices of Entities
 			for (size_t i = 0; i < entities.size(); i++)
 			{
@@ -888,6 +897,12 @@ void Game::DrawUI()
 			ImGui::SeparatorText("Shadow Map");
 			ImGui::Image((ImTextureID)shadowSRV.Get(), ImVec2(512, 512));
 			ImGui::Image((ImTextureID)ppSRV.Get(), ImVec2(512, 512));
+		}
+
+		//Post Processing
+		if (ImGui::CollapsingHeader("Post Processing")) {
+			ImGui::SeparatorText("Blur");
+			ImGui::DragInt("Blur Radius", &blurRadius, 0.2f, 0, 10);
 		}
 	}
 

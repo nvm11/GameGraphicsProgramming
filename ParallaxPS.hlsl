@@ -20,6 +20,7 @@ cbuffer ShaderData : register(b0)
     Lights lights[MAX_LIGHTS];
 	
 	//scale of parallax effect
+    int parallaxSamples;
     float parallaxScale;
 };
 
@@ -56,7 +57,7 @@ float4 main(VertexToNormalMapPS input) : SV_TARGET
     float3 view = normalize(cameraPos - input.worldPos);
     float3x3 tbn = CreateTBN(input.normal, input.tangent);
 	
-    input.uv = GetParallaxUV(HeightMap, BasicSampler, input.uv, view, tbn, 5, 0.01);
+    input.uv = GetParallaxUV(HeightMap, BasicSampler, input.uv, view, tbn, 10, parallaxScale);
 	
 
 	//normalize input normal

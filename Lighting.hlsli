@@ -406,6 +406,7 @@ float2 GetParallaxUV(Texture2D HeightMap, SamplerState BasicSampler, float2 uv, 
     float2 dx = ddx(uv);
     float2 dy = ddy(uv);
 // Raymarch through surface
+    [loop]
     for (int i = 0; i < samples; i++)
     {
 // Offset along ray and grab the height there

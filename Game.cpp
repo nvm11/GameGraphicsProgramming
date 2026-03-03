@@ -231,6 +231,31 @@ Game::~Game()
 }
 
 
+void Game::DrawParticles(float totalTime)
+{
+	// Particle drawing =============
+	{
+
+		// Particle states
+		Graphics::Context->OMSetBlendState(particleBlendState.Get(), 0, 0xffffffff);	// Additive blending
+		Graphics::Context->OMSetDepthStencilState(particleDepthState.Get(), 0);		// No depth WRITING
+
+		particleSystem->Draw(cams[activeCam], totalTime, false);
+
+		// Should we also draw them in wireframe?
+		if (Input::KeyDown('C'))
+		{
+			Graphics::Context->RSSetState(particleDebugRasterState.Get());
+			particleSystem->Draw(cams[activeCam], totalTime, true);
+		}
+
+		// Reset to default states for next frame
+		Graphics::Context->OMSetBlendState(0, 0, 0xffffffff);
+		Graphics::Context->OMSetDepthStencilState(0, 0);
+		Graphics::Context->RSSetState(0);
+	}
+}
+
 // --------------------------------------------------------
 // Creates the geometry we're going to draw
 // --------------------------------------------------------
@@ -427,6 +452,76 @@ void Game::CreateGeometry()
 	entities.push_back(std::make_shared<Entity>(meshes[4], matBronzePBR));
 	entities.push_back(std::make_shared<Entity>(meshes[5], matBronzePBR));
 	entities.push_back(std::make_shared<Entity>(meshes[6], matBronzePBR));
+
+
+	// Particles
+
+	// Grab loaded particle resources
+	std::shared_ptr<SimpleVertexShader> particleVS = std::make_shared<SimpleVertexShader>(Graphics::Device, Graphics::Context, FixPath(L"ParticleVS.cso").c_str());
+	std::shared_ptr<SimplePixelShader> particlePS = std::make_shared<SimplePixelShader>(Graphics::Device, Graphics::Context, FixPath(L"ParticlePS.cso").c_str());
+
+	// Create Particle Material
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> fireSpriteSheetSRV;
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/explosion_spritesheet.png").c_str(), 0, fireSpriteSheetSRV.GetAddressOf());
+	std::shared_ptr<Material> fireMat = std::make_shared<Material>(particleVS, particlePS, XMFLOAT3(1, 1, 1));
+	// Add smapler and texture
+	fireMat->AddSampler("BasicSampler", sampleState);
+	fireMat->AddTextureSRV("Particle", fireSpriteSheetSRV);
+
+	particleSystem = std::make_shared<Emitter>(
+		1000,                          // maxParticles
+		100,                            // particlesPerSecond  
+		1.0f,                          // lifetime
+		1.0f,                          // startSize
+		1.0f,                         // endSize
+		false,                         // constrainYAxis
+		XMFLOAT4(1.0f, 1.0f, 0.1f, 1.0f), // startColor (orange)
+		XMFLOAT4(1.0f, 1.0f, 1.0f, 0.0f), // endColor (red, fading out)
+		XMFLOAT3(0.0f, 5.0f, 0.0f),    // startVelocity
+		XMFLOAT3(1.0f, 0.5f, 1.0f),    // velocityRandomRange
+		XMFLOAT3(0.0f, 0.0f, 3.0f),   // emitterPosition
+		XMFLOAT3(0.25f, 0.0f, 0.25f),    // positionRandomRange
+		XMFLOAT2(0.0f, XM_2PI),        // rotationStartMinMax
+		XMFLOAT2(0.0f, XM_2PI),        // rotationEndMinMax
+		XMFLOAT3(0.0f, 0.5f, 0.0f),   // acceleration
+		fireMat,                   // material
+		5,                             // spriteSheetWidth
+		5,                             // spriteSheetHeight
+		1.0f,                          // spriteSheetSpeedScale
+		false,                         // paused
+		true                           // visible
+	);
+
+	// A depth state for the particles
+	D3D11_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = true;
+	dsDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO; // Turns off depth writing
+	dsDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	Graphics::Device->CreateDepthStencilState(&dsDesc, particleDepthState.GetAddressOf());
+
+	// Blend for particles (additive)
+	D3D11_BLEND_DESC blend = {};
+	blend.AlphaToCoverageEnable = false;
+	blend.IndependentBlendEnable = false;
+	blend.RenderTarget[0].BlendEnable = true;
+	blend.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA; // Still respect pixel shader output alpha
+	blend.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	blend.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+	blend.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	Graphics::Device->CreateBlendState(&blend, particleBlendState.GetAddressOf());
+
+	// Debug rasterizer state for particles
+	D3D11_RASTERIZER_DESC rd = {};
+	rd.CullMode = D3D11_CULL_BACK;
+	rd.DepthClipEnable = true;
+	rd.FillMode = D3D11_FILL_WIREFRAME;
+	Graphics::Device->CreateRasterizerState(&rd, particleDebugRasterState.GetAddressOf());
+
+
+
 	//move them for spacing
 	entities[0]->GetTransform().MoveAbsolute(-9, 0, 0);
 	entities[1]->GetTransform().MoveAbsolute(-6, 0, 0);
@@ -442,27 +537,6 @@ void Game::CreateGeometry()
 	floor->GetTransform().SetScale(XMFLOAT3(15.0f, 1.0f, 15.0f));
 	floor->GetTransform().MoveAbsolute(XMFLOAT3(0.0f, -2.0f, 0.0f));
 	entities.push_back(floor);
-
-	//store size of entities
-	size_t count = entities.size();
-	////create more!
-	//for (size_t i = 0; i < count; i++)
-	//{
-	//	//get mesh of entity
-	//	std::shared_ptr<Mesh> mesh = entities[i]->GetMesh();
-	//	//create new entities with normal and uv materials
-	//	std::shared_ptr<Entity> normalMapSky = std::make_shared<Entity>(mesh, matScratchedPBR);
-	//	std::shared_ptr<Entity> noNormalMap = std::make_shared<Entity>(mesh, matRoughPBR);
-	//	//move horizontal
-	//	normalMapSky->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
-	//	noNormalMap->GetTransform().MoveAbsolute(entities[i]->GetTransform().GetPosition());
-	//	//move vertical
-	//	normalMapSky->GetTransform().MoveAbsolute(0, 3, 0);
-	//	noNormalMap->GetTransform().MoveAbsolute(0, 6, 0);
-	//	//add them to entities
-	//	entities.push_back(normalMapSky);
-	//	entities.push_back(noNormalMap);
-	//}
 }
 
 
@@ -526,6 +600,8 @@ void Game::Update(float deltaTime, float totalTime)
 	//{
 	//	entities[i]->GetTransform().Rotate(XMFLOAT3(0.0f, 0.1f * deltaTime, 0.0f));
 	//}
+
+	particleSystem->Update(deltaTime, totalTime);
 
 	//Example input checking: Quit if the escape key is pressed
 	if (Input::KeyDown(VK_ESCAPE))
@@ -648,7 +724,10 @@ void Game::Draw(float deltaTime, float totalTime)
 
 		defaultSky->Draw(cams[activeCam]);
 
-		//stsrt post process
+		//Draw emitter
+		DrawParticles(totalTime);
+
+		//start post process
 		Graphics::Context->OMSetRenderTargets(1, Graphics::BackBufferRTV.GetAddressOf(), 0);
 
 		// Activate shaders and bind resources

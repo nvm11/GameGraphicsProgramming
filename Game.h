@@ -18,6 +18,7 @@
 #include "SimpleShader.h"
 #include "Lights.h"
 #include "Sky.h"
+#include "Emitter.h"
 
 using namespace DirectX;
 
@@ -111,6 +112,13 @@ private:
 	int blurRadius = 0;
 	float parallaxScale = 0.001f;
 	int parallaxSamples = 5;
+
+	// Particles
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> particleDepthState;
+	Microsoft::WRL::ComPtr<ID3D11BlendState> particleBlendState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> particleDebugRasterState;
+	std::shared_ptr<Emitter> particleSystem;
+	void DrawParticles(float totalTime);
 
 	// Initialization helper methods - feel free to customize, combine, remove, etc.
 	void CreateGeometry();

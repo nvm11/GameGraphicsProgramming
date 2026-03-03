@@ -335,10 +335,10 @@ void Game::CreateGeometry()
 
 	//Load textures
 	//create SRVs for textures
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeNormalsSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeMetalSRV;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> bronzeRoughnessSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> concreteSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> concreteNormalsSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> concreteMetalSRV;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> concreteRoughnessSRV;
 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedSRV;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> scratchedNormalsSRV;
@@ -371,21 +371,25 @@ void Game::CreateGeometry()
 	Graphics::Device->CreateSamplerState(&sampleDesc, sampleState.GetAddressOf()); //set sample state
 
 	//Load textures (albedo)
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_albedo.png").c_str(), 0, bronzeSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_albedo.png").c_str(), 0, concreteSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_albedo.png").c_str(), 0, scratchedSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_albedo.png").c_str(), 0, paintSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_albedo.png").c_str(), 0, roughSRV.GetAddressOf());
 	//Load normal maps
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_normals.png").c_str(), 0, bronzeNormalsSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_normals.png").c_str(), 0, concreteNormalsSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_normals.png").c_str(), 0, scratchedNormalsSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_normals.png").c_str(), 0, paintNormalsSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_normals.png").c_str(), 0, roughNormalsSRV.GetAddressOf());
 	//Load metalness
 	//CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/bronze_metal.png").c_str(), 0, bronzeMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_metal.png").c_str(), 0, scratchedMetalSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_metal.png").c_str(), 0, roughMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_metal.png").c_str(), 0, paintMetalSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_metal.png").c_str(), 0, concreteMetalSRV.GetAddressOf());
 	//Load roughness
-	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_roughness.png").c_str(), 0, bronzeRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_roughness.png").c_str(), 0, concreteRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/scratched_roughness.png").c_str(), 0, scratchedRoughnessSRV.GetAddressOf());
+	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/paint_roughness.png").c_str(), 0, paintRoughnessSRV.GetAddressOf());
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/rough_roughness.png").c_str(), 0, roughRoughnessSRV.GetAddressOf());
 	//Load Height Map
 	CreateWICTextureFromFile(Graphics::Device.Get(), Graphics::Context.Get(), FixPath(L"../../Assets/Textures/concrete_height.png").c_str(), 0, heightSRV.GetAddressOf());
@@ -412,18 +416,17 @@ void Game::CreateGeometry()
 	//add all meshes to vector
 	meshes.insert(meshes.end(), { cubeMesh, cylinderMesh, helixMesh, sphereMesh, torusMesh, quadMesh, quad2sidedMesh });
 
-	std::shared_ptr<Material> matBronzePBR = std::make_shared<Material>(normalMapVS, parallaxPixelShader, XMFLOAT3(1, 1, 1));
+	std::shared_ptr<Material> matConcretePBR = std::make_shared<Material>(normalMapVS, parallaxPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> matScratchedPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> matPaintPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 	std::shared_ptr<Material> matRoughPBR = std::make_shared<Material>(normalMapVS, PBRPixelShader, XMFLOAT3(1, 1, 1));
 
 	//add samplers to materials
-	matBronzePBR->AddSampler("BasicSampler", sampleState);
-	matBronzePBR->AddTextureSRV("Albedo", bronzeSRV);
-	matBronzePBR->AddTextureSRV("NormalMap", bronzeNormalsSRV);
-	matBronzePBR->AddTextureSRV("RoughnessMap", bronzeRoughnessSRV);
-	matBronzePBR->AddTextureSRV("MetalnessMap", bronzeMetalSRV);
-	matBronzePBR->AddTextureSRV("HeightMap", heightSRV);
+	matConcretePBR->AddTextureSRV("Albedo", concreteSRV);
+	matConcretePBR->AddTextureSRV("NormalMap", concreteNormalsSRV);
+	matConcretePBR->AddTextureSRV("RoughnessMap", concreteRoughnessSRV);
+	matConcretePBR->AddTextureSRV("MetalnessMap", concreteMetalSRV);
+	matConcretePBR->AddTextureSRV("HeightMap", heightSRV);
 
 	//do it again for scratched metal
 	matScratchedPBR->AddSampler("BasicSampler", sampleState);
@@ -445,13 +448,13 @@ void Game::CreateGeometry()
 	matRoughPBR->AddTextureSRV("MetalnessMap", roughMetalSRV);
 
 	//create initial entities
-	entities.push_back(std::make_shared<Entity>(meshes[0], matBronzePBR));
-	entities.push_back(std::make_shared<Entity>(meshes[1], matBronzePBR));
-	entities.push_back(std::make_shared<Entity>(meshes[2], matBronzePBR));
-	entities.push_back(std::make_shared<Entity>(meshes[3], matBronzePBR));
-	entities.push_back(std::make_shared<Entity>(meshes[4], matBronzePBR));
-	entities.push_back(std::make_shared<Entity>(meshes[5], matBronzePBR));
-	entities.push_back(std::make_shared<Entity>(meshes[6], matBronzePBR));
+	entities.push_back(std::make_shared<Entity>(meshes[0], matScratchedPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[1], matRoughPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[2], matScratchedPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[3], matConcretePBR));
+	entities.push_back(std::make_shared<Entity>(meshes[4], matConcretePBR));
+	entities.push_back(std::make_shared<Entity>(meshes[5], matPaintPBR));
+	entities.push_back(std::make_shared<Entity>(meshes[6], matRoughPBR));
 
 
 	// Particles
@@ -708,8 +711,6 @@ void Game::Draw(float deltaTime, float totalTime)
 			e->GetMaterial()->GetPixelShader()->SetFloat2("resolution", XMFLOAT2(width, height));
 			//pass in deltaTime for pixel shader
 			e->GetMaterial()->GetPixelShader()->SetFloat("deltaTime", deltaTime);
-			e->GetMaterial()->GetPixelShader()->SetFloat("parallaxScale", parallaxScale);
-			e->GetMaterial()->GetPixelShader()->SetInt("parallaxSamples", parallaxSamples);
 			e->GetMaterial()->GetPixelShader()->SetFloat3("ambientColor", ambientLight);
 			e->GetMaterial()->GetPixelShader()->SetInt("numLights", int(lights.size())); //number of lights
 			e->GetMaterial()->GetPixelShader()->SetData("lights", //shader variable name

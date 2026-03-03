@@ -40,6 +40,9 @@
     <Filter Include="Shaders\Particles">
       <UniqueIdentifier>{de3c55ec-6229-48fa-acfa-64ecc1110ff3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Refraction">
+      <UniqueIdentifier>{bc8b7498-c5a7-44af-b989-b3ce677c3d1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -234,6 +237,9 @@
     </FxCompile>
     <FxCompile Include="ParticleVS.hlsl">
       <Filter>Shaders\Particles</Filter>
+    </FxCompile>
+    <FxCompile Include="RefractionPS.hlsl">
+      <Filter>Shaders\Refraction</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

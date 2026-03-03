@@ -78,4 +78,10 @@ struct VertexToPixel_Particle
     float4 color : COLOR;
 };
 
+struct PixelOutput
+{
+    float4 color : SV_TARGET0;
+    float4 silhouette : SV_TARGET1;
+};
+
 #endif

@@ -37,6 +37,9 @@
     <Filter Include="Shaders\PostProcessing">
       <UniqueIdentifier>{06cc8667-e1b8-4960-a693-1ea33edca0af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\Particles">
+      <UniqueIdentifier>{de3c55ec-6229-48fa-acfa-64ecc1110ff3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -97,6 +100,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Sky.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Emitter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -167,6 +173,9 @@
     <ClInclude Include="Sky.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Emitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="NormalMapVS.hlsl">
@@ -221,10 +230,10 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="ParticlePS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Particles</Filter>
     </FxCompile>
     <FxCompile Include="ParticleVS.hlsl">
-      <Filter>Shaders</Filter>
+      <Filter>Shaders\Particles</Filter>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>

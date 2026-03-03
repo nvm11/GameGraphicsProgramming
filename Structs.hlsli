@@ -64,4 +64,18 @@ struct VertexToPixelPP
     float2 uv : TEXCOORD0;
 };
 
+struct VertexShaderInput_Particle
+{
+    float3 localPosition : POSITION;
+    float2 uv : TEXCOORD;
+    float4 color : COLOR;
+};
+
+struct VertexToPixel_Particle
+{
+    float4 screenPosition : SV_POSITION;
+    float2 uv : TEXCOORD;
+    float4 color : COLOR;
+};
+
 #endif
